@@ -1,3 +1,4 @@
+%define		pyver	2.3
 Summary:	Xen is a virtual machine monitor
 Name:		xen
 Version:	2
@@ -6,6 +7,8 @@ Group:		Development/Libraries
 License:	GPL
 URL:		http://www.sourceforge.net/projects/xen/
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-unstable-src.tgz
+BuildRequires:	curl-devel
+BuildRequires:	python-devel
 BuildRequires:	python-Twisted
 BuildRequires:	bridge-utils
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)

@@ -5,8 +5,8 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	2
-Epoch:		0
 Release:	0.20050329.1
+Epoch:		0
 Group:		Development/Libraries
 License:	GPL
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-unstable-src.tgz
@@ -53,20 +53,28 @@ Nie nale¿y byæ zdziwionym, je¶li ten pakiet zje dane, wypije ca³± kawê
 czy bêdzie siê wy¶miewa³ w obecno¶ci przyjació³.
 
 %package devel
-Summary:	Header files and develpment documentation for xen.
+Summary:	Header files for xen
+Summary(pl):	Pliki nag³ówkowe xena
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
-Header files and develpment documentation for xen.
+Header files for xen.
+
+%description devel -l pl
+Pliki nag³ówkowe xena.
 
 %package static
 Summary:	Static xen libraries
+Summary(pl):	Statyczne biblioteki xena
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 
 %description static
 Static xen libraries.
+
+%description static -l pl
+Statyczne biblioteki xena.
 
 %prep
 %setup -q -n xen-unstable

@@ -87,8 +87,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_localstatedir}/%{name}/sv/images/*.png
 %{_localstatedir}/%{name}/sv/images/*.jpg
 %{_localstatedir}/%{name}/sv/*.rpy
-%{_sysconfdir}/init.d/xend
-%{_sysconfdir}/init.d/xendomains
+%attr(755,root,root) %{_sysconfdir}/init.d/xend
+%attr(755,root,root) %{_sysconfdir}/init.d/xendomains
 %dir %{_sysconfdir}/%{name}
 %{_sysconfdir}/%{name}/scripts/block-enbd
 %{_sysconfdir}/%{name}/scripts/block-file

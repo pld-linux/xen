@@ -1,5 +1,6 @@
 # TODO:
 # - pldized init scripts
+# - script for rc-boot
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen

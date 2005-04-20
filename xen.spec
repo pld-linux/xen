@@ -4,13 +4,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	2
-Release:	0.20050329.1
+Version:	3
+Release:	0.20050420.1
 Epoch:		0
 Group:		Development/Libraries
 License:	GPL
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-unstable-src.tgz
-# Source0-md5:	07b260048dda6d4367754366138d49ab
+# Source0-md5:	4430e618e2c55c2f0e198c5970bc175c
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 URL:		http://sourceforge.net/projects/xen/
@@ -100,12 +100,12 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
 
-install -d $RPM_BUILD_ROOT%{_mandir}
-cp -a $RPM_BUILD_ROOT%{_prefix}/man/* $RPM_BUILD_ROOT%{_mandir}
+#install -d $RPM_BUILD_ROOT%{_mandir}
+#cp -a $RPM_BUILD_ROOT%{_prefix}/man/* $RPM_BUILD_ROOT%{_mandir}
 
-install -d doc-html-install/{interface,user}
-cp -a docs/html/interface/*.{png,html,css} doc-html-install/interface
-cp -a docs/html/user/*.{png,html,css} doc-html-install/user
+#install -d doc-html-install/{interface,user}
+#cp -a docs/html/interface/*.{png,html,css} doc-html-install/interface
+#cp -a docs/html/user/*.{png,html,css} doc-html-install/user
 
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 
@@ -137,7 +137,8 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc COPYING ChangeLog README docs/misc/* doc-html-install/*
+#%doc COPYING ChangeLog README docs/misc/* doc-html-install/*
+%doc COPYING ChangeLog README docs/misc/*
 /boot/%{name}-syms
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*

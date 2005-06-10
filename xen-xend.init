@@ -17,7 +17,7 @@ if ! [ -e /proc/xen/privcmd ]; then
 	exit 0
 fi
 
-await_daemons_up
+await_daemons_up()
 {
     	retval=$1
 	i=1

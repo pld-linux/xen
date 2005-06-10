@@ -4,16 +4,16 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	3
-Release:	0.20050420.1
+Version:	2.0.6
+Release:	0
 Epoch:		0
-Group:		Development/Libraries
+Group:		Applications/System
 License:	GPL
-Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-unstable-src.tgz
-# Source0-md5:	4430e618e2c55c2f0e198c5970bc175c
+Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/xen-%{version}-src.tgz
+# Source0-md5:	fcb4ea295b1ecbf7890d48bf721896a8
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
-URL:		http://sourceforge.net/projects/xen/
+URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	curl-devel
 BuildRequires:	python-devel
 BuildRequires:	python-Twisted
@@ -23,6 +23,9 @@ BuildRequires:	libidn-devel
 BuildRequires:	zlib-devel
 BuildRequires:	X11-devel
 BuildRequires:	ncurses-devel
+BuildRequires:	tetex-format-latex
+BuildRequires:	tetex-latex-psnfss
+BuildRequires:	tetex-dvips
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -76,10 +79,22 @@ Static xen libraries.
 %description static -l pl
 Statyczne biblioteki xena.
 
+%package doc
+Summary:	Xen documentation
+Summary(pl):	Dokumentacja xena
+Group:		Applications/System
+Requires:	%{name} = %{epoch}:%{version}-%{release}
+
+%description doc
+Xen documentation.
+
+%description doc -l pl
+Dokumentacja xena.
+
 %prep
-%setup -q -n xen-unstable
+%setup -q -n xen-2.0
 chmod -R u+w .
-echo 'CXXFLAGS+=-I/usr/include/ncurses' >> tools/ioemu/gui/Makefile
+#echo 'CXXFLAGS+=-I/usr/include/ncurses' >> tools/ioemu/gui/Makefile
 
 %build
 CFLAGS="%{rpmcflags}" \
@@ -113,6 +128,9 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 %{py_ocomp} $RPM_BUILD_ROOT%{_libdir}/python
 find $RPM_BUILD_ROOT%{_libdir}/python -name '*.py' -exec rm "{}" ";"
 
+install -d $RPM_BUILD_ROOT%{_datadir}/xen/
+cp -f $RPM_BUILD_ROOT%{_datadir}/doc/xen/pdf/*.pdf $RPM_BUILD_ROOT%{_datadir}/xen/
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -139,12 +157,13 @@ fi
 %defattr(644,root,root,755)
 #%doc COPYING ChangeLog README docs/misc/* doc-html-install/*
 %doc COPYING ChangeLog README docs/misc/*
-/boot/%{name}-syms
+/boot/%{name}-%{version}-syms
+/boot/%{name}-%{version}.gz
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*
 %dir %{_sysconfdir}/xen
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/b*
+#%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/b*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xmexample[12]
 %dir %{_sysconfdir}/xen/auto
 %dir %{_sysconfdir}/xen/scripts
@@ -164,3 +183,8 @@ fi
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
+
+%files doc
+%defattr(644,root,root,755)
+%dir %{_datadir}/xen
+%{_datadir}/xen/*.pdf

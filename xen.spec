@@ -5,7 +5,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	2.0.6
-Release:	0.1
+Release:	0.2
 Epoch:		0
 Group:		Applications/System
 License:	GPL
@@ -13,6 +13,7 @@ Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/xen-%{version}
 # Source0-md5:	fcb4ea295b1ecbf7890d48bf721896a8
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
+Patch0:		%{name}-twisted.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 #Requires:	python-Twisted
 Requires:	python-TwistedWeb
@@ -96,6 +97,7 @@ Dokumentacja xena.
 
 %prep
 %setup -q -n xen-2.0
+%patch0 -p1 
 chmod -R u+w .
 #echo 'CXXFLAGS+=-I/usr/include/ncurses' >> tools/ioemu/gui/Makefile
 
@@ -133,6 +135,10 @@ find $RPM_BUILD_ROOT%{_libdir}/python -name '*.py' -exec rm "{}" ";"
 
 install -d $RPM_BUILD_ROOT%{_datadir}/xen/
 cp -f $RPM_BUILD_ROOT%{_datadir}/doc/xen/pdf/*.pdf $RPM_BUILD_ROOT%{_datadir}/xen/
+
+install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen
+install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/{sv,xend-db}
+install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/xend-db/{domain,vnet}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -177,6 +183,11 @@ fi
 %{_libdir}/python/%{name}
 %attr(755,root,root) %{_libdir}/python/%{name}/lowlevel/*.so
 %{_mandir}/man?/*
+%dir %{_sharedstatedir}/xen
+%dir %{_sharedstatedir}/xen/sv
+%dir %{_sharedstatedir}/xen/xend-db
+%dir %{_sharedstatedir}/xen/xend-db/domain
+%dir %{_sharedstatedir}/xen/xend-db/vnet
 
 %files devel
 %defattr(644,root,root,755)

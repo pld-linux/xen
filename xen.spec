@@ -16,6 +16,7 @@ Source2:	%{name}-xendomains.init
 Patch0:		%{name}-twisted.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 #Requires:	python-Twisted
+Requires:	losetup
 Requires:	python-TwistedWeb
 Requires:	ZopeInterface
 BuildRequires:	curl-devel

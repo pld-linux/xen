@@ -139,7 +139,7 @@ cp -f $RPM_BUILD_ROOT%{_datadir}/doc/xen/pdf/*.pdf $RPM_BUILD_ROOT%{_datadir}/xe
 
 install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen
 install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/{sv,xend-db}
-install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/xend-db/{domain,vnet}
+install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/xend-db/{domain,vnet,migrate}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -189,6 +189,7 @@ fi
 %dir %{_sharedstatedir}/xen/xend-db
 %dir %{_sharedstatedir}/xen/xend-db/domain
 %dir %{_sharedstatedir}/xen/xend-db/vnet
+%dir %{_sharedstatedir}/xen/xend-db/migrate
 
 %files devel
 %defattr(644,root,root,755)

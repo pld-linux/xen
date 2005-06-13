@@ -5,7 +5,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	2.0.6
-Release:	0.2
+Release:	0.3
 Epoch:		0
 Group:		Applications/System
 License:	GPL
@@ -14,8 +14,8 @@ Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/xen-%{version}
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-twisted.patch
+Patch1:		%{name}-scripts.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
-#Requires:	python-Twisted
 Requires:	losetup
 Requires:	python-TwistedWeb
 Requires:	ZopeInterface
@@ -54,7 +54,7 @@ kernel-xen*. Informacje jak u¿ywaæ Xena mo¿na znale¼æ na stronach
 projektu.
 
 Wirtualizacja mo¿e byæ u¿ywana do uruchamiania wielu wersji lub wielu
-dystrybucji Linuksa na jednym systemie lub do testowaania nie
+dystrybucji Linuksa na jednym systemie lub do testowania nie
 zaufanych aplikacji w odizolowanym ¶rodowisku. Nale¿y zauwa¿yæ, ¿e
 technologia Xen jest ci±gle rozwijana, a ten RPM by³ s³abo testowany.
 Nie nale¿y byæ zdziwionym, je¶li ten pakiet zje dane, wypije ca³± kawê
@@ -99,6 +99,7 @@ Dokumentacja xena.
 %prep
 %setup -q -n xen-2.0
 %patch0 -p1 
+%patch1 -p1
 chmod -R u+w .
 #echo 'CXXFLAGS+=-I/usr/include/ncurses' >> tools/ioemu/gui/Makefile
 

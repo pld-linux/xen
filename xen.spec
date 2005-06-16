@@ -19,10 +19,10 @@ URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 Requires:	losetup
 Requires:	python-TwistedWeb
 Requires:	ZopeInterface
+Requires:	bridge-utils
 BuildRequires:	curl-devel
 BuildRequires:	python-devel
 BuildRequires:	python-Twisted
-BuildRequires:	bridge-utils
 BuildRequires:	transfig
 BuildRequires:	libidn-devel
 BuildRequires:	zlib-devel
@@ -31,6 +31,7 @@ BuildRequires:	ncurses-devel
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex-psnfss
 BuildRequires:	tetex-dvips
+BuildRequires:	which
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 

@@ -16,22 +16,22 @@ Source2:	%{name}-xendomains.init
 Patch0:		%{name}-twisted.patch
 Patch1:		%{name}-scripts.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
-Requires:	losetup
-Requires:	python-TwistedWeb
-Requires:	ZopeInterface
-Requires:	bridge-utils
+BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
-BuildRequires:	python-devel
-BuildRequires:	python-Twisted
-BuildRequires:	transfig
 BuildRequires:	libidn-devel
-BuildRequires:	zlib-devel
-BuildRequires:	X11-devel
 BuildRequires:	ncurses-devel
+BuildRequires:	python-Twisted
+BuildRequires:	python-devel
+BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex-psnfss
-BuildRequires:	tetex-dvips
+BuildRequires:	transfig
 BuildRequires:	which
+BuildRequires:	zlib-devel
+Requires:	ZopeInterface
+Requires:	bridge-utils
+Requires:	losetup
+Requires:	python-TwistedWeb
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 

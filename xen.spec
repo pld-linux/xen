@@ -4,13 +4,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	2.0.6
-Release:	0.3
+Version:	2.0.7
+Release:	0.1
 Epoch:		0
 Group:		Applications/System
 License:	GPL
-Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/xen-%{version}-src.tgz
-# Source0-md5:	fcb4ea295b1ecbf7890d48bf721896a8
+Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
+# Source0-md5:	ce09744be2b34ad6ffd8eb15dae2eb1f
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-twisted.patch
@@ -55,11 +55,11 @@ kernel-xen*. Informacje jak u¿ywaæ Xena mo¿na znale¼æ na stronach
 projektu.
 
 Wirtualizacja mo¿e byæ u¿ywana do uruchamiania wielu wersji lub wielu
-dystrybucji Linuksa na jednym systemie lub do testowania nie
-zaufanych aplikacji w odizolowanym ¶rodowisku. Nale¿y zauwa¿yæ, ¿e
-technologia Xen jest ci±gle rozwijana, a ten RPM by³ s³abo testowany.
-Nie nale¿y byæ zdziwionym, je¶li ten pakiet zje dane, wypije ca³± kawê
-czy bêdzie siê wy¶miewa³ w obecno¶ci przyjació³.
+dystrybucji Linuksa na jednym systemie lub do testowania nie zaufanych
+aplikacji w odizolowanym ¶rodowisku. Nale¿y zauwa¿yæ, ¿e technologia
+Xen jest ci±gle rozwijana, a ten RPM by³ s³abo testowany. Nie nale¿y
+byæ zdziwionym, je¶li ten pakiet zje dane, wypije ca³± kawê czy bêdzie
+siê wy¶miewa³ w obecno¶ci przyjació³.
 
 %package devel
 Summary:	Header files for xen
@@ -98,8 +98,8 @@ Xen documentation.
 Dokumentacja xena.
 
 %prep
-%setup -q -n xen-2.0
-%patch0 -p1 
+%setup -q -n %{name}-2.0
+%patch0 -p1
 %patch1 -p1
 chmod -R u+w .
 #echo 'CXXFLAGS+=-I/usr/include/ncurses' >> tools/ioemu/gui/Makefile

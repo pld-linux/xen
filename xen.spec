@@ -22,6 +22,7 @@ BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	python-Twisted
 BuildRequires:	python-devel
+BuildRequires:	rpm-pythonprov
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex-psnfss

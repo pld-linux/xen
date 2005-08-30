@@ -169,7 +169,7 @@ fi
 %defattr(644,root,root,755)
 #%doc COPYING ChangeLog README docs/misc/* doc-html-install/*
 %doc COPYING ChangeLog README docs/misc/*
-/boot/%{name}-%{version}-syms
+/boot/%{name}-syms-%{version}
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*

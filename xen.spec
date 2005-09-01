@@ -4,13 +4,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	2.0.7
-Release:	0.1
+Version:	2.0.6
+Release:	0.3
 Epoch:		0
 Group:		Applications/System
 License:	GPL
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
-# Source0-md5:	ce09744be2b34ad6ffd8eb15dae2eb1f
+# Source0-md5:	fcb4ea295b1ecbf7890d48bf721896a8
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-twisted.patch
@@ -22,7 +22,6 @@ BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	python-Twisted
 BuildRequires:	python-devel
-BuildRequires:	rpm-pythonprov
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex-psnfss
@@ -170,7 +169,7 @@ fi
 %defattr(644,root,root,755)
 #%doc COPYING ChangeLog README docs/misc/* doc-html-install/*
 %doc COPYING ChangeLog README docs/misc/*
-/boot/%{name}-syms-%{version}
+/boot/%{name}-%{version}-syms
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*

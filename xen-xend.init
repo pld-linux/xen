@@ -10,9 +10,6 @@
 # Source function library
 . /etc/rc.d/init.d/functions
 
-# Get network config
-. /etc/sysconfig/network
-
 if ! [ -e /proc/xen/privcmd ]; then
 	exit 0
 fi

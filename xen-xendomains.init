@@ -23,7 +23,7 @@
 # Default-Start:     3 4 5
 # Default-Stop:      0 1 2 6
 # Short-Description: Start/stop secondary xen domains
-# Description:       Start / stop domains automatically when domain 0 
+# Description:       Start / stop domains automatically when domain 0
 #                    boots / shuts down.
 ### END INIT INFO
 
@@ -63,7 +63,7 @@ elif [ -r $INITD/functions ]; then
 	else
 	    failure
 	fi
-	
+
 	echo
     }
 else
@@ -87,7 +87,7 @@ start() {
     # AUTODIR - they could just be symlinks to files elsewhere
     if [ -d $AUTODIR ] && [ $(ls $AUTODIR | wc -l) -gt 0 ]; then
 	touch $LOCKFILE
-	
+
        # Create all domains with config files in AUTODIR.
 	for dom in  $AUTODIR/*; do
 	    xm create --quiet --defconfig $dom
@@ -107,7 +107,7 @@ stop()
     # AUTODIR/*
     # This is because it's easier to do ;-) but arguably if this script is run
     # on system shutdown then it's also the right thing to do.
-    
+
     echo -n $"Shutting down all Xen domains:"
 
     xm shutdown --all --wait --halt

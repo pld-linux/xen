@@ -5,7 +5,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	0.3
+Release:	0.1
 Epoch:		0
 Group:		Applications/System
 License:	GPL
@@ -13,9 +13,8 @@ Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{vers
 # Source0-md5:	544eab940a0734a55459d648e5c3b224
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
-Patch0:		%{name}-twisted.patch
-Patch1:		%{name}-scripts.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
+##BuildRequires:	kernel(xen) = %version
 BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
 BuildRequires:	libidn-devel
@@ -101,9 +100,8 @@ Xen documentation.
 Dokumentacja xena.
 
 %prep
-%setup -q -n %{name}-2.0
-%patch0 -p1
-%patch1 -p1
+%setup -q 
+
 chmod -R u+w .
 #echo 'CXXFLAGS+=-I/usr/include/ncurses' >> tools/ioemu/gui/Makefile
 

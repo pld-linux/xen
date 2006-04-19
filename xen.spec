@@ -4,13 +4,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	2.0.6
+Version:	3.0.2
 Release:	0.3
 Epoch:		0
 Group:		Applications/System
 License:	GPL
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
-# Source0-md5:	fcb4ea295b1ecbf7890d48bf721896a8
+# Source0-md5:	544eab940a0734a55459d648e5c3b224
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-twisted.patch
@@ -33,6 +33,8 @@ Requires:	ZopeInterface
 Requires:	bridge-utils
 Requires:	losetup
 Requires:	python-TwistedWeb
+
+Requires:	kernel(xen) = %version
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 

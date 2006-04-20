@@ -7,31 +7,34 @@ Name:		xen
 Version:	3.0.2
 Release:	0.1
 Epoch:		0
-Group:		Applications/System
 License:	GPL
+Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
 # Source0-md5:	544eab940a0734a55459d648e5c3b224
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
-##BuildRequires:	kernel(xen) = %version
 BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
+##BuildRequires:	kernel(xen) = %version
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	python-Twisted
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
+BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
+Requires(post,preun):	/sbin/chkconfig
 Requires:	ZopeInterface
 Requires:	bridge-utils
 Requires:	losetup
 Requires:	python-TwistedWeb
+Requires:	rc-scripts
 
 Requires:	kernel(xen) = %version
 ExclusiveArch:	%{ix86}
@@ -100,7 +103,7 @@ Xen documentation.
 Dokumentacja xena.
 
 %prep
-%setup -q 
+%setup -q
 
 chmod -R u+w .
 #echo 'CXXFLAGS+=-I/usr/include/ncurses' >> tools/ioemu/gui/Makefile
@@ -156,13 +159,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %preun
 if [ "$1" = "0" ]; then
-#	if [ -f /var/lock/subsys/xend ]; then
-#		/etc/rc.d/init.d/xend stop 1>&2
-#	fi
+	%service xend stop
 	/sbin/chkconfig --del xend
-#	if [ -f /var/lock/subsys/xendomains ]; then
-#		/etc/rc.d/init.d/xendomains stop 1>&2
-#	fi
+
+	%service xendomains stop
 	/sbin/chkconfig --del xendomains
 fi
 

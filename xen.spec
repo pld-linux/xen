@@ -16,7 +16,6 @@ Source2:	%{name}-xendomains.init
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
-##BuildRequires:	kernel(xen) = %version
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	python-Twisted
@@ -35,8 +34,7 @@ Requires:	bridge-utils
 Requires:	losetup
 Requires:	python-TwistedWeb
 Requires:	rc-scripts
-
-Requires:	kernel(xen) = %version
+Requires:	kernel(xen) = %{version}
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 

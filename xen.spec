@@ -5,7 +5,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	0.1
+Release:	0.2
 Epoch:		0
 License:	GPL
 Group:		Applications/System
@@ -13,9 +13,12 @@ Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{vers
 # Source0-md5:	544eab940a0734a55459d648e5c3b224
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
+Patch0:		%{name}-python_scripts.patch
+Patch1:		%{name}-bash_scripts.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
+BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	python-Twisted
@@ -88,36 +91,27 @@ Static xen libraries.
 %description static -l pl
 Statyczne biblioteki xena.
 
-%package doc
-Summary:	Xen documentation
-Summary(pl):	Dokumentacja xena
-Group:		Applications/System
-Requires:	%{name} = %{epoch}:%{version}-%{release}
-
-%description doc
-Xen documentation.
-
-%description doc -l pl
-Dokumentacja xena.
-
 %prep
 %setup -q
+%patch0 -p1
+%patch1 -p1
 
 chmod -R u+w .
-#echo 'CXXFLAGS+=-I/usr/include/ncurses' >> tools/ioemu/gui/Makefile
 
 %build
-CFLAGS="%{rpmcflags}" \
-CXXFLAGS="%{rpmcflags}" \
+CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
+CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 %{__make} xen tools docs \
 	CC="%{__cc}" \
-	CXX="%{__cxx}"
+	CXX="%{__cxx}" 
 
 %install
 rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT/var/run/{xen-hotplug,xend,xenstored}
 
 %{__make} install-xen install-tools install-docs \
-	DESTDIR=$RPM_BUILD_ROOT
+	DESTDIR=$RPM_BUILD_ROOT \
+	XEN_PYTHON_NATIVE_INSTALL=1
 
 install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
@@ -125,25 +119,18 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
 
-#install -d $RPM_BUILD_ROOT%{_mandir}
-#cp -a $RPM_BUILD_ROOT%{_prefix}/man/* $RPM_BUILD_ROOT%{_mandir}
-
-#install -d doc-html-install/{interface,user}
-#cp -a docs/html/interface/*.{png,html,css} doc-html-install/interface
-#cp -a docs/html/user/*.{png,html,css} doc-html-install/user
-
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 
-%{py_comp} $RPM_BUILD_ROOT%{_libdir}/python
-%{py_ocomp} $RPM_BUILD_ROOT%{_libdir}/python
-find $RPM_BUILD_ROOT%{_libdir}/python -name '*.py' -exec rm "{}" ";"
+%{py_comp} $RPM_BUILD_ROOT%{py_sitedir}
+%{py_ocomp} $RPM_BUILD_ROOT%{py_sitedir}
+%{py_comp} $RPM_BUILD_ROOT%{py_sitescriptdir}
+%{py_ocomp} $RPM_BUILD_ROOT%{py_sitescriptdir}
 
-install -d $RPM_BUILD_ROOT%{_datadir}/xen/
-cp -f $RPM_BUILD_ROOT%{_datadir}/doc/xen/pdf/*.pdf $RPM_BUILD_ROOT%{_datadir}/xen/
 
-install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen
-install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/{sv,xend-db}
-install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/xend-db/{domain,vnet,migrate}
+find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
+find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
+rm -rf $RPM_BUILD_ROOT/usr/share/doc/xen
+rm -rf $RPM_BUILD_ROOT/etc/init.d
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -166,13 +153,16 @@ fi
 
 %files
 %defattr(644,root,root,755)
-#%doc COPYING ChangeLog README docs/misc/* doc-html-install/*
 %doc COPYING ChangeLog README docs/misc/*
-/boot/%{name}-%{version}-syms
+%doc docs/html/*
+/boot/%{name}-syms-%{version}
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
+%config(noreplace) %verify(not md5 mtime size) /etc/udev/*
 %dir %{_sysconfdir}/xen
+%attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/qemu-ifup
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*
 #%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/b*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xmexample[12]
@@ -182,15 +172,27 @@ fi
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/lib*.so.*
-%{_libdir}/python/%{name}
-%attr(755,root,root) %{_libdir}/python/%{name}/lowlevel/*.so
+%dir %{_libdir}/%{name}
+%dir %{_libdir}/%{name}/bin
+%attr(744,root,root) %{_libdir}/%{name}/bin/*
+%{_datadir}/xen
+%dir %{py_sitedir}/%{name}
+%dir %{py_sitedir}/%{name}/lowlevel
+%{py_sitedir}/%{name}/lowlevel/*.py*
+%attr(755,root,root) %{py_sitedir}/%{name}/lowlevel/*.so
+%{py_sitedir}/%{name}/sv
+%{py_sitedir}/%{name}/util
+%{py_sitedir}/%{name}/web
+%{py_sitedir}/%{name}/xend
+%{py_sitedir}/%{name}/xm
+%{py_sitedir}/%{name}/*.py*
+%{py_sitescriptdir}/*
 %{_mandir}/man?/*
-%dir %{_sharedstatedir}/xen
-%dir %{_sharedstatedir}/xen/sv
-%dir %{_sharedstatedir}/xen/xend-db
-%dir %{_sharedstatedir}/xen/xend-db/domain
-%dir %{_sharedstatedir}/xen/xend-db/vnet
-%dir %{_sharedstatedir}/xen/xend-db/migrate
+%{_sharedstatedir}/xen
+%{_sharedstatedir}/xenstored
+%dir /var/run/xen-hotplug
+%dir %attr(700,root,root) /var/run/xend
+%dir /var/run/xenstored
 
 %files devel
 %defattr(644,root,root,755)
@@ -200,8 +202,3 @@ fi
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
-
-%files doc
-%defattr(644,root,root,755)
-%dir %{_datadir}/xen
-%{_datadir}/xen/*.pdf

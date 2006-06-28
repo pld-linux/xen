@@ -1,6 +1,10 @@
 # TODO:
 # - pldized init scripts
 # - script for rc-boot
+#
+# Conditional build:
+%bcond_with	pae		# build PAE (HIGHMEM64G) support (SMP kernels use it by default)
+#
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
@@ -104,7 +108,8 @@ CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 %{__make} xen tools docs \
 	CC="%{__cc}" \
-	CXX="%{__cxx}" 
+	CXX="%{__cxx}" \
+	%{?with_pae:XEN_TARGET_X86_PAE=y}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -112,6 +117,7 @@ install -d $RPM_BUILD_ROOT/var/run/{xen-hotplug,xend,xenstored}
 
 %{__make} install-xen install-tools install-docs \
 	DESTDIR=$RPM_BUILD_ROOT \
+	%{?with_pae:XEN_TARGET_X86_PAE=y} \
 	XEN_PYTHON_NATIVE_INSTALL=1
 
 install -d $RPM_BUILD_ROOT/etc/rc.d/init.d

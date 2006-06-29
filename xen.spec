@@ -3,7 +3,7 @@
 # - script for rc-boot
 #
 # Conditional build:
-%bcond_with	pae		# build PAE (HIGHMEM64G) support (SMP kernels use it by default)
+%bcond_without	pae		# build without PAE (HIGHMEM64G) support (PLD Xen* kernels require PAE)
 #
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
@@ -45,6 +45,12 @@ Requires:	kernel(xen) = %{version}
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%ifnarch i686 athlon pentium3 pentium4
+%define		with_pae	0 
+%endif
+
+
 
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run
@@ -107,17 +113,17 @@ chmod -R u+w .
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 %{__make} xen tools docs \
+	%{?with_pae:XEN_TARGET_X86_PAE=y} \
 	CC="%{__cc}" \
-	CXX="%{__cxx}" \
-	%{?with_pae:XEN_TARGET_X86_PAE=y}
+	CXX="%{__cxx}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/var/run/{xen-hotplug,xend,xenstored}
 
 %{__make} install-xen install-tools install-docs \
-	DESTDIR=$RPM_BUILD_ROOT \
 	%{?with_pae:XEN_TARGET_X86_PAE=y} \
+	DESTDIR=$RPM_BUILD_ROOT \
 	XEN_PYTHON_NATIVE_INSTALL=1
 
 install -d $RPM_BUILD_ROOT/etc/rc.d/init.d

@@ -47,10 +47,8 @@ ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %ifnarch i686 athlon pentium3 pentium4
-%define		with_pae	0 
+%undefine	with_pae
 %endif
-
-
 
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run

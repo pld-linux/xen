@@ -19,6 +19,7 @@ Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
+Patch2:		%{name}-bridge_setup.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
@@ -104,6 +105,7 @@ Statyczne biblioteki xena.
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 chmod -R u+w .
 

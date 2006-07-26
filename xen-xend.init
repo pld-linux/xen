@@ -54,10 +54,8 @@ case "$1" in
 	/usr/sbin/xend status
 	;;
   restart|reload|force-reload)
-  	msg_restarting "xend"
-	daemon /usr/sbin/xend restart
-	RETVAL=$?
-	await_daemons_up
+  	$0 stop
+	$0 start
 	;;
   *)
 	# do not advertise unreasonable commands that there is no reason

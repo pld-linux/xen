@@ -9,8 +9,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	0.2
-Epoch:		0
+Release:	0.3
 License:	GPL
 Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
@@ -20,6 +19,7 @@ Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
 Patch2:		%{name}-bridge_setup.patch
+Patch3:		%{name}-xenstore-version.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
@@ -106,6 +106,7 @@ Statyczne biblioteki xena.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 chmod -R u+w .
 
@@ -145,6 +146,8 @@ find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
 rm -rf $RPM_BUILD_ROOT/usr/share/doc/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
 
+cp -ar dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -174,6 +177,7 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %config(noreplace) %verify(not md5 mtime size) /etc/udev/*
+%attr(755,root,root) /etc/hotplug/*
 %dir %{_sysconfdir}/xen
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/qemu-ifup
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*

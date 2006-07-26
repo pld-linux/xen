@@ -53,15 +53,15 @@ case "$1" in
   status)
 	/usr/sbin/xend status
 	;;
-  restart|reload|force-reload)
+  restart|force-reload)
   	$0 stop
 	$0 start
 	;;
   *)
 	# do not advertise unreasonable commands that there is no reason
 	# to use with this device
-	echo $"Usage: $0 {start|stop|status|restart|reload|force-reload}"
-	exit 1
+	echo $"Usage: $0 {start|stop|status|restart|force-reload}"
+	exit 3
 esac
 
 exit $RETVAL

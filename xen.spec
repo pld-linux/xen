@@ -42,7 +42,7 @@ Requires:	bridge-utils
 Requires:	losetup
 Requires:	python-TwistedWeb
 Requires:	rc-scripts
-Requires:	kernel(xen) = %{version}
+Requires:	kernel(xen0) = %{version}
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)

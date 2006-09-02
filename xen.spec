@@ -36,13 +36,14 @@ BuildRequires:	tetex-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
+Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
 Requires:	ZopeInterface
 Requires:	bridge-utils
+Requires:	kernel(xen0) = %{version}
 Requires:	losetup
 Requires:	python-TwistedWeb
 Requires:	rc-scripts
-Requires:	kernel(xen0) = %{version}
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -143,10 +144,10 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 
 find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
 find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
-rm -rf $RPM_BUILD_ROOT/usr/share/doc/xen
+rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
 
-cp -ar dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
+cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT

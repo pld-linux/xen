@@ -8,18 +8,17 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	3.0.2
+Version:	3.0.3_0
 Release:	0.3
 License:	GPL
 Group:		Applications/System
-Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
-# Source0-md5:	544eab940a0734a55459d648e5c3b224
+Source0:	http://bits.xensource.com/oss-xen/release/3.0.3-0/src.tgz/%{name}-%{version}-src.tgz
+# Source0-md5:	75d895858a467405114599abf94d60a2
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
-Patch2:		%{name}-bridge_setup.patch
-Patch3:		%{name}-xenstore-version.patch
+#Patch2:		%{name}-bridge_setup.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
@@ -47,6 +46,8 @@ Requires:	rc-scripts
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_version	%(echo %{version} | sed -e 's/_/-/')
 
 %ifnarch i686 athlon pentium3 pentium4
 %undefine	with_pae
@@ -103,11 +104,10 @@ Static xen libraries.
 Statyczne biblioteki xena.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}-src
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
+#%patch2 -p1
 
 chmod -R u+w .
 
@@ -170,15 +170,15 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc COPYING ChangeLog README docs/misc/*
+%doc COPYING README docs/misc/*
 %doc docs/html/*
-/boot/%{name}-syms-%{version}
-/boot/%{name}-%{version}.gz
+/boot/%{name}-syms-%{_version}
+/boot/%{name}-%{_version}.gz
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %config(noreplace) %verify(not md5 mtime size) /etc/udev/*
-%attr(755,root,root) /etc/hotplug/*
+#%attr(755,root,root) /etc/hotplug/*
 %dir %{_sysconfdir}/xen
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/qemu-ifup
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*

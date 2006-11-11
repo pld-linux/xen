@@ -207,6 +207,7 @@ fi
 %{py_sitescriptdir}/*
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
+%{_sharedstatedir}/xen/save
 %{_sharedstatedir}/xenstored
 %dir /var/run/xen-hotplug
 %dir %attr(700,root,root) /var/run/xend

@@ -47,7 +47,7 @@ Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_version	%(echo %{version} | sed -e 's/_/-/')
+%define		_version	%(echo %{version} |tr _ -)
 
 %ifnarch i686 athlon pentium3 pentium4
 %undefine	with_pae

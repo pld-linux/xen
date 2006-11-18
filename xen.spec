@@ -133,6 +133,7 @@ install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
+install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/save
 
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 
@@ -207,7 +208,6 @@ fi
 %{py_sitescriptdir}/*
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
-%{_sharedstatedir}/xen/save
 %{_sharedstatedir}/xenstored
 %dir /var/run/xen-hotplug
 %dir %attr(700,root,root) /var/run/xend

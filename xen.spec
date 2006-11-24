@@ -19,8 +19,9 @@ Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
 #Patch2:		%{name}-bridge_setup.patch
+Patch3:		%{name}-reisermodule.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
-BuildRequires:	XFree86-devel
+#BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
@@ -108,6 +109,7 @@ Statyczne biblioteki xena.
 %patch0 -p1
 %patch1 -p1
 #%patch2 -p1
+%patch3 -p1
 
 chmod -R u+w .
 

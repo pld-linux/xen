@@ -146,7 +146,7 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 
 
 find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
-find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
+#find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
 
@@ -207,7 +207,7 @@ fi
 %{py_sitedir}/%{name}/xend
 %{py_sitedir}/%{name}/xm
 %{py_sitedir}/%{name}/*.py*
-%{py_sitescriptdir}/*
+#%{py_sitescriptdir}/*
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored

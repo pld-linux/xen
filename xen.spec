@@ -21,7 +21,7 @@ Patch1:		%{name}-bash_scripts.patch
 #Patch2:		%{name}-bridge_setup.patch
 Patch3:		%{name}-reisermodule.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
-#BuildRequires:	XFree86-devel
+BuildRequires:	XFree86-devel
 BuildRequires:	curl-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel

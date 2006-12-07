@@ -3,7 +3,7 @@
 # - script for rc-boot
 #
 # Conditional build:
-%bcond_without	pae		# build without PAE (HIGHMEM64G) support (PLD Xen* kernels require PAE)
+%bcond_with	pae		# build with PAE (HIGHMEM64G) support
 #
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej

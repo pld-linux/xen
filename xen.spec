@@ -41,7 +41,6 @@ BuildRequires:	tetex-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
-%{?with_hvm:BuildRequires:	bin86}
 %{?with_hvm:BuildRequires:	bcc}
 Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig

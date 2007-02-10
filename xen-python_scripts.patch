@@ -124,3 +124,14 @@ diff -urN xen-3.0.3_0-src.orig/tools/xentrace/xentrace_format xen-3.0.3_0-src/to
  
  # by Mark Williamson, (C) 2004 Intel Research Cambridge
  
+--- xen-3.0.4_1-src/tools/check/check_python_devel	2007-01-08 15:00:47.000000000 +0000
++++ xen-3.0.4_1-src/tools/check/check_python_devel	2007-01-10 10:15:10.000000000 +0000
+@@ -5,7 +5,7 @@ RC=0
+ 
+ python -c '
+ import os.path, sys
+ for p in sys.path:
+-	if os.path.exists(p + "/config/Makefile"):
++	if os.path.exists(p + "/../config/Makefile"):
+ 		sys.exit(0)
+ sys.exit(1)

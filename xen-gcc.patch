@@ -1,0 +1,20 @@
+--- xen-3.0.4_1-src/Config.mk	2007-01-08 15:00:44.000000000 +0000
++++ xen-3.0.4_1-src/Config.mk	2007-01-10 10:04:04.000000000 +0000
+@@ -13,7 +13,7 @@ CONFIG_$(XEN_OS) := y
+ 
+ # Tools to run on system hosting the build
+ HOSTCC     = gcc
+-HOSTCFLAGS = -Wall -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS = -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer
+ 
+ DISTDIR     ?= $(XEN_ROOT)/dist
+ DESTDIR     ?= /
+@@ -39,7 +39,7 @@ endif
+ 
+ CFLAGS += -std=gnu99
+ 
+-CFLAGS += -Wall -Wstrict-prototypes
++CFLAGS += -Wstrict-prototypes 
+ 
+ # -Wunused-value makes GCC 4.x too aggressive for my taste: ignoring the
+ # result of any casted expression causes a warning.

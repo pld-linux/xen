@@ -8,25 +8,29 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	3.0.3_0
-Release:	0.3
+%define		_major	3.0.4
+%define		_minor	1
+Version:	%{_major}_%{_minor}
+Release:	0.4
 License:	GPL
 Group:		Applications/System
-Source0:	http://bits.xensource.com/oss-xen/release/3.0.3-0/src.tgz/%{name}-%{version}-src.tgz
-# Source0-md5:	75d895858a467405114599abf94d60a2
+Source0:	http://bits.xensource.com/oss-xen/release/%{_major}-%{_minor}/src.tgz/%{name}-%{version}-src.tgz
+# Source0-md5:	e85e16ad3dc354338e3ac4a8951f9649
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
 #Patch2:		%{name}-bridge_setup.patch
 Patch3:		%{name}-reisermodule.patch
+Patch4:		%{name}-gcc.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
-BuildRequires:	XFree86-devel
+BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	curl-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
-BuildRequires:	python-Twisted
+BuildRequires:	python-TwistedCore
+BuildRequires:	python-TwistedWeb
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.268
@@ -40,7 +44,7 @@ Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
 Requires:	ZopeInterface
 Requires:	bridge-utils
-Requires:	kernel(xen0) = %{version}
+Requires:	kernel(xen0) = %{_major}
 Requires:	losetup
 Requires:	python-TwistedWeb
 Requires:	rc-scripts
@@ -109,9 +113,13 @@ Statyczne biblioteki xena.
 %patch0 -p1
 %patch1 -p1
 #%patch2 -p1
-%patch3 -p1
+#%patch3 -p1
+%patch4 -p1
+
+find . -iregex .*.orig -exec rm {} \;
 
 chmod -R u+w .
+
 
 %build
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
@@ -196,7 +204,11 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
+%dir %{_libdir}/%{name}/boot
+%attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
 %{_datadir}/xen
+%{py_sitedir}/fsimage.so
+%{py_sitedir}/grub
 %dir %{py_sitedir}/%{name}
 %dir %{py_sitedir}/%{name}/lowlevel
 %{py_sitedir}/%{name}/lowlevel/*.py*
@@ -218,6 +230,11 @@ fi
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/lib*.so
+%dir %{_libdir}/fs
+%dir %{_libdir}/fs/ext2fs
+%dir %{_libdir}/fs/reiserfs
+%dir %{_libdir}/fs/ufs
+%attr(755,root,root) %{_libdir}/fs/*/*.so
 %{_includedir}/*
 
 %files static

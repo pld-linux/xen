@@ -4,6 +4,7 @@
 #
 # Conditional build:
 %bcond_with	pae		# build with PAE (HIGHMEM64G) support
+%bcond_with	hvm		# build with hvm (full virtualization) support
 #
 Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
@@ -40,6 +41,8 @@ BuildRequires:	tetex-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
+%{?with_hvm:BuildRequires:	bin86}
+%{?with_hvm:BuildRequires:	bcc}
 Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
 Requires:	ZopeInterface
@@ -204,8 +207,10 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
+%if %{with hvm}
 %dir %{_libdir}/%{name}/boot
 %attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
+%endif
 %{_datadir}/xen
 %{py_sitedir}/fsimage.so
 %{py_sitedir}/grub

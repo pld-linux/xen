@@ -7,7 +7,7 @@
 %bcond_with	hvm		# build with hvm (full virtualization) support
 #
 Summary:	Xen - a virtual machine monitor
-Summary(pl.UTF-8):   Xen - monitor maszyny wirtualnej
+Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 %define		_major	3.0.4
 %define		_minor	1
@@ -88,7 +88,7 @@ się wyśmiewał w obecności przyjaciół.
 
 %package devel
 Summary:	Header files for xen
-Summary(pl.UTF-8):   Pliki nagłówkowe xena
+Summary(pl.UTF-8):	Pliki nagłówkowe xena
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
@@ -100,7 +100,7 @@ Pliki nagłówkowe xena.
 
 %package static
 Summary:	Static xen libraries
-Summary(pl.UTF-8):   Statyczne biblioteki xena
+Summary(pl.UTF-8):	Statyczne biblioteki xena
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 

@@ -7,7 +7,7 @@
 %bcond_with	hvm		# build with hvm (full virtualization) support
 #
 Summary:	Xen - a virtual machine monitor
-Summary(pl):	Xen - monitor maszyny wirtualnej
+Summary(pl.UTF-8):   Xen - monitor maszyny wirtualnej
 Name:		xen
 %define		_major	3.0.4
 %define		_minor	1
@@ -73,41 +73,41 @@ development, and this RPM has received extremely little testing. Don't
 be surprised if this RPM eats your data, drinks your coffee or makes
 fun of you in front of your friends.
 
-%description -l pl
-Ten pakiet zawiera nadzorcê oraz narzêdzia Xen, potrzebne do
+%description -l pl.UTF-8
+Ten pakiet zawiera nadzorcÄ™ oraz narzÄ™dzia Xen, potrzebne do
 uruchamiania wirtualnych maszyn w systemach x86, wraz z pakietami
-kernel-xen*. Informacje jak u¿ywaæ Xena mo¿na znale¼æ na stronach
+kernel-xen*. Informacje jak uÅ¼ywaÄ‡ Xena moÅ¼na znaleÅºÄ‡ na stronach
 projektu.
 
-Wirtualizacja mo¿e byæ u¿ywana do uruchamiania wielu wersji lub wielu
+Wirtualizacja moÅ¼e byÄ‡ uÅ¼ywana do uruchamiania wielu wersji lub wielu
 dystrybucji Linuksa na jednym systemie lub do testowania nie zaufanych
-aplikacji w odizolowanym ¶rodowisku. Nale¿y zauwa¿yæ, ¿e technologia
-Xen jest ci±gle rozwijana, a ten RPM by³ s³abo testowany. Nie nale¿y
-byæ zdziwionym, je¶li ten pakiet zje dane, wypije ca³± kawê czy bêdzie
-siê wy¶miewa³ w obecno¶ci przyjació³.
+aplikacji w odizolowanym Å›rodowisku. NaleÅ¼y zauwaÅ¼yÄ‡, Å¼e technologia
+Xen jest ciÄ…gle rozwijana, a ten RPM byÅ‚ sÅ‚abo testowany. Nie naleÅ¼y
+byÄ‡ zdziwionym, jeÅ›li ten pakiet zje dane, wypije caÅ‚Ä… kawÄ™ czy bÄ™dzie
+siÄ™ wyÅ›miewaÅ‚ w obecnoÅ›ci przyjaciÃ³Å‚.
 
 %package devel
 Summary:	Header files for xen
-Summary(pl):	Pliki nag³ówkowe xena
+Summary(pl.UTF-8):   Pliki nagÅ‚Ã³wkowe xena
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files for xen.
 
-%description devel -l pl
-Pliki nag³ówkowe xena.
+%description devel -l pl.UTF-8
+Pliki nagÅ‚Ã³wkowe xena.
 
 %package static
 Summary:	Static xen libraries
-Summary(pl):	Statyczne biblioteki xena
+Summary(pl.UTF-8):   Statyczne biblioteki xena
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 
 %description static
 Static xen libraries.
 
-%description static -l pl
+%description static -l pl.UTF-8
 Statyczne biblioteki xena.
 
 %prep

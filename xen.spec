@@ -12,7 +12,7 @@ Name:		xen
 %define		_major	3.0.4
 %define		_minor	1
 Version:	%{_major}_%{_minor}
-Release:	0.4
+Release:	0.5
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{_major}-%{_minor}/src.tgz/%{name}-%{version}-src.tgz
@@ -24,6 +24,7 @@ Patch1:		%{name}-bash_scripts.patch
 #Patch2:		%{name}-bridge_setup.patch
 Patch3:		%{name}-reisermodule.patch
 Patch4:		%{name}-gcc.patch
+Patch5:		%{name}-blktap-no-aio-epoll.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	curl-devel
@@ -117,6 +118,7 @@ Statyczne biblioteki xena.
 #%patch2 -p1
 #%patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 find . -iregex .*.orig -exec rm {} \;
 

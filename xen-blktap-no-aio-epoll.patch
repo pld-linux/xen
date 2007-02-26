@@ -1,0 +1,205 @@
+--- a/tools/blktap/drivers/block-aio.c	2006-09-21 13:45:44.000000000 +0100
++++ b/tools/blktap/drivers/block-aio.c	2006-09-21 19:58:18.000000000 +0100
+@@ -38,20 +38,13 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
++#include <pthread.h>
+ #include <sys/statvfs.h>
+ #include <sys/stat.h>
+ #include <sys/ioctl.h>
+ #include <linux/fs.h>
+ #include "tapdisk.h"
+ 
+-
+-/**
+- * We used a kernel patch to return an fd associated with the AIO context
+- * so that we can concurrently poll on synchronous and async descriptors.
+- * This is signalled by passing 1 as the io context to io_setup.
+- */
+-#define REQUEST_ASYNC_FD 1
+-
+ #define MAX_AIO_REQS (MAX_REQUESTS * MAX_SEGMENTS_PER_REQ)
+ 
+ struct pending_aio {
+@@ -71,19 +64,24 @@
+ 	int                iocb_free_count;
+ 	struct iocb       *iocb_queue[MAX_AIO_REQS];
+ 	int                iocb_queued;
+-	int                poll_fd; /* NB: we require aio_poll support */
+ 	struct io_event    aio_events[MAX_AIO_REQS];
++
++	pthread_t	   aio_thread;
++	/* pipe fds for communication with the aio completion thread */
++	int		   command_fd[2];
++	int		   completion_fd[2];
+ };
+ 
+ #define IOCB_IDX(_s, _io) ((_io) - (_s)->iocb_list)
+ 
++static void *tdaio_completion_thread(void *);
++
+ /*Get Image size, secsize*/
+ static int get_image_info(struct td_state *s, int fd)
+ {
+ 	int ret;
+ 	long size;
+ 	unsigned long total_size;
+-	struct statvfs statBuf;
+ 	struct stat stat;
+ 
+ 	ret = fstat(fd, &stat);
+@@ -108,7 +106,6 @@
+ 		/*Get the sector size*/
+ #if defined(BLKSSZGET)
+ 		{
+-			int arg;
+ 			s->sector_size = DEFAULT_SECTOR_SIZE;
+ 			ioctl(fd, BLKSSZGET, &s->sector_size);
+ 			
+@@ -151,11 +148,10 @@
+ 	prv->iocb_free_count = MAX_AIO_REQS;
+ 	prv->iocb_queued     = 0;
+ 	
+-	prv->aio_ctx = (io_context_t) REQUEST_ASYNC_FD;
+-	prv->poll_fd = io_setup(MAX_AIO_REQS, &prv->aio_ctx);
++	prv->aio_ctx = (io_context_t) 0;
++	ret = io_setup(MAX_AIO_REQS, &prv->aio_ctx);
+ 
+-	if (prv->poll_fd < 0) {
+-		ret = prv->poll_fd;
++	if (ret < 0) {
+                 if (ret == -EAGAIN) {
+                         DPRINTF("Couldn't setup AIO context.  If you are "
+                                 "trying to concurrently use a large number "
+@@ -164,9 +160,7 @@
+                                 "(e.g. 'echo echo 1048576 > /proc/sys/fs/"
+                                 "aio-max-nr')\n");
+                 } else {
+-                        DPRINTF("Couldn't get fd for AIO poll support.  This "
+-                                "is probably because your kernel does not "
+-                                "have the aio-poll patch applied.\n");
++                        DPRINTF("Couldn't setup AIO context.\n");
+                 }
+ 		goto done;
+ 	}
+@@ -194,6 +188,15 @@
+ 
+         prv->fd = fd;
+ 
++	pipe(prv->command_fd);
++	pipe(prv->completion_fd);
++	
++	ret = pthread_create(&prv->aio_thread, NULL, 
++			     tdaio_completion_thread, prv);
++	ret = 0;
++	write(prv->command_fd[1], &ret, sizeof(ret));
++
++			     
+ 	ret = get_image_info(s, fd);
+ done:
+ 	return ret;	
+@@ -281,7 +284,7 @@
+ 	/*initialise the FD array*/
+ 	for(i=0;i<MAX_IOFD;i++) fds[i] = 0;
+ 
+-	fds[0] = prv->poll_fd;
++	fds[0] = prv->completion_fd[0];
+ 
+ 	return fds;	
+ }
+@@ -296,17 +299,61 @@
+ 	return 0;
+ }
+ 
++/* 
++ * We don't have any way to do epoll on aio events in a normal kernel, so
++ * wait for aio events in a separate thread and return completion status 
++ * that via a pipe that can be waited on normally.
++ * 
++ * To keep locking problems between the completion thread and the submit
++ * thread to a minimum, there's a handshake which allows only one thread
++ * to be doing work on the completion queue at a time:
++ * 
++ * 1) main thread sends completion thread a command via the command pipe;
++ * 2) completion thread waits for aio events and returns the number 
++ *    received on the completion pipe
++ * 3) main thread processes the received prv->aio_events events
++ * 4) loop back to 1) to let the completion thread refill the aio_events 
++ *    buffer.
++ *
++ * This workaround needs to disappear once the kernel provides a single
++ * mechanism for waiting on both aio and normal fd wakeups.
++ */
++
++static void *tdaio_completion_thread(void *arg)
++{
++	struct tdaio_state *prv = (struct tdaio_state *) arg;
++	int command;
++	int nr_events;
++	int rc;
++	
++	while (1) {
++		rc = read(prv->command_fd[0], &command, sizeof(command));
++
++		do {
++			/* Non-blocking test for completed io. */
++			rc = io_getevents(prv->aio_ctx, 0, 
++					  MAX_AIO_REQS, prv->aio_events,
++					  NULL);
++			if (rc) {
++				nr_events = rc;
++				rc = write(prv->completion_fd[1], &nr_events, 
++					   sizeof(nr_events));
++			}
++		} while (!rc);
++	}
++}
++
+ int tdaio_do_callbacks(struct td_state *s, int sid)
+ {
+-	int ret, i, rsp = 0;
++	int ret, i, nr_events, rsp = 0;
+ 	struct io_event *ep;
+ 	struct tdaio_state *prv = (struct tdaio_state *)s->private;
+ 
+ 	/* Non-blocking test for completed io. */
+-	ret = io_getevents(prv->aio_ctx, 0, MAX_AIO_REQS, prv->aio_events,
+-			   NULL);
+-			
+-	for (ep=prv->aio_events,i=ret; i-->0; ep++) {
++	ret = read(prv->completion_fd[0], &nr_events, sizeof(nr_events));
++
++repeat:	
++	for (ep=prv->aio_events,i=nr_events; i-->0; ep++) {
+ 		struct iocb        *io  = ep->obj;
+ 		struct pending_aio *pio;
+ 		
+@@ -320,6 +367,16 @@
+ 
+ 		prv->iocb_free[prv->iocb_free_count++] = io;
+ 	}
++
++	if (nr_events) {
++		nr_events = io_getevents(prv->aio_ctx, 0, 
++					 MAX_AIO_REQS, prv->aio_events,
++					 NULL);
++		goto repeat;
++	}
++
++	write(prv->command_fd[1], &nr_events, sizeof(nr_events));
++
+ 	return rsp;
+ }
+ 	
+--- xen-unstable-11539/tools/blktap/drivers/block-aio.c.~1~	2006-09-25 19:27:39.000000000 +0100
++++ xen-unstable-11539/tools/blktap/drivers/block-aio.c	2006-09-25 20:00:24.000000000 +0100
+@@ -331,7 +331,7 @@
+ 
+ 		do {
+ 			/* Non-blocking test for completed io. */
+-			rc = io_getevents(prv->aio_ctx, 0, 
++			rc = io_getevents(prv->aio_ctx, 1, 
+ 					  MAX_AIO_REQS, prv->aio_events,
+ 					  NULL);
+ 			if (rc) {

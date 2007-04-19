@@ -26,8 +26,8 @@ Patch3:		%{name}-reisermodule.patch
 Patch4:		%{name}-gcc.patch
 Patch5:		%{name}-blktap-no-aio-epoll.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
-BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	curl-devel
+BuildRequires:	e2fsprogs-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
@@ -41,6 +41,7 @@ BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
+BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	zlib-devel
 %{?with_hvm:BuildRequires:	bcc}
 Requires(post):	/sbin/ldconfig
@@ -237,7 +238,7 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/lib*.so
 %dir %{_libdir}/fs
-%dir %{_libdir}/fs/ext2fs
+%dir %{_libdir}/fs/ext2fs-lib
 %dir %{_libdir}/fs/reiserfs
 %dir %{_libdir}/fs/ufs
 %attr(755,root,root) %{_libdir}/fs/*/*.so

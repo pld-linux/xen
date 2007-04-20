@@ -31,8 +31,6 @@ BuildRequires:	e2fsprogs-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
-BuildRequires:	python-TwistedCore
-BuildRequires:	python-TwistedWeb
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.268
@@ -41,7 +39,6 @@ BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
-BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	zlib-devel
 %{?with_hvm:BuildRequires:	bcc}
 Requires(post):	/sbin/ldconfig
@@ -50,7 +47,6 @@ Requires:	ZopeInterface
 Requires:	bridge-utils
 Requires:	kernel(xen0) = %{_major}
 Requires:	losetup
-Requires:	python-TwistedWeb
 Requires:	rc-scripts
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86}

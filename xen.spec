@@ -41,7 +41,6 @@ BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
 %{?with_hvm:BuildRequires:	bcc}
-Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
 Requires:	ZopeInterface
 Requires:	bridge-utils
@@ -84,11 +83,22 @@ Xen jest ciągle rozwijana, a ten RPM był słabo testowany. Nie należy
 być zdziwionym, jeśli ten pakiet zje dane, wypije całą kawę czy będzie
 się wyśmiewał w obecności przyjaciół.
 
+%package libs
+Summary:	xen libraries
+Summary(pl.UTF-8):	Biblioteki xena
+Group:		Libraries
+
+%description libs
+xen libraries.
+
+%description libs -l pl.UTF-8
+Biblioteki xena.
+
 %package devel
 Summary:	Header files for xen
 Summary(pl.UTF-8):	Pliki nagłówkowe xena
 Group:		Development/Libraries
-Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files for xen.
@@ -165,11 +175,8 @@ cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
 rm -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
 /sbin/chkconfig --add xend
 /sbin/chkconfig --add xendomains
-
-%postun -p /sbin/ldconfig
 
 %preun
 if [ "$1" = "0" ]; then
@@ -179,6 +186,9 @@ if [ "$1" = "0" ]; then
 	%service xendomains stop
 	/sbin/chkconfig --del xendomains
 fi
+
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
@@ -201,7 +211,6 @@ fi
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/scripts/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_libdir}/lib*.so.*
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
@@ -230,14 +239,18 @@ fi
 %dir %attr(700,root,root) /var/run/xend
 %dir /var/run/xenstored
 
-%files devel
+%files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/lib*.so
+%attr(755,root,root) %{_libdir}/lib*.so.*
 %dir %{_libdir}/fs
 %dir %{_libdir}/fs/ext2fs-lib
 %dir %{_libdir}/fs/reiserfs
 %dir %{_libdir}/fs/ufs
 %attr(755,root,root) %{_libdir}/fs/*/*.so
+
+%files devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/lib*.so
 %{_includedir}/*
 
 %files static

@@ -48,7 +48,7 @@ Requires:	kernel(xen0) = %{_major}
 Requires:	losetup
 Requires:	rc-scripts
 Obsoletes:	xen-doc
-ExclusiveArch:	%{ix86}
+ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_version	%(echo %{version} |tr _ -)

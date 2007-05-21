@@ -22,6 +22,7 @@ Patch2:		%{name}-bridge_setup.patch
 Patch3:		%{name}-xenstore-version.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	XFree86-devel
+BuildRequires:	bcc
 BuildRequires:	curl-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
@@ -143,7 +144,7 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 
 
 find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
-find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
+#find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
 
@@ -193,7 +194,10 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
+%dir %{_libdir}/%{name}/boot
+%attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
 %{_datadir}/xen
+%{py_sitedir}/grub
 %dir %{py_sitedir}/%{name}
 %dir %{py_sitedir}/%{name}/lowlevel
 %{py_sitedir}/%{name}/lowlevel/*.py*
@@ -204,7 +208,7 @@ fi
 %{py_sitedir}/%{name}/xend
 %{py_sitedir}/%{name}/xm
 %{py_sitedir}/%{name}/*.py*
-%{py_sitescriptdir}/*
+#%{py_sitescriptdir}/*
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored

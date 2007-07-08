@@ -9,7 +9,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	0.3
+Release:	0.4
 License:	GPL
 Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
@@ -22,7 +22,9 @@ Patch2:		%{name}-bridge_setup.patch
 Patch3:		%{name}-xenstore-version.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	XFree86-devel
+%ifarch %{ix86}
 BuildRequires:	bcc
+%endif
 BuildRequires:	curl-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
@@ -46,7 +48,7 @@ Requires:	losetup
 Requires:	python-TwistedWeb
 Requires:	rc-scripts
 Obsoletes:	xen-doc
-ExclusiveArch:	%{ix86}
+ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %ifnarch i686 athlon pentium3 pentium4
@@ -194,10 +196,12 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
+%ifarch %{ix86}
 %dir %{_libdir}/%{name}/boot
 %attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
+%endif
 %{_datadir}/xen
-%{py_sitedir}/grub
+%{py_sitescriptdir}/grub
 %dir %{py_sitedir}/%{name}
 %dir %{py_sitedir}/%{name}/lowlevel
 %{py_sitedir}/%{name}/lowlevel/*.py*

@@ -25,6 +25,7 @@ BuildRequires:	XFree86-devel
 %ifarch %{ix86}
 BuildRequires:	bcc
 %endif
+BuildRequires:	cpp
 BuildRequires:	curl-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel

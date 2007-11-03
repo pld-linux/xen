@@ -9,7 +9,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	0.4
+Release:	0.5
 License:	GPL
 Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz

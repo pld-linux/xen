@@ -20,7 +20,10 @@ Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
 Patch2:		%{name}-bridge_setup.patch
 Patch3:		%{name}-xenstore-version.patch
+Patch4:		%{name}-reisermodule.patch
+Patch5:		%{name}-libvncserver-detect-fix.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
+BuildRequires:	SDL-devel
 BuildRequires:	XFree86-devel
 %ifarch %{ix86}
 BuildRequires:	bcc
@@ -29,6 +32,7 @@ BuildRequires:	cpp
 BuildRequires:	curl-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
+BuildRequires:	libvncserver-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	python-Twisted
 BuildRequires:	python-devel
@@ -112,6 +116,8 @@ Statyczne biblioteki xena.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 chmod -R u+w .
 
@@ -137,6 +143,7 @@ install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
+install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/save
 
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 

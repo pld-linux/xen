@@ -3,12 +3,12 @@
 @@ -13,7 +13,7 @@ CONFIG_$(XEN_OS) := y
  
  # Tools to run on system hosting the build
- HOSTCC     = gcc
--HOSTCFLAGS = -Wall -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer
-+HOSTCFLAGS = -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer
- 
- DISTDIR     ?= $(XEN_ROOT)/dist
- DESTDIR     ?= /
+ HOSTCC      = gcc
+-HOSTCFLAGS  = -Wall -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS  = -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer
+ HOSTCFLAGS += -fno-strict-aliasing
+ HOSTCFLAGS_x86_32 = -m32
+ HOSTCFLAGS_x86_64 = -m64
 @@ -39,7 +39,7 @@ endif
  
  CFLAGS += -std=gnu99
@@ -18,3 +18,25 @@
  
  # -Wunused-value makes GCC 4.x too aggressive for my taste: ignoring the
  # result of any casted expression causes a warning.
+--- xen-3.2.0-rc4/tools/blktap/drivers/Makefile~	2007-11-02 19:29:31.000000000 +0100
++++ xen-3.2.0-rc4/tools/blktap/drivers/Makefile	2007-12-25 17:26:40.922320015 +0100
+@@ -8,7 +8,7 @@
+ INST_DIR     = /usr/sbin
+ LIBAIO_DIR   = ../../libaio/src
+ 
+-CFLAGS   += -Werror
++#CFLAGS   += -Werror
+ CFLAGS   += -Wno-unused
+ CFLAGS   += -I $(XEN_LIBXC) -I $(LIBAIO_DIR)
+ CFLAGS   += $(INCLUDES) -I. -I../../xenstore 
+--- xen-3.2.0-rc4/tools/libxc/xc_ptrace_core.c~	2007-11-02 19:29:33.000000000 +0100
++++ xen-3.2.0-rc4/tools/libxc/xc_ptrace_core.c	2007-12-25 19:29:38.411444951 +0100
+@@ -653,7 +653,7 @@
+ xc_waitdomain_core(int xc_handle, int domfd, int *status, int options,
+                    vcpu_guest_context_t *ctxt)
+ {
+-    int ret;
++    int ret = -1;
+     int i;
+ 
+     for (i = 0; i < NR_FORMAT_TYPE; i++) {

@@ -1,3 +1,9 @@
+#
+# NOTE:
+# - this is userspace for xen-3.2.0 (provided by kernel-xen.spec)
+#   if you are looking for xen-3.0.2 (kernel.spec:LINUX_2_6_16), checkout
+#   this spec from XEN_3_0_2 branch
+#
 # TODO:
 # - pldized init scripts
 # - script for rc-boot
@@ -9,22 +15,19 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-%define		_major	3.0.4
-%define		_minor	1
+%define		_major	3.2.0
+%define		_minor	0.rc4
 Version:	%{_major}_%{_minor}
-Release:	0.5
+Release:	0.3
 License:	GPL
 Group:		Applications/System
-Source0:	http://bits.xensource.com/oss-xen/release/%{_major}-%{_minor}/src.tgz/%{name}-%{version}-src.tgz
-# Source0-md5:	e85e16ad3dc354338e3ac4a8951f9649
+#Source0:	http://bits.xensource.com/oss-xen/release/%{_major}-%{_minor}/src.tgz/%{name}-%{version}-src.tgz
+Source0:	%{name}-%{_major}-rc4.tar.bz2
+# Source0-md5:	bc6e3262739b1c40d85d4aace22e7cb3
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
-Patch1:		%{name}-bash_scripts.patch
-#Patch2:		%{name}-bridge_setup.patch
-Patch3:		%{name}-reisermodule.patch
-Patch4:		%{name}-gcc.patch
-Patch5:		%{name}-blktap-no-aio-epoll.patch
+Patch1:		%{name}-gcc.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	curl-devel
 BuildRequires:	e2fsprogs-devel
@@ -51,7 +54,8 @@ Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_version	%(echo %{version} |tr _ -)
+#%define		_version	%(echo %{version} |tr _ -)
+%define		_version	%{_major}-rc4-pre
 
 %ifnarch i686 athlon pentium3 pentium4
 %undefine	with_pae
@@ -94,6 +98,20 @@ xen libraries.
 %description libs -l pl.UTF-8
 Biblioteki xena.
 
+%package hotplug
+Summary:	xen hotplug
+Group:		Application/System
+
+%description hotplug
+xen hotplug.
+
+%package udev
+Summary:	xen udev
+Group:		Application/System
+
+%description udev
+xen udev.
+
 %package devel
 Summary:	Header files for xen
 Summary(pl.UTF-8):	Pliki nagłówkowe xena
@@ -119,23 +137,18 @@ Static xen libraries.
 Statyczne biblioteki xena.
 
 %prep
-%setup -q -n %{name}-%{version}-src
+%setup -q -n %{name}-%{_major}-rc4
 %patch0 -p1
 %patch1 -p1
-#%patch2 -p1
-#%patch3 -p1
-%patch4 -p1
-%patch5 -p1
 
 find . -iregex .*.orig -exec rm {} \;
 
 chmod -R u+w .
 
-
 %build
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
-%{__make} xen tools docs \
+%{__make} -j1 xen tools \
 	%{?with_pae:XEN_TARGET_X86_PAE=y} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}"
@@ -163,13 +176,15 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 %{py_comp} $RPM_BUILD_ROOT%{py_sitescriptdir}
 %{py_ocomp} $RPM_BUILD_ROOT%{py_sitescriptdir}
 
+cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
 
-find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
+# remove unneeded files
+#find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
 #find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
-
-cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
+rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
+rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -199,8 +214,6 @@ fi
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
-%config(noreplace) %verify(not md5 mtime size) /etc/udev/*
-#%attr(755,root,root) /etc/hotplug/*
 %dir %{_sysconfdir}/xen
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/qemu-ifup
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*
@@ -214,10 +227,8 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
-%if %{with hvm}
 %dir %{_libdir}/%{name}/boot
 %attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
-%endif
 %{_datadir}/xen
 %{py_sitedir}/fsimage.so
 %{py_sitedir}/grub
@@ -230,7 +241,9 @@ fi
 %{py_sitedir}/%{name}/web
 %{py_sitedir}/%{name}/xend
 %{py_sitedir}/%{name}/xm
+%{py_sitedir}/%{name}/xsview
 %{py_sitedir}/%{name}/*.py*
+%{py_sitedir}/*.egg-info
 #%{py_sitescriptdir}/*
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
@@ -244,9 +257,19 @@ fi
 %attr(755,root,root) %{_libdir}/lib*.so.*
 %dir %{_libdir}/fs
 %dir %{_libdir}/fs/ext2fs-lib
+%dir %{_libdir}/fs/fat
+%dir %{_libdir}/fs/iso9660
 %dir %{_libdir}/fs/reiserfs
 %dir %{_libdir}/fs/ufs
 %attr(755,root,root) %{_libdir}/fs/*/*.so
+
+%files hotplug
+%defattr(644,root,root,755)
+%attr(755,root,root) /etc/hotplug/*
+
+%files udev
+%defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) /etc/udev/*
 
 %files devel
 %defattr(644,root,root,755)

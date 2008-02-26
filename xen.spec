@@ -15,15 +15,12 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-%define		_major	3.2.0
-%define		_minor	0.rc4
-Version:	%{_major}_%{_minor}
-Release:	0.3
+Version:	3.2.0
+Release:	0.1
 License:	GPL
 Group:		Applications/System
-#Source0:	http://bits.xensource.com/oss-xen/release/%{_major}-%{_minor}/src.tgz/%{name}-%{version}-src.tgz
-Source0:	%{name}-%{_major}-rc4.tar.bz2
-# Source0-md5:	bc6e3262739b1c40d85d4aace22e7cb3
+Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	4aa57328d0802a063fa67dfc063da30e
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
@@ -53,9 +50,6 @@ Requires:	rc-scripts
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-#%define		_version	%(echo %{version} |tr _ -)
-%define		_version	%{_major}-rc4-pre
 
 %ifnarch i686 athlon pentium3 pentium4
 %undefine	with_pae
@@ -137,7 +131,7 @@ Static xen libraries.
 Statyczne biblioteki xena.
 
 %prep
-%setup -q -n %{name}-%{_major}-rc4
+%setup -q
 %patch0 -p1
 %patch1 -p1
 
@@ -209,8 +203,8 @@ fi
 %defattr(644,root,root,755)
 %doc COPYING README docs/misc/*
 %doc docs/html/*
-/boot/%{name}-syms-%{_version}
-/boot/%{name}-%{_version}.gz
+/boot/%{name}-syms-%{version}
+/boot/%{name}-%{version}.gz
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*

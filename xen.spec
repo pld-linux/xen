@@ -15,7 +15,8 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	3.2.0
+%define	_major	3.2
+Version:	%{_major}.0
 Release:	0.1
 License:	GPL
 Group:		Applications/System
@@ -44,10 +45,17 @@ BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires:	ZopeInterface
 Requires:	bridge-utils
+Requires:	coreutils
+Requires:	diffutils
 Requires:	gawk
+Requires:	iptables
 Requires:	kernel(xen0) = %{_major}
 Requires:	losetup
+Requires:	net-tools
 Requires:	rc-scripts
+Requires:	sed
+Requires:	util-linux-ng
+Requires:	which
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)

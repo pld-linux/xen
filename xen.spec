@@ -221,8 +221,9 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
-%dir %{_libdir}/%{name}/boot
-%attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
+%dir %{_prefix}/lib/%{name}
+%dir %{_prefix}/lib/%{name}/boot
+%attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
 %{_datadir}/xen
 %{py_sitedir}/fsimage.so
 %{py_sitedir}/grub
@@ -257,9 +258,11 @@ fi
 %dir %{_libdir}/fs/ufs
 %attr(755,root,root) %{_libdir}/fs/*/*.so
 
+%if ! %{with hvm}
 %files hotplug
 %defattr(644,root,root,755)
 %attr(755,root,root) /etc/hotplug/*
+%endif
 
 %files udev
 %defattr(644,root,root,755)

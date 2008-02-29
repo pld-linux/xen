@@ -44,6 +44,7 @@ BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires:	ZopeInterface
 Requires:	bridge-utils
+Requires:	gawk
 Requires:	kernel(xen0) = %{_major}
 Requires:	losetup
 Requires:	rc-scripts

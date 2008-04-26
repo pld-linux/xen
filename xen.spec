@@ -12,23 +12,25 @@
 %bcond_with	pae		# build with PAE (HIGHMEM64G) support
 %bcond_with	hvm		# build with hvm (full virtualization) support
 #
+%define		major	3.2
+%define		minor	1
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-%define	_major	3.2
-Version:	%{_major}.0
+Version:	%{major}.%{minor}
 Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	4aa57328d0802a063fa67dfc063da30e
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-gcc.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
+%{?with_hvm:BuildRequires:	bcc}
 BuildRequires:	curl-devel
 BuildRequires:	e2fsprogs-devel
+BuildRequires:	gcc >= 5:3.4
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
@@ -41,7 +43,6 @@ BuildRequires:	tetex-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
-%{?with_hvm:BuildRequires:	bcc}
 Requires(post,preun):	/sbin/chkconfig
 Requires:	ZopeInterface
 Requires:	bridge-utils
@@ -49,7 +50,7 @@ Requires:	coreutils
 Requires:	diffutils
 Requires:	gawk
 Requires:	iptables
-Requires:	kernel(xen0) = %{_major}
+Requires:	kernel(xen0) = %{major}
 Requires:	losetup
 Requires:	net-tools
 Requires:	rc-scripts
@@ -144,9 +145,7 @@ Statyczne biblioteki xena.
 %patch0 -p1
 %patch1 -p1
 
-find . -iregex .*.orig -exec rm {} \;
-
-chmod -R u+w .
+find '(' -name '*~' -o -name '*.orig' -o -name '.gitignore' ')' -print0 | xargs -0 -r -l512 rm -fv
 
 %build
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \

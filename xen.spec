@@ -160,6 +160,8 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/var/run/{xen-hotplug,xend,xenstored}
 
 %{__make} install-xen install-tools install-docs \
+	CC="%{__cc}" \
+	CXX="%{__cxx}" \
 	%{?with_pae:XEN_TARGET_X86_PAE=y} \
 	DESTDIR=$RPM_BUILD_ROOT \
 	XEN_PYTHON_NATIVE_INSTALL=1
@@ -246,7 +248,9 @@ fi
 %{py_sitedir}/%{name}/xm
 %{py_sitedir}/%{name}/xsview
 %{py_sitedir}/%{name}/*.py*
+%if "%{py_ver}" > "2.4"
 %{py_sitedir}/*.egg-info
+%endif
 #%{py_sitescriptdir}/*
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
@@ -266,7 +270,7 @@ fi
 %dir %{_libdir}/fs/ufs
 %attr(755,root,root) %{_libdir}/fs/*/*.so
 
-%if ! %{with hvm}
+%if %{without hvm}
 %files hotplug
 %defattr(644,root,root,755)
 %attr(755,root,root) /etc/hotplug/*

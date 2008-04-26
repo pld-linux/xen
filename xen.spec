@@ -181,6 +181,7 @@ rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 %{py_ocomp} $RPM_BUILD_ROOT%{py_sitescriptdir}
 
 cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
+cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
 
 # remove unneeded files
 #find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
@@ -231,7 +232,9 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
+%if "%{_lib}" != "lib"
 %dir %{_prefix}/lib/%{name}
+%endif
 %dir %{_prefix}/lib/%{name}/boot
 %attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
 %{_datadir}/xen

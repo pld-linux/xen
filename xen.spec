@@ -18,7 +18,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	%{major}.%{minor}
-Release:	0.1
+Release:	0.2
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -44,6 +44,7 @@ BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
+Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 Requires:	ZopeInterface
 Requires:	bridge-utils
 Requires:	coreutils
@@ -180,11 +181,16 @@ cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
 
 %py_postclean
+# remove unneeded files
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
-rm -rf $RPM_BUILD_ROOT/etc/init.d
+rm -rf $RPM_BUILD_ROOT/''etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
 rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
+
+# conflict with qemu
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1
+rm -f $RPM_BUILD_ROOT%{_mandir}/man1/qemu.1
 
 %clean
 rm -rf $RPM_BUILD_ROOT

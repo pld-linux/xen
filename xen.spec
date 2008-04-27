@@ -9,7 +9,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	0.5
+Release:	0.6
 License:	GPL
 Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
@@ -145,20 +145,18 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
 install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/save
 
+cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
+cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
+
+%py_comp $RPM_BUILD_ROOT%{py_sitedir}
+%py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
+
+%py_postclean
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
-
-%{py_comp} $RPM_BUILD_ROOT%{py_sitedir}
-%{py_ocomp} $RPM_BUILD_ROOT%{py_sitedir}
-%{py_comp} $RPM_BUILD_ROOT%{py_sitescriptdir}
-%{py_ocomp} $RPM_BUILD_ROOT%{py_sitescriptdir}
-
-
-find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
-#find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
-
-cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
+rm -f $RPM_BUILD_ROOT/boot/xen-3.0.gz
+rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -209,18 +207,23 @@ fi
 %attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
 %endif
 %{_datadir}/xen
-%{py_sitescriptdir}/grub
-%dir %{py_sitedir}/%{name}
-%dir %{py_sitedir}/%{name}/lowlevel
-%{py_sitedir}/%{name}/lowlevel/*.py*
-%attr(755,root,root) %{py_sitedir}/%{name}/lowlevel/*.so
-%{py_sitedir}/%{name}/sv
-%{py_sitedir}/%{name}/util
-%{py_sitedir}/%{name}/web
-%{py_sitedir}/%{name}/xend
-%{py_sitedir}/%{name}/xm
-%{py_sitedir}/%{name}/*.py*
-#%{py_sitescriptdir}/*
+%dir %{py_sitedir}/grub
+%{py_sitedir}/grub/*.py[co]
+%dir %{py_sitedir}/grub/fsys
+%{py_sitedir}/grub/fsys/*.py[co]
+%dir %{py_sitedir}/grub/fsys/reiser
+%{py_sitedir}/grub/fsys/reiser/*.py[co]
+%attr(755,root,root) %{py_sitedir}/grub/fsys/reiser/*.so
+%dir %{py_sitedir}/xen
+%dir %{py_sitedir}/xen/lowlevel
+%{py_sitedir}/xen/lowlevel/*.py[co]
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/*.so
+%{py_sitedir}/xen/sv
+%{py_sitedir}/xen/util
+%{py_sitedir}/xen/web
+%{py_sitedir}/xen/xend
+%{py_sitedir}/xen/xm
+%{py_sitedir}/xen/*.py[co]
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored

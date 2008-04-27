@@ -18,7 +18,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	%{major}.%{minor}
-Release:	0.2
+Release:	0.3
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -54,6 +54,7 @@ Requires:	iptables
 Requires:	kernel(xen0) = %{major}
 Requires:	losetup
 Requires:	net-tools
+Requires:	python-%{name} = %{version}-%{release}
 Requires:	rc-scripts
 Requires:	sed
 Requires:	util-linux-ng
@@ -116,6 +117,13 @@ Group:		Application/System
 
 %description udev
 xen udev.
+
+%package -n python-xen
+Summary:	xen Python modules
+Group:		Libraries
+
+%description -n python-xen
+xen Python modules
 
 %package devel
 Summary:	Header files for xen
@@ -184,6 +192,7 @@ cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
 # remove unneeded files
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
+rm -rf $RPM_BUILD_ROOT%{_docdir}/qemu/qemu-doc.html
 rm -rf $RPM_BUILD_ROOT/''etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
 rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
@@ -239,22 +248,6 @@ fi
 %dir %{_prefix}/lib/%{name}/boot
 %attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
 %{_datadir}/xen
-%{py_sitedir}/fsimage.so
-%{py_sitedir}/grub
-%dir %{py_sitedir}/xen
-%dir %{py_sitedir}/xen/lowlevel
-%{py_sitedir}/xen/lowlevel/*.py*
-%attr(755,root,root) %{py_sitedir}/xen/lowlevel/*.so
-%{py_sitedir}/xen/sv
-%{py_sitedir}/xen/util
-%{py_sitedir}/xen/web
-%{py_sitedir}/xen/xend
-%{py_sitedir}/xen/xm
-%{py_sitedir}/xen/xsview
-%{py_sitedir}/xen/*.py*
-%if "%{py_ver}" > "2.4"
-%{py_sitedir}/*.egg-info
-%endif
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored
@@ -282,6 +275,25 @@ fi
 %files udev
 %defattr(644,root,root,755)
 %config(noreplace) %verify(not md5 mtime size) /etc/udev/*
+
+%files -n python-xen
+%defattr(644,root,root,755)
+%{py_sitedir}/fsimage.so
+%{py_sitedir}/grub
+%dir %{py_sitedir}/xen
+%dir %{py_sitedir}/xen/lowlevel
+%{py_sitedir}/xen/lowlevel/*.py*
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/*.so
+%{py_sitedir}/xen/sv
+%{py_sitedir}/xen/util
+%{py_sitedir}/xen/web
+%{py_sitedir}/xen/xend
+%{py_sitedir}/xen/xm
+%{py_sitedir}/xen/xsview
+%{py_sitedir}/xen/*.py*
+%if "%{py_ver}" > "2.4"
+%{py_sitedir}/*.egg-info
+%endif
 
 %files devel
 %defattr(644,root,root,755)

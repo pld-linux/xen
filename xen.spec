@@ -173,19 +173,14 @@ install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
 install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/save
 
-rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
-
-%{py_comp} $RPM_BUILD_ROOT%{py_sitedir}
-%{py_ocomp} $RPM_BUILD_ROOT%{py_sitedir}
-%{py_comp} $RPM_BUILD_ROOT%{py_sitescriptdir}
-%{py_ocomp} $RPM_BUILD_ROOT%{py_sitescriptdir}
-
 cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
 cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
 
-# remove unneeded files
-#find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
-#find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
+%py_comp $RPM_BUILD_ROOT%{py_sitedir}
+%py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
+
+%py_postclean
+rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
@@ -240,21 +235,20 @@ fi
 %{_datadir}/xen
 %{py_sitedir}/fsimage.so
 %{py_sitedir}/grub
-%dir %{py_sitedir}/%{name}
-%dir %{py_sitedir}/%{name}/lowlevel
-%{py_sitedir}/%{name}/lowlevel/*.py*
-%attr(755,root,root) %{py_sitedir}/%{name}/lowlevel/*.so
-%{py_sitedir}/%{name}/sv
-%{py_sitedir}/%{name}/util
-%{py_sitedir}/%{name}/web
-%{py_sitedir}/%{name}/xend
-%{py_sitedir}/%{name}/xm
-%{py_sitedir}/%{name}/xsview
-%{py_sitedir}/%{name}/*.py*
+%dir %{py_sitedir}/xen
+%dir %{py_sitedir}/xen/lowlevel
+%{py_sitedir}/xen/lowlevel/*.py*
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/*.so
+%{py_sitedir}/xen/sv
+%{py_sitedir}/xen/util
+%{py_sitedir}/xen/web
+%{py_sitedir}/xen/xend
+%{py_sitedir}/xen/xm
+%{py_sitedir}/xen/xsview
+%{py_sitedir}/xen/*.py*
 %if "%{py_ver}" > "2.4"
 %{py_sitedir}/*.egg-info
 %endif
-#%{py_sitescriptdir}/*
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored

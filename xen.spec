@@ -9,7 +9,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	0.6
+Release:	0.7
 License:	GPL
 Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
@@ -44,8 +44,8 @@ BuildRequires:	tetex-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
-Requires(post):	/sbin/ldconfig
 Requires(post,preun):	/sbin/chkconfig
+Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 Requires:	ZopeInterface
 Requires:	bridge-utils
 Requires:	kernel(xen0) = %{version}
@@ -86,11 +86,22 @@ Xen jest ciągle rozwijana, a ten RPM był słabo testowany. Nie należy
 być zdziwionym, jeśli ten pakiet zje dane, wypije całą kawę czy będzie
 się wyśmiewał w obecności przyjaciół.
 
+%package libs
+Summary:	xen libraries
+Summary(pl.UTF-8):	Biblioteki xena
+Group:		Libraries
+
+%description libs
+xen libraries.
+
+%description libs -l pl.UTF-8
+Biblioteki xena.
+
 %package devel
 Summary:	Header files for xen
 Summary(pl.UTF-8):	Pliki nagłówkowe xena
 Group:		Development/Libraries
-Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files for xen.
@@ -162,11 +173,8 @@ rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
 rm -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
 /sbin/chkconfig --add xend
 /sbin/chkconfig --add xendomains
-
-%postun -p /sbin/ldconfig
 
 %preun
 if [ "$1" = "0" ]; then
@@ -176,6 +184,9 @@ if [ "$1" = "0" ]; then
 	%service xendomains stop
 	/sbin/chkconfig --del xendomains
 fi
+
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
@@ -198,7 +209,6 @@ fi
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/scripts/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_libdir}/lib*.so.*
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
@@ -230,6 +240,10 @@ fi
 %dir /var/run/xen-hotplug
 %dir %attr(700,root,root) /var/run/xend
 %dir /var/run/xenstored
+
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/lib*.so.*
 
 %files devel
 %defattr(644,root,root,755)

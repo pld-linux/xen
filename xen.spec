@@ -104,27 +104,6 @@ xen libraries.
 %description libs -l pl.UTF-8
 Biblioteki xena.
 
-%package hotplug
-Summary:	xen hotplug
-Group:		Application/System
-
-%description hotplug
-xen hotplug.
-
-%package udev
-Summary:	xen udev
-Group:		Application/System
-
-%description udev
-xen udev.
-
-%package -n python-xen
-Summary:	xen Python modules
-Group:		Libraries
-
-%description -n python-xen
-xen Python modules
-
 %package devel
 Summary:	Header files for xen
 Summary(pl.UTF-8):	Pliki nagłówkowe xena
@@ -148,6 +127,39 @@ Static xen libraries.
 
 %description static -l pl.UTF-8
 Statyczne biblioteki xena.
+
+%package hotplug
+Summary:	xen hotplug scripts
+Summary(pl.UTF-8):	Skrypty hotplug dla xena
+Group:		Application/System
+
+%description hotplug
+xen hotplug scripts.
+
+%description hotplug -l pl.UTF-8
+Skrypty hotplug dla xena.
+
+%package udev
+Summary:	xen udev scripts
+Summary(pl.UTF-8):	Skrypty udev dla xena
+Group:		Application/System
+
+%description udev
+xen udev scripts.
+
+%description udev -l pl.UTF-8
+Skrypty udev dla xena.
+
+%package -n python-xen
+Summary:	xen Python modules
+Summary(pl.UTF-8):	Moduły Pythona dla xena
+Group:		Libraries
+
+%description -n python-xen
+xen Python modules.
+
+%description -n python-xen -l pl.UTF-8
+Moduły Pythona dla xena.
 
 %prep
 %setup -q
@@ -266,6 +278,15 @@ fi
 %dir %{_libdir}/fs/ufs
 %attr(755,root,root) %{_libdir}/fs/*/*.so
 
+%files devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/lib*.so
+%{_includedir}/*
+
+%files static
+%defattr(644,root,root,755)
+%{_libdir}/lib*.a
+
 %if %{without hvm}
 %files hotplug
 %defattr(644,root,root,755)
@@ -278,7 +299,7 @@ fi
 
 %files -n python-xen
 %defattr(644,root,root,755)
-%{py_sitedir}/fsimage.so
+%attr(755,root,root) %{py_sitedir}/fsimage.so
 %{py_sitedir}/grub
 %dir %{py_sitedir}/xen
 %dir %{py_sitedir}/xen/lowlevel
@@ -294,12 +315,3 @@ fi
 %if "%{py_ver}" > "2.4"
 %{py_sitedir}/*.egg-info
 %endif
-
-%files devel
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/lib*.so
-%{_includedir}/*
-
-%files static
-%defattr(644,root,root,755)
-%{_libdir}/lib*.a

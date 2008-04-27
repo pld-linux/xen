@@ -44,7 +44,7 @@ BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
-Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
+Requires:	%{name}-libs = %{version}-%{release}
 Requires:	ZopeInterface
 Requires:	bridge-utils
 Requires:	coreutils
@@ -121,7 +121,7 @@ xen udev.
 Summary:	Header files for xen
 Summary(pl.UTF-8):	Pliki nagłówkowe xena
 Group:		Development/Libraries
-Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
+Requires:	%{name}-libs = %{version}-%{release}
 
 %description devel
 Header files for xen.
@@ -133,7 +133,7 @@ Pliki nagłówkowe xena.
 Summary:	Static xen libraries
 Summary(pl.UTF-8):	Statyczne biblioteki xena
 Group:		Development/Libraries
-Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
+Requires:	%{name}-devel = %{version}-%{release}
 
 %description static
 Static xen libraries.

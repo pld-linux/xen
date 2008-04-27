@@ -1,0 +1,88 @@
+#!/bin/sh
+#
+# xend		Script to start and stop the Xen control daemon.
+#
+# Author:       Keir Fraser <keir.fraser@cl.cam.ac.uk>
+#
+# chkconfig: 2345 98 01
+# description: Starts and stops the Xen control daemon.
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+if ! [ -e /proc/xen/privcmd ]; then
+	exit 0
+fi
+
+await_daemons_up()
+{
+    	retval=$1
+	i=1
+	rets=10
+	/usr/sbin/xend status
+	while [ $? -ne 0 -a $i -lt $rets ]; do
+	    sleep 1
+	    i=$(($i + 1))
+	    /usr/sbin/xend status > /dev/null 2>&1
+	done
+}
+
+start() {
+  	if [ ! -f /var/lock/subsys/xend ]; then
+		msg_starting Xend
+		daemon /usr/sbin/xend start
+	    RETVAL=$?
+		await_daemons_up
+	    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/xend
+	else
+	    msg_already_running Xend
+	fi
+}
+
+stop() {
+  	if [ -f /var/lock/subsys/xend ]; then
+	    msg_stopping Xend
+		daemon /usr/sbin/xend stop
+	    rm -f /var/lock/subsys/xend >/dev/null 2>&1
+	else
+	    msg_not_running Xend
+	fi
+}
+
+condrestart() {
+	if [ -f /var/lock/subsys/xend ]; then
+		stop
+		start
+	else
+	    msg_not_running Xend
+		RETVAL=$1
+	fi
+}
+
+RETVAL=0
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	stop
+	start
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  force-reload)
+	condrestart 7
+	;;
+  status)
+	/usr/sbin/xend status
+	;;
+  *)
+	msg_usage "$0 {start|stop|restart|try-restart|force-reload|status}"
+	exit 3
+esac
+
+exit $RETVAL

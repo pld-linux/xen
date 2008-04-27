@@ -29,23 +29,33 @@ await_daemons_up()
 
 start() {
   	if [ ! -f /var/lock/subsys/xend ]; then
-		msg_starting "xend"
+		msg_starting Xend
 		daemon /usr/sbin/xend start
 	    RETVAL=$?
 		await_daemons_up
 	    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/xend
 	else
-	    msg_already_running xend
+	    msg_already_running Xend
 	fi
 }
 
 stop() {
   	if [ -f /var/lock/subsys/xend ]; then
-	    msg_stopping "xend"
+	    msg_stopping Xend
 		daemon /usr/sbin/xend stop
 	    rm -f /var/lock/subsys/xend >/dev/null 2>&1
 	else
-	    msg_not_running "xend"
+	    msg_not_running Xend
+	fi
+}
+
+condrestart() {
+	if [ -f /var/lock/subsys/xend ]; then
+		stop
+		start
+	else
+	    msg_not_running Xend
+		RETVAL=$1
 	fi
 }
 
@@ -57,15 +67,21 @@ case "$1" in
   stop)
   	stop
 	;;
-  restart|force-reload)
+  restart)
   	stop
 	start
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  force-reload)
+	condrestart 7
 	;;
   status)
 	/usr/sbin/xend status
 	;;
   *)
-	echo $"Usage: $0 {start|stop|status|restart|force-reload}"
+	msg_usage "$0 {start|stop|restart|try-restart|force-reload|status}"
 	exit 3
 esac
 

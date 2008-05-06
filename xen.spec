@@ -9,7 +9,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	1
+Release:	2
 License:	GPL
 Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
@@ -30,10 +30,12 @@ BuildRequires:	bcc
 %endif
 BuildRequires:	cpp
 BuildRequires:	curl-devel
+BuildRequires:	e2fsprogs-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	libvncserver-devel
 BuildRequires:	ncurses-devel
+BuildRequires:	progsreiserfs-devel
 BuildRequires:	python-Twisted
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
@@ -224,6 +226,9 @@ fi
 %dir %{py_sitedir}/grub/fsys/reiser
 %{py_sitedir}/grub/fsys/reiser/*.py[co]
 %attr(755,root,root) %{py_sitedir}/grub/fsys/reiser/*.so
+%dir %{py_sitedir}/grub/fsys/ext2
+%{py_sitedir}/grub/fsys/ext2/*.py[co]
+%attr(755,root,root)  %{py_sitedir}/grub/fsys/ext2/*.so
 %dir %{py_sitedir}/xen
 %dir %{py_sitedir}/xen/lowlevel
 %{py_sitedir}/xen/lowlevel/*.py[co]

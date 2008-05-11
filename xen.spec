@@ -258,7 +258,7 @@ fi
 %dir %{_prefix}/lib/%{name}
 %endif
 %dir %{_prefix}/lib/%{name}/boot
-%attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
+%{?with_hvm:%attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader}
 %{_datadir}/xen
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen

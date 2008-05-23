@@ -1,5 +1,5 @@
---- /home/users/glen/rpm/BUILD/xen-3.0.4_1-src/xen/common/symbols.c~	2007-01-08 17:00:54.000000000 +0200
-+++ /home/users/glen/rpm/BUILD/xen-3.0.4_1-src/xen/common/symbols.c	2008-05-24 01:03:53.860604056 +0300
+--- xen-3.0.4_1-src/xen/common/symbols.c~	2007-01-08 17:00:54.000000000 +0200
++++ xen-3.0.4_1-src/xen/common/symbols.c	2008-05-24 01:03:53.860604056 +0300
 @@ -94,7 +94,7 @@
      unsigned long symbol_end = 0;
  

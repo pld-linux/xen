@@ -9,3 +9,15 @@
  
      namebuf[KSYM_NAME_LEN] = 0;
      namebuf[0] = 0;
+--- xen-3.0.4_1-src/Config.mk~	2008-05-24 01:49:20.000000000 +0300
++++ xen-3.0.4_1-src/Config.mk	2008-05-24 01:49:23.342299929 +0300
+@@ -48,6 +48,9 @@
+ HOSTCFLAGS += $(call cc-option,$(HOSTCC),-Wdeclaration-after-statement,)
+ CFLAGS     += $(call cc-option,$(CC),-Wdeclaration-after-statement,)
+ 
++HOSTCFLAGS += $(call cc-option,$(HOSTCC),-fgnu89-inline,)
++CFLAGS     += $(call cc-option,$(CC),-fgnu89-inline,)
++
+ LDFLAGS += $(foreach i, $(EXTRA_LIB), -L$(i)) 
+ CFLAGS += $(foreach i, $(EXTRA_INCLUDES), -I$(i))
+ 

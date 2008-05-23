@@ -4,6 +4,7 @@
 #
 # Conditional build:
 %bcond_without	pae		# build without PAE (HIGHMEM64G) support (PLD Xen* kernels require PAE)
+%bcond_without	hvm		# build with hvm (full virtualization) support
 
 %ifnarch %{ix86}
 %undefine	with_pae
@@ -29,11 +30,12 @@ Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
 Patch2:		%{name}-bridge_setup.patch
 Patch3:		%{name}-python-devel.patch
+Patch4:		%{name}-gcc4.patch
 URL:		http://www.cl.cam.ac.uk/research/srg/netos/xen/index.html
 BuildRequires:	SDL-devel
-BuildRequires:	XFree86-devel
+#BuildRequires:	XFree86-devel
 %ifarch %{ix86}
-BuildRequires:	bcc
+%{?with_hvm:BuildRequires:  bcc}
 %endif
 BuildRequires:	cpp
 BuildRequires:	curl-devel
@@ -43,7 +45,7 @@ BuildRequires:	libidn-devel
 BuildRequires:	libvncserver-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	progsreiserfs-devel
-BuildRequires:	python-Twisted
+BuildRequires:	python-TwistedWeb
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.268
@@ -54,17 +56,26 @@ BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
-Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
+Requires:	%{name}-libs = %{version}-%{release}
 Requires:	ZopeInterface
 Requires:	bridge-utils
+Requires:	coreutils
+Requires:	diffutils
+Requires:	iptables
 Requires:	kernel(xen0) = %{version}
 Requires:	losetup
+Requires:	net-tools
 Requires:	python-%{name} = %{version}-%{release}
 Requires:	python-TwistedWeb
 Requires:	rc-scripts
+Requires:	sed
+Requires:	util-linux
+Requires:	which
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		specflags	-fgnu89-inline
 
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run
@@ -107,7 +118,7 @@ Biblioteki xena.
 Summary:	Header files for xen
 Summary(pl.UTF-8):	Pliki nagłówkowe xena
 Group:		Development/Libraries
-Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
+Requires:	%{name}-libs = %{version}-%{release}
 
 %description devel
 Header files for xen.
@@ -119,13 +130,35 @@ Pliki nagłówkowe xena.
 Summary:	Static xen libraries
 Summary(pl.UTF-8):	Statyczne biblioteki xena
 Group:		Development/Libraries
-Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
+Requires:	%{name}-devel = %{version}-%{release}
 
 %description static
 Static xen libraries.
 
 %description static -l pl.UTF-8
 Statyczne biblioteki xena.
+
+%package hotplug
+Summary:    xen hotplug scripts
+Summary(pl.UTF-8):  Skrypty hotplug dla xena
+Group:      Application/System
+
+%description hotplug
+xen hotplug scripts.
+
+%description hotplug -l pl.UTF-8
+Skrypty hotplug dla xena.
+
+%package udev
+Summary:    xen udev scripts
+Summary(pl.UTF-8):  Skrypty udev dla xena
+Group:      Application/System
+
+%description udev
+xen udev scripts.
+
+%description udev -l pl.UTF-8
+Skrypty udev dla xena.
 
 %package -n python-xen
 Summary:	xen Python modules
@@ -145,6 +178,7 @@ Moduły Pythona dla xena.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
@@ -214,8 +248,6 @@ fi
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
-%config(noreplace) %verify(not md5 mtime size) /etc/udev/*
-%attr(755,root,root) /etc/hotplug/*
 %dir %{_sysconfdir}/xen
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/qemu-ifup
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*
@@ -229,10 +261,11 @@ fi
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
-%ifarch %{ix86}
-%dir %{_libdir}/%{name}/boot
-%attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
+%if "%{_lib}" != "lib"
+%dir %{_prefix}/lib/%{name}
 %endif
+%dir %{_prefix}/lib/%{name}/boot
+%{?with_hvm:%attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader}
 %{_datadir}/xen
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
@@ -270,6 +303,14 @@ fi
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
+
+%files hotplug
+%defattr(644,root,root,755)
+%attr(755,root,root) /etc/hotplug/*
+
+%files udev
+%defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) /etc/udev/*
 
 %files -n python-xen
 %defattr(644,root,root,755)

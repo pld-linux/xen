@@ -181,10 +181,10 @@ cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
 
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
-rm -rf $RPM_BUILD_ROOT/etc/init.d
+rm -rf $RPM_BUILD_ROOT/''etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.0.gz
 rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
-rm -f $RPM_BUILD_ROOT/usr/share/doc/qemu
+rm -rf $RPM_BUILD_ROOT%{_docdir}/qemu
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -207,7 +207,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc COPYING ChangeLog README docs/misc/*
+%doc COPYING README docs/misc/*
 %doc docs/html/*
 /boot/%{name}-syms-%{version}%{extraver}
 /boot/%{name}-%{version}%{extraver}.gz

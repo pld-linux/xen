@@ -6,11 +6,10 @@
 %bcond_without	pae		# build without PAE (HIGHMEM64G) support (PLD Xen* kernels require PAE)
 #
 Summary:	Xen - a virtual machine monitor
-Summary(pl):	Xen - monitor maszyny wirtualnej
+Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	0.2
-Epoch:		0
+Release:	3
 License:	GPL
 Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
@@ -19,12 +18,24 @@ Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
+Patch2:		%{name}-bridge_setup.patch
+Patch3:		%{name}-xenstore-version.patch
+Patch4:		%{name}-reisermodule.patch
+Patch5:		%{name}-libvncserver-detect-fix.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
+BuildRequires:	SDL-devel
 BuildRequires:	XFree86-devel
+%ifarch %{ix86}
+BuildRequires:	bcc
+%endif
+BuildRequires:	cpp
 BuildRequires:	curl-devel
+BuildRequires:	e2fsprogs-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
+BuildRequires:	libvncserver-devel
 BuildRequires:	ncurses-devel
+BuildRequires:	progsreiserfs-devel
 BuildRequires:	python-Twisted
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
@@ -36,14 +47,16 @@ BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
+Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 Requires:	ZopeInterface
 Requires:	bridge-utils
+Requires:	kernel(xen0) = %{version}
 Requires:	losetup
+Requires:	python-%{name} = %{version}-%{release}
 Requires:	python-TwistedWeb
 Requires:	rc-scripts
-Requires:	kernel(xen) = %{version}
 Obsoletes:	xen-doc
-ExclusiveArch:	%{ix86}
+ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %ifnarch i686 athlon pentium3 pentium4
@@ -63,47 +76,74 @@ development, and this RPM has received extremely little testing. Don't
 be surprised if this RPM eats your data, drinks your coffee or makes
 fun of you in front of your friends.
 
-%description -l pl
-Ten pakiet zawiera nadzorcê oraz narzêdzia Xen, potrzebne do
+%description -l pl.UTF-8
+Ten pakiet zawiera nadzorcÄ™ oraz narzÄ™dzia Xen, potrzebne do
 uruchamiania wirtualnych maszyn w systemach x86, wraz z pakietami
-kernel-xen*. Informacje jak u¿ywaæ Xena mo¿na znale¼æ na stronach
+kernel-xen*. Informacje jak uÅ¼ywaÄ‡ Xena moÅ¼na znaleÅºÄ‡ na stronach
 projektu.
 
-Wirtualizacja mo¿e byæ u¿ywana do uruchamiania wielu wersji lub wielu
+Wirtualizacja moÅ¼e byÄ‡ uÅ¼ywana do uruchamiania wielu wersji lub wielu
 dystrybucji Linuksa na jednym systemie lub do testowania nie zaufanych
-aplikacji w odizolowanym ¶rodowisku. Nale¿y zauwa¿yæ, ¿e technologia
-Xen jest ci±gle rozwijana, a ten RPM by³ s³abo testowany. Nie nale¿y
-byæ zdziwionym, je¶li ten pakiet zje dane, wypije ca³± kawê czy bêdzie
-siê wy¶miewa³ w obecno¶ci przyjació³.
+aplikacji w odizolowanym Å›rodowisku. NaleÅ¼y zauwaÅ¼yÄ‡, Å¼e technologia
+Xen jest ciÄ…gle rozwijana, a ten RPM byÅ‚ sÅ‚abo testowany. Nie naleÅ¼y
+byÄ‡ zdziwionym, jeÅ›li ten pakiet zje dane, wypije caÅ‚Ä… kawÄ™ czy bÄ™dzie
+siÄ™ wyÅ›miewaÅ‚ w obecnoÅ›ci przyjaciÃ³Å‚.
+
+%package libs
+Summary:	xen libraries
+Summary(pl.UTF-8):	Biblioteki xena
+Group:		Libraries
+
+%description libs
+xen libraries.
+
+%description libs -l pl.UTF-8
+Biblioteki xena.
 
 %package devel
 Summary:	Header files for xen
-Summary(pl):	Pliki nag³ówkowe xena
+Summary(pl.UTF-8):	Pliki nagÅ‚Ã³wkowe xena
 Group:		Development/Libraries
-Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 
 %description devel
 Header files for xen.
 
-%description devel -l pl
-Pliki nag³ówkowe xena.
+%description devel -l pl.UTF-8
+Pliki nagÅ‚Ã³wkowe xena.
 
 %package static
 Summary:	Static xen libraries
-Summary(pl):	Statyczne biblioteki xena
+Summary(pl.UTF-8):	Statyczne biblioteki xena
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 
 %description static
 Static xen libraries.
 
-%description static -l pl
+%description static -l pl.UTF-8
 Statyczne biblioteki xena.
+
+%package -n python-xen
+Summary:	xen Python modules
+Summary(pl.UTF-8):	ModuÅ‚y Pythona dla xena
+Group:		Libraries
+Conflicts:	xen < 3.0.2-2.1
+
+%description -n python-xen
+xen Python modules.
+
+%description -n python-xen -l pl.UTF-8
+ModuÅ‚y Pythona dla xena.
 
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 chmod -R u+w .
 
@@ -129,29 +169,27 @@ install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
+install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/save
 
+cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
+cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
+
+%py_comp $RPM_BUILD_ROOT%{py_sitedir}
+%py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
+
+%py_postclean
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
-
-%{py_comp} $RPM_BUILD_ROOT%{py_sitedir}
-%{py_ocomp} $RPM_BUILD_ROOT%{py_sitedir}
-%{py_comp} $RPM_BUILD_ROOT%{py_sitescriptdir}
-%{py_ocomp} $RPM_BUILD_ROOT%{py_sitescriptdir}
-
-
-find $RPM_BUILD_ROOT%{py_sitedir} -name '*.py' -exec rm "{}" ";"
-find $RPM_BUILD_ROOT%{py_sitescriptdir} -name '*.py' -exec rm "{}" ";"
-rm -rf $RPM_BUILD_ROOT/usr/share/doc/xen
+rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
+rm -f $RPM_BUILD_ROOT/boot/xen-3.0.gz
+rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/ldconfig
 /sbin/chkconfig --add xend
 /sbin/chkconfig --add xendomains
-
-%postun -p /sbin/ldconfig
 
 %preun
 if [ "$1" = "0" ]; then
@@ -161,6 +199,9 @@ if [ "$1" = "0" ]; then
 	%service xendomains stop
 	/sbin/chkconfig --del xendomains
 fi
+
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
@@ -172,6 +213,7 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %config(noreplace) %verify(not md5 mtime size) /etc/udev/*
+%attr(755,root,root) /etc/hotplug/*
 %dir %{_sysconfdir}/xen
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/qemu-ifup
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*
@@ -182,28 +224,24 @@ fi
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/scripts/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/*
-%attr(755,root,root) %{_libdir}/lib*.so.*
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
+%ifarch %{ix86}
+%dir %{_libdir}/%{name}/boot
+%attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
+%endif
 %{_datadir}/xen
-%dir %{py_sitedir}/%{name}
-%dir %{py_sitedir}/%{name}/lowlevel
-%{py_sitedir}/%{name}/lowlevel/*.py*
-%attr(755,root,root) %{py_sitedir}/%{name}/lowlevel/*.so
-%{py_sitedir}/%{name}/sv
-%{py_sitedir}/%{name}/util
-%{py_sitedir}/%{name}/web
-%{py_sitedir}/%{name}/xend
-%{py_sitedir}/%{name}/xm
-%{py_sitedir}/%{name}/*.py*
-%{py_sitescriptdir}/*
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored
 %dir /var/run/xen-hotplug
 %dir %attr(700,root,root) /var/run/xend
 %dir /var/run/xenstored
+
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/lib*.so.*
 
 %files devel
 %defattr(644,root,root,755)
@@ -213,3 +251,26 @@ fi
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
+
+%files -n python-xen
+%defattr(644,root,root,755)
+%dir %{py_sitedir}/grub
+%{py_sitedir}/grub/*.py[co]
+%dir %{py_sitedir}/grub/fsys
+%{py_sitedir}/grub/fsys/*.py[co]
+%dir %{py_sitedir}/grub/fsys/reiser
+%{py_sitedir}/grub/fsys/reiser/*.py[co]
+%attr(755,root,root) %{py_sitedir}/grub/fsys/reiser/*.so
+%dir %{py_sitedir}/grub/fsys/ext2
+%{py_sitedir}/grub/fsys/ext2/*.py[co]
+%attr(755,root,root)  %{py_sitedir}/grub/fsys/ext2/*.so
+%dir %{py_sitedir}/xen
+%dir %{py_sitedir}/xen/lowlevel
+%{py_sitedir}/xen/lowlevel/*.py[co]
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/*.so
+%{py_sitedir}/xen/sv
+%{py_sitedir}/xen/util
+%{py_sitedir}/xen/web
+%{py_sitedir}/xen/xend
+%{py_sitedir}/xen/xm
+%{py_sitedir}/xen/*.py[co]

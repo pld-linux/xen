@@ -27,44 +27,62 @@ await_daemons_up()
 	done
 }
 
-RETVAL=0
-
-case "$1" in
-  start)
+start() {
   	if [ ! -f /var/lock/subsys/xend ]; then
-    	    msg_starting "xend"
-    	    daemon /usr/sbin/xend start
+		msg_starting Xend
+		daemon /usr/sbin/xend start
 	    RETVAL=$?
-    	    await_daemons_up
+		await_daemons_up
 	    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/xend
 	else
-	    msg_already_running xend
+	    msg_already_running Xend
 	fi
-	;;
-  stop)
+}
+
+stop() {
   	if [ -f /var/lock/subsys/xend ]; then
-	    msg_stopping "xend"
-    	    daemon /usr/sbin/xend stop
+	    msg_stopping Xend
+		daemon /usr/sbin/xend stop
 	    rm -f /var/lock/subsys/xend >/dev/null 2>&1
 	else
-	    msg_not_running "xend"
+	    msg_not_running Xend
 	fi
+}
+
+condrestart() {
+	if [ -f /var/lock/subsys/xend ]; then
+		stop
+		start
+	else
+	    msg_not_running Xend
+		RETVAL=$1
+	fi
+}
+
+RETVAL=0
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	stop
+	start
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  force-reload)
+	condrestart 7
 	;;
   status)
 	/usr/sbin/xend status
 	;;
-  restart|reload|force-reload)
-  	msg_restarting "xend"
-	daemon /usr/sbin/xend restart
-	RETVAL=$?
-	await_daemons_up
-	;;
   *)
-	# do not advertise unreasonable commands that there is no reason
-	# to use with this device
-	echo $"Usage: $0 {start|stop|status|restart|reload|force-reload}"
-	exit 1
+	msg_usage "$0 {start|stop|restart|try-restart|force-reload|status}"
+	exit 3
 esac
 
 exit $RETVAL
-

@@ -9,7 +9,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	3.0.2
-Release:	2
+Release:	3
 License:	GPL
 Group:		Applications/System
 Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
@@ -52,6 +52,7 @@ Requires:	ZopeInterface
 Requires:	bridge-utils
 Requires:	kernel(xen0) = %{version}
 Requires:	losetup
+Requires:	python-%{name} = %{version}-%{release}
 Requires:	python-TwistedWeb
 Requires:	rc-scripts
 Obsoletes:	xen-doc
@@ -122,6 +123,18 @@ Static xen libraries.
 
 %description static -l pl.UTF-8
 Statyczne biblioteki xena.
+
+%package -n python-xen
+Summary:	xen Python modules
+Summary(pl.UTF-8):	Moduły Pythona dla xena
+Group:		Libraries
+Conflicts:	xen < 3.0.2-2.1
+
+%description -n python-xen
+xen Python modules.
+
+%description -n python-xen -l pl.UTF-8
+Moduły Pythona dla xena.
 
 %prep
 %setup -q
@@ -219,6 +232,28 @@ fi
 %attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
 %endif
 %{_datadir}/xen
+%{_mandir}/man?/*
+%{_sharedstatedir}/xen
+%{_sharedstatedir}/xenstored
+%dir /var/run/xen-hotplug
+%dir %attr(700,root,root) /var/run/xend
+%dir /var/run/xenstored
+
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/lib*.so.*
+
+%files devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/lib*.so
+%{_includedir}/*
+
+%files static
+%defattr(644,root,root,755)
+%{_libdir}/lib*.a
+
+%files -n python-xen
+%defattr(644,root,root,755)
 %dir %{py_sitedir}/grub
 %{py_sitedir}/grub/*.py[co]
 %dir %{py_sitedir}/grub/fsys
@@ -239,22 +274,3 @@ fi
 %{py_sitedir}/xen/xend
 %{py_sitedir}/xen/xm
 %{py_sitedir}/xen/*.py[co]
-%{_mandir}/man?/*
-%{_sharedstatedir}/xen
-%{_sharedstatedir}/xenstored
-%dir /var/run/xen-hotplug
-%dir %attr(700,root,root) /var/run/xend
-%dir /var/run/xenstored
-
-%files libs
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/lib*.so.*
-
-%files devel
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/lib*.so
-%{_includedir}/*
-
-%files static
-%defattr(644,root,root,755)
-%{_libdir}/lib*.a

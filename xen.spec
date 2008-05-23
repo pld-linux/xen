@@ -57,7 +57,7 @@ Requires:	net-tools
 Requires:	python-%{name} = %{version}-%{release}
 Requires:	rc-scripts
 Requires:	sed
-Requires:	util-linux-ng
+Requires:	util-linux
 Requires:	which
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86} %{x8664}

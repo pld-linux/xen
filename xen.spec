@@ -75,8 +75,6 @@ Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		specflags	-fgnu89-inline
-
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run
 virtual machines on x86 systems, together with the kernel-xen*

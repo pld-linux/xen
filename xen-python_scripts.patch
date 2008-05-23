@@ -1,132 +1,365 @@
-diff -dru xen-3.0.2.orig/tools/check/check_logging xen-3.0.2/tools/check/check_logging
---- xen-3.0.2.orig/tools/check/check_logging	2006-04-10 00:05:52.000000000 +0200
-+++ xen-3.0.2/tools/check/check_logging	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/docs/pythfilter.py	2007-01-08 17:00:44.000000000 +0200
++++ xen-3.0.4_1-src.py/docs/pythfilter.py	2008-05-18 23:03:55.979062895 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
- #  -*- mode: python; -*-
  
- import os
-diff -dru xen-3.0.2.orig/tools/ioemu/keymaps/convert-map xen-3.0.2/tools/ioemu/keymaps/convert-map
---- xen-3.0.2.orig/tools/ioemu/keymaps/convert-map	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/ioemu/keymaps/convert-map	2006-04-30 20:13:13.000000000 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python2
-+#!/usr/bin/python
- # -*-Python-*-
- #
- # 
-diff -dru xen-3.0.2.orig/tools/misc/netfix xen-3.0.2/tools/misc/netfix
---- xen-3.0.2.orig/tools/misc/netfix	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/misc/netfix	2006-04-30 20:13:13.000000000 +0200
+ # pythfilter.py v1.5.5, written by Matthias Baas (baas@ira.uka.de)
+ 
+--- xen-3.0.4_1-src/tools/misc/netfix	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/misc/netfix	2008-05-18 23:03:55.989062782 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  #  -*- mode: python; -*-
  #============================================================================
  # Copyright (C) 2004 Mike Wray <mike.wray@hp.com>
-diff -dru xen-3.0.2.orig/tools/misc/xen-bugtool xen-3.0.2/tools/misc/xen-bugtool
---- xen-3.0.2.orig/tools/misc/xen-bugtool	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/misc/xen-bugtool	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/misc/xen-bugtool	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/misc/xen-bugtool	2008-05-18 23:03:55.985729486 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  
  #  -*- mode: python; -*-
  
-diff -dru xen-3.0.2.orig/tools/misc/xencons xen-3.0.2/tools/misc/xencons
---- xen-3.0.2.orig/tools/misc/xencons	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/misc/xencons	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/misc/xencons	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/misc/xencons	2008-05-18 23:03:55.989062782 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  
  ##############################################
  # Console client for Xen guest OSes
-diff -dru xen-3.0.2.orig/tools/misc/xend xen-3.0.2/tools/misc/xend
---- xen-3.0.2.orig/tools/misc/xend	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/misc/xend	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/misc/xend	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/misc/xend	2008-05-18 23:03:55.985729486 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  #  -*- mode: python; -*-
  #============================================================================
  # Copyright (C) 2004 Mike Wray <mike.wray@hp.com>
-diff -dru xen-3.0.2.orig/tools/misc/xensymoops xen-3.0.2/tools/misc/xensymoops
---- xen-3.0.2.orig/tools/misc/xensymoops	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/misc/xensymoops	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/misc/xensymoops	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/misc/xensymoops	2008-05-18 23:03:55.985729486 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  
  # An oops analyser for Xen
  # Usage: xensymoops path-to-xen.s < oops-message
-diff -dru xen-3.0.2.orig/tools/misc/xm xen-3.0.2/tools/misc/xm
---- xen-3.0.2.orig/tools/misc/xm	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/misc/xm	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/misc/xm	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/misc/xm	2008-05-18 23:03:55.985729486 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  #  -*- mode: python; -*-
  import sys
  
-diff -dru xen-3.0.2.orig/tools/python/xen/util/bugtool.py xen-3.0.2/tools/python/xen/util/bugtool.py
---- xen-3.0.2.orig/tools/python/xen/util/bugtool.py	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/python/xen/util/bugtool.py	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test.py	2008-05-18 23:03:56.022395737 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test0.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test0.py	2008-05-18 23:03:56.022395737 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test1.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test1.py	2008-05-18 23:03:56.022395737 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test10.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test10.py	2008-05-18 23:03:56.012395850 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test11.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test11.py	2008-05-18 23:03:56.012395850 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test12.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test12.py	2008-05-18 23:03:56.012395850 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test13.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test13.py	2008-05-18 23:03:56.012395850 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test14.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test14.py	2008-05-18 23:03:56.012395850 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test15.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test15.py	2008-05-18 23:03:56.012395850 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test16.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test16.py	2008-05-18 23:03:56.015729146 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test17.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test17.py	2008-05-18 23:03:56.015729146 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test18.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test18.py	2008-05-18 23:03:56.015729146 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test19.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test19.py	2008-05-18 23:03:56.015729146 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test2.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test2.py	2008-05-18 23:03:56.022395737 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test20.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test20.py	2008-05-18 23:03:56.015729146 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test21.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test21.py	2008-05-18 23:03:56.015729146 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test22.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test22.py	2008-05-18 23:03:56.015729146 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test3.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test3.py	2008-05-18 23:03:56.022395737 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test4.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test4.py	2008-05-18 23:03:56.025729032 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test5.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test5.py	2008-05-18 23:03:56.025729032 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test6.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test6.py	2008-05-18 23:03:56.025729032 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test7.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test7.py	2008-05-18 23:03:56.025729032 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test8.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test8.py	2008-05-18 23:03:56.025729032 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/log_test9.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/log_test9.py	2008-05-18 23:03:56.025729032 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/logconf.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/logconf.py	2008-05-18 23:03:56.009062555 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/logging/logging-0.4.9.2/test/logrecv.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/logging/logging-0.4.9.2/test/logrecv.py	2008-05-18 23:03:56.009062555 +0300
+@@ -1,4 +1,4 @@
+-#! /usr/bin/env python
++#!/usr/bin/python
+ #
+ # Copyright 2001-2002 by Vinay Sajip. All Rights Reserved.
+ #
+--- xen-3.0.4_1-src/tools/python/test.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/test.py	2008-05-18 23:03:56.025729032 +0300
+@@ -1,4 +1,4 @@
+-#! /usr/bin/env python2.3
++#!/usr/bin/python2.3
+ ##############################################################################
+ #
+ # Copyright (c) 2001, 2002 Zope Corporation and Contributors.
+--- xen-3.0.4_1-src/tools/python/xen/util/bugtool.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/xen/util/bugtool.py	2008-05-18 23:03:55.999062668 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  
  # This library is free software; you can redistribute it and/or
  # modify it under the terms of version 2.1 of the GNU Lesser General Public
-diff -dru xen-3.0.2.orig/tools/python/xen/util/pci.py xen-3.0.2/tools/python/xen/util/pci.py
---- xen-3.0.2.orig/tools/python/xen/util/pci.py	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/python/xen/util/pci.py	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/python/xen/util/pci.py	2007-01-08 17:00:49.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/xen/util/pci.py	2008-05-18 23:03:55.999062668 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  #
  # PCI Device Information Class
  # - Helps obtain information about which I/O resources a PCI device needs
-diff -dru xen-3.0.2.orig/tools/python/xen/xend/XendClient.py xen-3.0.2/tools/python/xen/xend/XendClient.py
---- xen-3.0.2.orig/tools/python/xen/xend/XendClient.py	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/python/xen/xend/XendClient.py	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/python/xen/xend/FlatDeviceTree.py	2007-01-08 17:00:50.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/xen/xend/FlatDeviceTree.py	2008-05-18 23:03:56.005729259 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # This library is free software; you can redistribute it and/or
+ # modify it under the terms of version 2.1 of the GNU Lesser General Public
+--- xen-3.0.4_1-src/tools/python/xen/xend/XendClient.py	2007-01-08 17:00:50.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/xen/xend/XendClient.py	2008-05-18 23:03:55.999062668 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  #============================================================================
  # This library is free software; you can redistribute it and/or
  # modify it under the terms of version 2.1 of the GNU Lesser General Public
-diff -dru xen-3.0.2.orig/tools/python/xen/xend/sxp.py xen-3.0.2/tools/python/xen/xend/sxp.py
---- xen-3.0.2.orig/tools/python/xen/xend/sxp.py	2006-04-10 00:05:53.000000000 +0200
-+++ xen-3.0.2/tools/python/xen/xend/sxp.py	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/python/xen/xend/arch.py	2007-01-08 17:00:50.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/xen/xend/arch.py	2008-05-18 23:03:56.005729259 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # This library is free software; you can redistribute it and/or
+ # modify it under the terms of version 2.1 of the GNU Lesser General Public
+--- xen-3.0.4_1-src/tools/python/xen/xend/osdep.py	2007-01-08 17:00:50.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/xen/xend/osdep.py	2008-05-18 23:03:55.999062668 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #
+ # This library is free software; you can redistribute it and/or
+ # modify it under the terms of version 2.1 of the GNU Lesser General Public
+--- xen-3.0.4_1-src/tools/python/xen/xend/sxp.py	2007-01-08 17:00:50.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/python/xen/xend/sxp.py	2008-05-18 23:03:56.005729259 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  #============================================================================
  # This library is free software; you can redistribute it and/or
  # modify it under the terms of version 2.1 of the GNU Lesser General Public
-diff -dru xen-3.0.2.orig/tools/vnet/scripts/vn xen-3.0.2/tools/vnet/scripts/vn
---- xen-3.0.2.orig/tools/vnet/scripts/vn	2006-04-10 00:05:54.000000000 +0200
-+++ xen-3.0.2/tools/vnet/scripts/vn	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/security/python/xensec_tools/acm_getlabel	2007-01-08 17:00:50.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/security/python/xensec_tools/acm_getlabel	2008-05-18 23:03:55.995729373 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #  -*- mode: python; -*-
+ import sys
+ import traceback
+--- xen-3.0.4_1-src/tools/security/xensec_ezpolicy	2007-01-08 17:00:50.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/security/xensec_ezpolicy	2008-05-18 23:03:55.995729373 +0300
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python
+ #===========================================================================
+ # This program is free software; you can redistribute it and/or
+ # modify it under the terms of version 2.1 of the GNU Lesser General Public
+--- xen-3.0.4_1-src/tools/vnet/scripts/vn	2007-01-08 17:00:50.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/vnet/scripts/vn	2008-05-18 23:03:55.992396077 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python2.4
 +#!/usr/bin/python
  #  -*- mode: python; -*-
  #============================================================================
  # Copyright (C) 2005, 2006 Mike Wray <mike.wray@hp.com>
-diff -dru xen-3.0.2.orig/tools/xenmon/xenmon.py xen-3.0.2/tools/xenmon/xenmon.py
---- xen-3.0.2.orig/tools/xenmon/xenmon.py	2006-04-10 00:05:54.000000000 +0200
-+++ xen-3.0.2/tools/xenmon/xenmon.py	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/xenmon/xenmon.py	2007-01-08 17:00:52.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/xenmon/xenmon.py	2008-05-18 23:03:56.029062328 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python
  
  #####################################################################
  # xenmon is a front-end for xenbaked.
-diff -dru xen-3.0.2.orig/tools/xentrace/xentrace_format xen-3.0.2/tools/xentrace/xentrace_format
---- xen-3.0.2.orig/tools/xentrace/xentrace_format	2006-04-10 00:05:54.000000000 +0200
-+++ xen-3.0.2/tools/xentrace/xentrace_format	2006-04-30 20:13:13.000000000 +0200
+--- xen-3.0.4_1-src/tools/xentrace/xentrace_format	2007-01-08 17:00:53.000000000 +0200
++++ xen-3.0.4_1-src.py/tools/xentrace/xentrace_format	2008-05-18 23:03:56.029062328 +0300
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/python

@@ -1,12 +1,11 @@
-diff -dur -x '*~' xen-3.0.2.orig/tools/examples/network-bridge xen-3.0.2/tools/examples/network-bridge
---- xen-3.0.2.orig/tools/examples/network-bridge	2006-06-29 14:58:24.000000000 +0200
-+++ xen-3.0.2/tools/examples/network-bridge	2006-06-29 14:59:49.000000000 +0200
-@@ -61,7 +61,7 @@
+--- xen-3.0.4_1-src/tools/examples/network-bridge~	2008-05-18 23:05:01.000000000 +0300
++++ xen-3.0.4_1-src/tools/examples/network-bridge	2008-05-18 23:08:10.249504505 +0300
+@@ -59,7 +59,7 @@
+ findCommand "$@"
+ evalVariables "$@"
  
+-vifnum=${vifnum:-$(ip route list | awk '/^default / { print $NF }' | sed 's/^[^0-9]*//')}
++vifnum=${vifnum:-$(ip route list | awk '/^default / { print $NF }' | sed -e's/ onlink//' | sed 's/^[^0-9]*//')}
  vifnum=${vifnum:-0}
  bridge=${bridge:-xenbr${vifnum}}
--netdev=${netdev:-$(ip route list default scope global| awk '{ print $NF }')}
-+netdev=${netdev:-$(ip route list default scope global | sed -e's/ onlink//' | awk '{ print $NF }')}
  netdev=${netdev:-eth${vifnum}}
- antispoof=${antispoof:-no}
- 

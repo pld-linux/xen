@@ -4,25 +4,32 @@
 #
 # Conditional build:
 %bcond_without	pae		# build without PAE (HIGHMEM64G) support (PLD Xen* kernels require PAE)
-#
+
+%ifnarch %{ix86}
+%undefine	with_pae
+%endif
+%ifarch i386 i486 i586
+%undefine	with_pae
+%endif
+
+%define		subver	_1
+%define		extraver	-1
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	3.0.2
-Release:	3
+Version:	3.0.4
+Release:	0.1
 License:	GPL
 Group:		Applications/System
-Source0:	http://www.cl.cam.ac.uk/Research/SRG/netos/xen/downloads/%{name}-%{version}-src.tgz
-# Source0-md5:	544eab940a0734a55459d648e5c3b224
+Source0:	http://bits.xensource.com/oss-xen/release/%{version}%{subver}/src.tgz/%{name}-%{version}%{subver}-src.tgz
+# Source0-md5:	e85e16ad3dc354338e3ac4a8951f9649
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-bash_scripts.patch
 Patch2:		%{name}-bridge_setup.patch
-Patch3:		%{name}-xenstore-version.patch
-Patch4:		%{name}-reisermodule.patch
-Patch5:		%{name}-libvncserver-detect-fix.patch
-URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
+Patch3:		%{name}-python-devel.patch
+URL:		http://www.cl.cam.ac.uk/research/srg/netos/xen/index.html
 BuildRequires:	SDL-devel
 BuildRequires:	XFree86-devel
 %ifarch %{ix86}
@@ -58,10 +65,6 @@ Requires:	rc-scripts
 Obsoletes:	xen-doc
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-%ifnarch i686 athlon pentium3 pentium4
-%undefine	with_pae
-%endif
 
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run
@@ -137,21 +140,18 @@ xen Python modules.
 Moduły Pythona dla xena.
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}%{?subver}-src
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
-
-chmod -R u+w .
 
 %build
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 %{__make} xen tools docs \
 	%{?with_pae:XEN_TARGET_X86_PAE=y} \
+	XENFB_TOOLS=y \
 	CC="%{__cc}" \
 	CXX="%{__cxx}"
 
@@ -178,11 +178,13 @@ cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
 
 %py_postclean
+
 rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT/etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.0.gz
 rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
+rm -f $RPM_BUILD_ROOT/usr/share/doc/qemu
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -207,8 +209,8 @@ fi
 %defattr(644,root,root,755)
 %doc COPYING ChangeLog README docs/misc/*
 %doc docs/html/*
-/boot/%{name}-syms-%{version}
-/boot/%{name}-%{version}.gz
+/boot/%{name}-syms-%{version}%{extraver}
+/boot/%{name}-%{version}%{extraver}.gz
 /boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
@@ -241,7 +243,24 @@ fi
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/lib*.so.*
+%attr(755,root,root) %ghost %{_libdir}/libblktap.so.3.0
+%attr(755,root,root) %{_libdir}/libblktap.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libfsimage.so.1.0
+%attr(755,root,root) %{_libdir}/libfsimage.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.3.0
+%attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.3.0
+%attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenstore.so.3.0
+%attr(755,root,root) %{_libdir}/libxenstore.so.*.*.*
+
+# subpackages? python part apparently uses these
+%dir %{_libdir}/fs/ext2fs-lib
+%dir %{_libdir}/fs/reiserfs
+%dir %{_libdir}/fs/ufs
+%attr(755,root,root) %{_libdir}/fs/ext2fs-lib/fsimage.so
+%attr(755,root,root) %{_libdir}/fs/reiserfs/fsimage.so
+%attr(755,root,root) %{_libdir}/fs/ufs/fsimage.so
 
 %files devel
 %defattr(644,root,root,755)
@@ -254,20 +273,14 @@ fi
 
 %files -n python-xen
 %defattr(644,root,root,755)
+
 %dir %{py_sitedir}/grub
 %{py_sitedir}/grub/*.py[co]
-%dir %{py_sitedir}/grub/fsys
-%{py_sitedir}/grub/fsys/*.py[co]
-%dir %{py_sitedir}/grub/fsys/reiser
-%{py_sitedir}/grub/fsys/reiser/*.py[co]
-%attr(755,root,root) %{py_sitedir}/grub/fsys/reiser/*.so
-%dir %{py_sitedir}/grub/fsys/ext2
-%{py_sitedir}/grub/fsys/ext2/*.py[co]
-%attr(755,root,root)  %{py_sitedir}/grub/fsys/ext2/*.so
 %dir %{py_sitedir}/xen
 %dir %{py_sitedir}/xen/lowlevel
 %{py_sitedir}/xen/lowlevel/*.py[co]
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/*.so
+%attr(755,root,root) %{py_sitedir}/fsimage.so
 %{py_sitedir}/xen/sv
 %{py_sitedir}/xen/util
 %{py_sitedir}/xen/web

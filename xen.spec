@@ -154,6 +154,7 @@ Skrypty udev dla xena.
 Summary:	xen Python modules
 Summary(pl.UTF-8):	Moduły Pythona dla xena
 Group:		Libraries
+Conflicts:	xen < 3.2.1-0.3
 
 %description -n python-xen
 xen Python modules.

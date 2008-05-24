@@ -13,12 +13,13 @@
 %undefine	with_pae
 %endif
 
-%define		subver	_1
+%define		hv_abi		 3.0
+%define		subver		_1
 %define		extraver	-1
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	3.0.4
+Version:	%{hv_abi}.4
 Release:	0.1
 License:	GPL
 Group:		Applications/System
@@ -34,9 +35,7 @@ Patch4:		%{name}-gcc4.patch
 URL:		http://www.cl.cam.ac.uk/research/srg/netos/xen/index.html
 BuildRequires:	SDL-devel
 #BuildRequires:	XFree86-devel
-%ifarch %{ix86}
 %{?with_hvm:BuildRequires:  bcc}
-%endif
 BuildRequires:	cpp
 BuildRequires:	curl-devel
 BuildRequires:	e2fsprogs-devel
@@ -136,10 +135,18 @@ Static xen libraries.
 %description static -l pl.UTF-8
 Statyczne biblioteki xena.
 
+%package hypervisor
+Summary:	Libraries for Xen tools
+Group:		Base/Kernel
+Provides:	xen-hypervisor-abi = %{hv_abi}
+
+%description hypervisor
+This package contains the Xen hypervisor
+
 %package hotplug
-Summary:    xen hotplug scripts
-Summary(pl.UTF-8):  Skrypty hotplug dla xena
-Group:      Application/System
+Summary:	xen hotplug scripts
+Summary(pl.UTF-8):	Skrypty hotplug dla xena
+Group:		Applications/System
 
 %description hotplug
 xen hotplug scripts.
@@ -148,9 +155,9 @@ xen hotplug scripts.
 Skrypty hotplug dla xena.
 
 %package udev
-Summary:    xen udev scripts
-Summary(pl.UTF-8):  Skrypty udev dla xena
-Group:      Application/System
+Summary:	xen udev scripts
+Summary(pl.UTF-8):	Skrypty udev dla xena
+Group:		Applications/System
 
 %description udev
 xen udev scripts.
@@ -241,9 +248,6 @@ fi
 %defattr(644,root,root,755)
 %doc COPYING README docs/misc/*
 %doc docs/html/*
-/boot/%{name}-syms-%{version}%{extraver}
-/boot/%{name}-%{version}%{extraver}.gz
-/boot/%{name}.gz
 %attr(754,root,root) /etc/rc.d/init.d/*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %dir %{_sysconfdir}/xen
@@ -301,6 +305,12 @@ fi
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
+
+%files hypervisor
+%defattr(644,root,root,755)
+/boot/%{name}-syms-%{version}%{extraver}
+/boot/%{name}-%{version}%{extraver}.gz
+/boot/%{name}.gz
 
 %files hotplug
 %defattr(644,root,root,755)

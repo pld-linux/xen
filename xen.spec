@@ -12,13 +12,13 @@
 %bcond_with	pae		# build with PAE (HIGHMEM64G) support
 %bcond_with	hvm		# build with hvm (full virtualization) support
 #
-%define		major	3.2
-%define		minor	1
+%define		major	3.3
+%define		minor	0
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	%{major}.%{minor}
-Release:	0.3
+Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -209,6 +209,10 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/qemu/qemu-doc.html
 rm -rf $RPM_BUILD_ROOT/''etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
 rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
+# strip - Unable to recognise the format of the input file 
+rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc32
+rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc64
+
 
 # conflict with qemu
 rm -f $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1

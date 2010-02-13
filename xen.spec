@@ -1,8 +1,9 @@
 #
 # NOTE:
-# - this is userspace for xen-3.2.0 (provided by kernel-xen.spec)
+# - this xen-3.3.0 kernel and userspace
 #   if you are looking for xen-3.0.2 (kernel.spec:LINUX_2_6_16), checkout
 #   this spec from XEN_3_0_2 branch
+# - you will also need dom0 enabled kernel
 #
 # TODO:
 # - pldized init scripts
@@ -37,9 +38,9 @@ BuildRequires:	ncurses-devel
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.268
-BuildRequires:	tetex-dvips
-BuildRequires:	tetex-format-latex
-BuildRequires:	tetex-latex-psnfss
+BuildRequires:	texlive-dvips
+BuildRequires:	texlive-latex-data
+BuildRequires:	texlive-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	zlib-devel

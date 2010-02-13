@@ -8,6 +8,11 @@
 # TODO:
 # - pldized init scripts
 # - script for rc-boot
+# - %%build fails on i686
+# - %%files fails on x86_64:
+#   Stripping 38 ELF executables.../usr/bin/strip: Unable to recognise the format of the input file `/home/users/pawelz/tmp/xen-3.4.2-root-pawelz/usr/share/xen/qemu/openbios-ppc'
+#   error: Bad exit status from /home/users/pawelz/tmp/rpm-tmp.17989 (%install)
+#   R: crossppc-binutils ???
 #
 # Conditional build:
 %bcond_with	pae		# build with PAE (HIGHMEM64G) support

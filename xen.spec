@@ -13,8 +13,8 @@
 %bcond_with	pae		# build with PAE (HIGHMEM64G) support
 %bcond_with	hvm		# build with hvm (full virtualization) support
 #
-%define		major	3.3
-%define		minor	0
+%define		major	3.4
+%define		minor	2
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
@@ -23,6 +23,7 @@ Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	f009a7abf51017aeee697c9130b6f8a6
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch

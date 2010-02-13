@@ -67,7 +67,7 @@ ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # some PPC/SPARC boot image in ELF format
-%define         _noautostrip    .*%{_datadir}/%{name}/qemu/openbios-.*
+%define         _noautostrip    .*%{_datadir}/xen/qemu/openbios-.*
 
 %ifnarch i686 athlon pentium3 pentium4
 %undefine	with_pae

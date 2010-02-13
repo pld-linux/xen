@@ -30,18 +30,21 @@ Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-gcc.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
+BuildRequires:	SDL-devel
 %{?with_hvm:BuildRequires:	bcc}
 BuildRequires:	curl-devel
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 5:3.4
+BuildRequires:	gettext-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
+BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	texlive-dvips
-BuildRequires:	texlive-latex-data
+#BuildRequires:	texlive-latex-data
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
@@ -137,7 +140,7 @@ Statyczne biblioteki xena.
 %package hotplug
 Summary:	xen hotplug scripts
 Summary(pl.UTF-8):	Skrypty hotplug dla xena
-Group:		Application/System
+Group:		Applications/System
 
 %description hotplug
 xen hotplug scripts.
@@ -148,7 +151,7 @@ Skrypty hotplug dla xena.
 %package udev
 Summary:	xen udev scripts
 Summary(pl.UTF-8):	Skrypty udev dla xena
-Group:		Application/System
+Group:		Applications/System
 
 %description udev
 xen udev scripts.
@@ -215,7 +218,7 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/qemu/qemu-doc.html
 rm -rf $RPM_BUILD_ROOT/''etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
 rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
-# strip - Unable to recognise the format of the input file 
+# strip - Unable to recognise the format of the input file
 rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc32
 rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc64
 

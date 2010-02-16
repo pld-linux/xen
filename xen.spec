@@ -290,6 +290,7 @@ fi
 %dir %{_libdir}/fs/iso9660
 %dir %{_libdir}/fs/reiserfs
 %dir %{_libdir}/fs/ufs
+%dir %{_libdir}/fs/zfs
 %attr(755,root,root) %{_libdir}/fs/*/*.so
 
 %files devel

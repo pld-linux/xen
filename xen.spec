@@ -57,7 +57,7 @@ Requires:	coreutils
 Requires:	diffutils
 Requires:	gawk
 Requires:	iptables
-Requires:	kernel(xen0) = %{major}
+Requires:	kernel(xen0)
 Requires:	losetup
 Requires:	net-tools
 Requires:	python-%{name} = %{version}-%{release}
@@ -218,9 +218,9 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/qemu/qemu-doc.html
 rm -rf $RPM_BUILD_ROOT/''etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
 rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
-# strip - Unable to recognise the format of the input file
-rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc32
-rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc64
+# # strip - Unable to recognise the format of the input file
+# rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc32
+# rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc64
 
 
 # conflict with qemu

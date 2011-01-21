@@ -92,17 +92,17 @@ be surprised if this RPM eats your data, drinks your coffee or makes
 fun of you in front of your friends.
 
 %description -l pl.UTF-8
-Ten pakiet zawiera nadzorc?? oraz narz??dzia Xen, potrzebne do
+Ten pakiet zawiera nadzorcę oraz narzędzia Xen, potrzebne do
 uruchamiania wirtualnych maszyn w systemach x86, wraz z pakietami
-kernel-xen*. Informacje jak u??ywa?? Xena mo??na znale???? na stronach
+kernel-xen*. Informacje jak używać Xena można znaleźć na stronach
 projektu.
 
-Wirtualizacja mo??e by?? u??ywana do uruchamiania wielu wersji lub wielu
+Wirtualizacja może być używana do uruchamiania wielu wersji lub wielu
 dystrybucji Linuksa na jednym systemie lub do testowania nie zaufanych
-aplikacji w odizolowanym ??rodowisku. Nale??y zauwa??y??, ??e technologia
-Xen jest ci??gle rozwijana, a ten RPM by?? s??abo testowany. Nie nale??y
-by?? zdziwionym, je??li ten pakiet zje dane, wypije ca???? kaw?? czy b??dzie
-si?? wy??miewa?? w obecno??ci przyjaci????.
+aplikacji w odizolowanym środowisku. Należy zauważyć, że technologia
+Xen jest ciągle rozwijana, a ten RPM był słabo testowany. Nie należy
+być zdziwionym, jeśli ten pakiet zje dane, wypije całą kawę czy będzie
+się wyśmiewał w obecności przyjaciół.
 
 %package libs
 Summary:	xen libraries
@@ -117,7 +117,7 @@ Biblioteki xena.
 
 %package devel
 Summary:	Header files for xen
-Summary(pl.UTF-8):	Pliki nag????wkowe xena
+Summary(pl.UTF-8):	Pliki nagłówkowe xena
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
 
@@ -125,7 +125,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 Header files for xen.
 
 %description devel -l pl.UTF-8
-Pliki nag????wkowe xena.
+Pliki nagłówkowe xena.
 
 %package static
 Summary:	Static xen libraries
@@ -163,7 +163,7 @@ Skrypty udev dla xena.
 
 %package -n python-xen
 Summary:	xen Python modules
-Summary(pl.UTF-8):	Modu??y Pythona dla xena
+Summary(pl.UTF-8):	Moduły Pythona dla xena
 Group:		Libraries
 Conflicts:	xen < 3.2.1-0.3
 
@@ -171,7 +171,7 @@ Conflicts:	xen < 3.2.1-0.3
 xen Python modules.
 
 %description -n python-xen -l pl.UTF-8
-Modu??y Pythona dla xena.
+Moduły Pythona dla xena.
 
 %prep
 %setup -q

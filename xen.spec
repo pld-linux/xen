@@ -201,8 +201,8 @@ install -d $RPM_BUILD_ROOT/var/run/{xen-hotplug,xend,xenstored}
 	XEN_PYTHON_NATIVE_INSTALL=1
 
 install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
-install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
+install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
+install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 
 install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
 install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/save
@@ -215,21 +215,20 @@ cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
 
 %py_postclean
 # remove unneeded files
-rm -f $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
-rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
-rm -rf $RPM_BUILD_ROOT%{_docdir}/qemu/qemu-doc.html
-rm -rf $RPM_BUILD_ROOT/''etc/init.d
-rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
-rm -f $RPM_BUILD_ROOT/boot/xen-3.4.gz
-rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
-# # strip - Unable to recognise the format of the input file
-# rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc32
-# rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc64
+%{__rm} $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
+%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
+%{__rm} $RPM_BUILD_ROOT%{_docdir}/qemu/qemu-doc.html
+%{__rm} -r $RPM_BUILD_ROOT/''etc/init.d
+%{__rm} $RPM_BUILD_ROOT/boot/xen-3.4.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-3.gz
 
+# strip - Unable to recognise the format of the input file
+# %{__rm} $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc32
+# %{__rm} $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc64
 
 # conflict with qemu
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1
-rm -f $RPM_BUILD_ROOT%{_mandir}/man1/qemu.1
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/qemu.1
 
 %clean
 rm -rf $RPM_BUILD_ROOT

@@ -29,6 +29,7 @@ Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-gcc.patch
+Patch2:		%{name}-symbols.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	SDL-devel
 %{?with_hvm:BuildRequires:	bcc}
@@ -39,6 +40,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
+BuildRequires:	pciutils-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
@@ -90,17 +92,17 @@ be surprised if this RPM eats your data, drinks your coffee or makes
 fun of you in front of your friends.
 
 %description -l pl.UTF-8
-Ten pakiet zawiera nadzorcę oraz narzędzia Xen, potrzebne do
+Ten pakiet zawiera nadzorc?? oraz narz??dzia Xen, potrzebne do
 uruchamiania wirtualnych maszyn w systemach x86, wraz z pakietami
-kernel-xen*. Informacje jak używać Xena można znaleźć na stronach
+kernel-xen*. Informacje jak u??ywa?? Xena mo??na znale???? na stronach
 projektu.
 
-Wirtualizacja może być używana do uruchamiania wielu wersji lub wielu
+Wirtualizacja mo??e by?? u??ywana do uruchamiania wielu wersji lub wielu
 dystrybucji Linuksa na jednym systemie lub do testowania nie zaufanych
-aplikacji w odizolowanym środowisku. Należy zauważyć, że technologia
-Xen jest ciągle rozwijana, a ten RPM był słabo testowany. Nie należy
-być zdziwionym, jeśli ten pakiet zje dane, wypije całą kawę czy będzie
-się wyśmiewał w obecności przyjaciół.
+aplikacji w odizolowanym ??rodowisku. Nale??y zauwa??y??, ??e technologia
+Xen jest ci??gle rozwijana, a ten RPM by?? s??abo testowany. Nie nale??y
+by?? zdziwionym, je??li ten pakiet zje dane, wypije ca???? kaw?? czy b??dzie
+si?? wy??miewa?? w obecno??ci przyjaci????.
 
 %package libs
 Summary:	xen libraries
@@ -115,7 +117,7 @@ Biblioteki xena.
 
 %package devel
 Summary:	Header files for xen
-Summary(pl.UTF-8):	Pliki nagłówkowe xena
+Summary(pl.UTF-8):	Pliki nag????wkowe xena
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
 
@@ -123,7 +125,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 Header files for xen.
 
 %description devel -l pl.UTF-8
-Pliki nagłówkowe xena.
+Pliki nag????wkowe xena.
 
 %package static
 Summary:	Static xen libraries
@@ -161,7 +163,7 @@ Skrypty udev dla xena.
 
 %package -n python-xen
 Summary:	xen Python modules
-Summary(pl.UTF-8):	Moduły Pythona dla xena
+Summary(pl.UTF-8):	Modu??y Pythona dla xena
 Group:		Libraries
 Conflicts:	xen < 3.2.1-0.3
 
@@ -169,12 +171,13 @@ Conflicts:	xen < 3.2.1-0.3
 xen Python modules.
 
 %description -n python-xen -l pl.UTF-8
-Moduły Pythona dla xena.
+Modu??y Pythona dla xena.
 
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 find '(' -name '*~' -o -name '*.orig' -o -name '.gitignore' ')' -print0 | xargs -0 -r -l512 rm -fv
 
@@ -217,6 +220,7 @@ rm -rf $RPM_BUILD_ROOT%{_docdir}/xen
 rm -rf $RPM_BUILD_ROOT%{_docdir}/qemu/qemu-doc.html
 rm -rf $RPM_BUILD_ROOT/''etc/init.d
 rm -f $RPM_BUILD_ROOT/boot/xen-3.2.gz
+rm -f $RPM_BUILD_ROOT/boot/xen-3.4.gz
 rm -f $RPM_BUILD_ROOT/boot/xen-3.gz
 # # strip - Unable to recognise the format of the input file
 # rm -f $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc32
@@ -258,8 +262,8 @@ fi
 %dir %{_sysconfdir}/xen
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/qemu-ifup
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*
-#%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/b*
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xmexample[12]
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/README
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xmexample[123]
 %dir %{_sysconfdir}/xen/auto
 %dir %{_sysconfdir}/xen/scripts
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/scripts/*
@@ -302,11 +306,9 @@ fi
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
 
-%if %{without hvm}
 %files hotplug
 %defattr(644,root,root,755)
 %attr(755,root,root) /etc/hotplug/*
-%endif
 
 %files udev
 %defattr(644,root,root,755)

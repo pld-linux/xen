@@ -1,0 +1,24 @@
+diff -uNr xen-3.4.3.orig/tools/flask/libflask/Makefile xen-3.4.3/tools/flask/libflask/Makefile
+--- xen-3.4.3.orig/tools/flask/libflask/Makefile	2010-06-03 19:42:29.000000000 +0200
++++ xen-3.4.3/tools/flask/libflask/Makefile	2011-01-21 13:01:57.000000000 +0100
+@@ -15,7 +15,7 @@
+ 
+ # Get gcc to generate the dependencies for us.
+ CFLAGS   += -Wp,-MD,.$(@F).d
+-LDFLAGS  += -L.
++LDFLAGS  += -L. -L../../libxc -lxenctrl 
+ 
+ LIB_OBJS := $(patsubst %.c,%.o,$(SRCS))
+ PIC_OBJS := $(patsubst %.c,%.opic,$(SRCS))
+diff -uNr xen-3.4.3.orig/tools/libfsimage/common/Makefile xen-3.4.3/tools/libfsimage/common/Makefile
+--- xen-3.4.3.orig/tools/libfsimage/common/Makefile	2010-06-03 19:42:31.000000000 +0200
++++ xen-3.4.3/tools/libfsimage/common/Makefile	2011-01-21 13:05:34.290513274 +0100
+@@ -5,7 +5,7 @@
+ MINOR = 0
+ 
+ LDFLAGS-$(CONFIG_SunOS) = -Wl,-M -Wl,mapfile-SunOS
+-LDFLAGS-$(CONFIG_Linux) = -Wl,mapfile-GNU
++LDFLAGS-$(CONFIG_Linux) = -Wl,mapfile-GNU -ldl
+ LDFLAGS = $(LDFLAGS-y)
+ 
+ LIB_SRCS-y = fsimage.c fsimage_plugin.c fsimage_grub.c

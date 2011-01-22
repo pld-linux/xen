@@ -1,0 +1,12 @@
+diff -uNr xen-3.4.3/tools/xenstat/Makefile xen-3.4.3.new//tools/xenstat/Makefile
+--- xen-3.4.3/tools/xenstat/Makefile	2010-06-03 19:42:38.000000000 +0200
++++ xen-3.4.3.new//tools/xenstat/Makefile	2011-01-22 08:25:29.621404344 +0100
+@@ -6,7 +6,7 @@
+ 
+ # This doesn't cross-compile (cross-compile environments rarely have curses)
+ ifeq ($(XEN_COMPILE_ARCH),$(XEN_TARGET_ARCH))
+-ifeq ($(wildcard /usr/include/curses.h),/usr/include/curses.h)
++ifeq ($(wildcard /usr/include/ncurses/curses.h),/usr/include/ncurses/curses.h)
+ SUBDIRS += xentop
+ endif
+ endif

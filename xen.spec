@@ -30,6 +30,8 @@ Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-gcc.patch
 Patch2:		%{name}-symbols.patch
+Patch3:		%{name}-curses.patch
+Patch4:		%{name}-python27.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	SDL-devel
 %{?with_hvm:BuildRequires:	bcc}
@@ -178,6 +180,8 @@ Moduły Pythona dla xena.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
 
 find '(' -name '*~' -o -name '*.orig' -o -name '.gitignore' ')' -print0 | xargs -0 -r -l512 rm -fv
 
@@ -217,18 +221,9 @@ cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
 # remove unneeded files
 %{__rm} $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
-%{__rm} $RPM_BUILD_ROOT%{_docdir}/qemu/qemu-doc.html
 %{__rm} -r $RPM_BUILD_ROOT/''etc/init.d
 %{__rm} $RPM_BUILD_ROOT/boot/xen-3.4.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-3.gz
-
-# strip - Unable to recognise the format of the input file
-# %{__rm} $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc32
-# %{__rm} $RPM_BUILD_ROOT%{_datadir}/xen/qemu/openbios-sparc64
-
-# conflict with qemu
-%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img.1
-%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/qemu.1
 
 %clean
 rm -rf $RPM_BUILD_ROOT

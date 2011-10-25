@@ -59,9 +59,9 @@ elif [ -r $INITD/functions ]; then
     on_fn_exit()
     {
 	if [ $RETVAL -eq 0 ]; then
-	    success
+	    ok
 	else
-	    failure
+	    fail
 	fi
 
 	echo

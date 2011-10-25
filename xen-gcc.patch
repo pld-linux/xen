@@ -52,3 +52,12 @@ diff -uNr xen-3.4.3.old/tools/xenstat/xentop/Makefile xen-3.4.3/tools/xenstat/xe
  LDFLAGS += -L$(XEN_LIBXENSTAT)
  LDLIBS += -lxenstat $(CURSES_LIBS) $(SOCKET_LIBS)
  CFLAGS += -DHOST_$(XEN_OS)
+diff -uNr xen-3.4.3.old/tools/firmware/Rules.mk xen-3.4.3/tools/firmware/Rules.mk
+--- xen-3.4.3.old/tools/firmware/Rules.mk	2010-06-03 19:42:28.000000000 +0200
++++ xen-3.4.3/tools/firmware/Rules.mk	2011-10-25 11:34:59.570970994 +0200
+@@ -18,4 +18,4 @@
+ $(call cc-option-add,CFLAGS,CC,-fno-stack-protector-all)
+ 
+ # Extra CFLAGS suitable for an embedded type of environment.
+-CFLAGS += -fno-builtin -msoft-float
++CFLAGS += -fno-builtin -msoft-float -O1

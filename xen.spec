@@ -1,6 +1,7 @@
 #
 # TODO:
 #  - most of the qemu config options aren't detected (curses, NPTL, vde, fdt)
+#  - package the ocaml stuff
 #
 # Conditional build:
 %bcond_without	hvm		# build with hvm (full virtualization) support

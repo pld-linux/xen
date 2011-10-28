@@ -10,3 +10,29 @@ diff -uNr xen-3.4.3/tools/xenstat/Makefile xen-3.4.3.new//tools/xenstat/Makefile
  SUBDIRS += xentop
  endif
  endif
+--- xen-4.1.2/tools/ioemu-qemu-xen/configure~	2011-02-11 18:54:51.000000000 +0100
++++ xen-4.1.2/tools/ioemu-qemu-xen/configure	2011-10-28 21:47:32.610940849 +0200
+@@ -968,10 +968,10 @@
+ if test "$curses" = "yes" ; then
+   curses=no
+   cat > $TMPC << EOF
+-#include <curses.h>
++#include <ncurses/curses.h>
+ int main(void) { return curses_version(); }
+ EOF
+-  if $cc $ARCH_CFLAGS -o $TMPE $TMPC -lcurses > /dev/null 2> /dev/null ; then
++  if $cc $ARCH_CFLAGS -o $TMPE $TMPC -lncurses > /dev/null 2> /dev/null ; then
+     curses=yes
+   fi
+ fi # test "$curses"
+--- xen-4.1.2/tools/ioemu-qemu-xen/curses.c~	2011-02-11 18:54:51.000000000 +0100
++++ xen-4.1.2/tools/ioemu-qemu-xen/curses.c	2011-10-28 21:47:04.862996728 +0200
+@@ -26,7 +26,7 @@
+ #include "console.h"
+ #include "sysemu.h"
+ 
+-#include <curses.h>
++#include <ncurses/curses.h>
+ 
+ #ifndef _WIN32
+ #include <signal.h>

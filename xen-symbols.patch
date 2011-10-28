@@ -22,3 +22,14 @@ diff -uNr xen-3.4.3.orig/tools/libfsimage/common/Makefile xen-3.4.3/tools/libfsi
  LDFLAGS = $(LDFLAGS-y)
  
  LIB_SRCS-y = fsimage.c fsimage_plugin.c fsimage_grub.c
+--- xen-4.1.2/tools/libxl/Makefile.orig	2011-10-28 20:03:02.698804554 +0200
++++ xen-4.1.2/tools/libxl/Makefile	2011-10-28 20:17:35.919050445 +0200
+@@ -8,6 +8,8 @@
+ MAJOR = 1.0
+ MINOR = 0
+ 
++LDFLAGS += -lutil -luuid -L../libxc -lxenctrl -lxenguest -L../xenstore -lxenstore -L../blktap2/control -lblktapctl
++
+ XLUMAJOR = 1.0
+ XLUMINOR = 0
+ 

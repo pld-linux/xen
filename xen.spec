@@ -1,37 +1,25 @@
 #
-# NOTE:
-# - this xen-3.3.0 kernel and userspace
-#   if you are looking for xen-3.0.2 (kernel.spec:LINUX_2_6_16), checkout
-#   this spec from XEN_3_0_2 branch
-# - you will also need dom0 enabled kernel
-#
 # TODO:
-# - pldized init scripts
-# - script for rc-boot
-# - %%build fails on i686
+#  - most of the qemu config options aren't detected (curses, NPTL, vde, fdt)
 #
 # Conditional build:
-%bcond_with	pae		# build with PAE (HIGHMEM64G) support
-%bcond_with	hvm		# build with hvm (full virtualization) support
+%bcond_without	hvm		# build with hvm (full virtualization) support
 #
-%define		major	3.4
-%define		minor	3
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	%{major}.%{minor}
-Release:	0.2
+Version:	4.1.2
+Release:	0.1
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	f8d001eb9e08525c451d38deb93908b1
+# Source0-md5:	73561faf3c1b5e36ec5c089b5db848ad
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
 Patch0:		%{name}-python_scripts.patch
-Patch1:		%{name}-gcc.patch
-Patch2:		%{name}-symbols.patch
-Patch3:		%{name}-curses.patch
-Patch4:		%{name}-python27.patch
+Patch1:		%{name}-symbols.patch
+Patch2:		%{name}-curses.patch
+Patch3:		%{name}-gcc.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	SDL-devel
 %{?with_hvm:BuildRequires:	bcc}
@@ -47,7 +35,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.268
-BuildRequires:	texlive-dvips
+#BuildRequires:	texlive-dvips
 #BuildRequires:	texlive-latex-data
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	transfig
@@ -75,10 +63,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # some PPC/SPARC boot image in ELF format
 %define         _noautostrip    .*%{_datadir}/xen/qemu/openbios-.*
-
-%ifnarch i686 athlon pentium3 pentium4
-%undefine	with_pae
-%endif
 
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run
@@ -141,17 +125,6 @@ Static xen libraries.
 %description static -l pl.UTF-8
 Statyczne biblioteki xena.
 
-%package hotplug
-Summary:	xen hotplug scripts
-Summary(pl.UTF-8):	Skrypty hotplug dla xena
-Group:		Applications/System
-
-%description hotplug
-xen hotplug scripts.
-
-%description hotplug -l pl.UTF-8
-Skrypty hotplug dla xena.
-
 %package udev
 Summary:	xen udev scripts
 Summary(pl.UTF-8):	Skrypty udev dla xena
@@ -162,6 +135,28 @@ xen udev scripts.
 
 %description udev -l pl.UTF-8
 Skrypty udev dla xena.
+
+%package xend
+Summary:	xend daemon
+Summary(pl.UTF-8):	Demon xend
+Group:		Daemons
+
+%description xend
+xend daemon.
+
+%description xend -l pl.UTF-8
+Demon xend.
+
+%package watchdog
+Summary:	watchdog daemon
+Summary(pl.UTF-8):	Demon watchdog
+Group:		Daemons
+
+%description watchdog
+watchdog daemon.
+
+%description watchdog -l pl.UTF-8
+Demon watchdog.
 
 %package -n python-xen
 Summary:	xen Python modules
@@ -175,70 +170,88 @@ xen Python modules.
 %description -n python-xen -l pl.UTF-8
 Moduły Pythona dla xena.
 
+%package -n bash-completion-%{name}
+Summary:    bash-completion for xen
+Group:      Applications/Shells
+Requires:   %{name} = %{version}-%{release}
+Requires:   bash-completion
+
+%description -n bash-completion-%{name}
+This package provides bash-completion for xen.
+
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
-%patch4 -p1
+#%%patch3 -p1
 
-find '(' -name '*~' -o -name '*.orig' -o -name '.gitignore' ')' -print0 | xargs -0 -r -l512 rm -fv
+rm -f tools/check/*.orig
 
 %build
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 %{__make} -j1 xen tools \
-	%{?with_pae:XEN_TARGET_X86_PAE=y} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/var/run/{xen-hotplug,xend,xenstored}
+install -d $RPM_BUILD_ROOT/etc/xen/examples
 
 %{__make} install-xen install-tools install-docs \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
-	%{?with_pae:XEN_TARGET_X86_PAE=y} \
-	DESTDIR=$RPM_BUILD_ROOT \
-	XEN_PYTHON_NATIVE_INSTALL=1
+	DESTDIR=$RPM_BUILD_ROOT
 
-install -d $RPM_BUILD_ROOT/etc/rc.d/init.d
-install -p %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
-install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
+mv $RPM_BUILD_ROOT/etc/xen/{xmexample*,examples}
 
-install -d $RPM_BUILD_ROOT%{_localstatedir}/lib/%{name}/xend-db/{domain,vnet}
-install -d $RPM_BUILD_ROOT%{_sharedstatedir}/xen/save
-
-cp -a dist/install/etc/udev $RPM_BUILD_ROOT%{_sysconfdir}
-cp -a dist/install/etc/hotplug $RPM_BUILD_ROOT%{_sysconfdir}
+cp -a tools/blktap/README{,.blktap}
+cp -a tools/xenmon/README{,.xenmon}
 
 %py_comp $RPM_BUILD_ROOT%{py_sitedir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
 
 %py_postclean
+
 # remove unneeded files
-%{__rm} $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.1.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
-%{__rm} -r $RPM_BUILD_ROOT/''etc/init.d
-%{__rm} $RPM_BUILD_ROOT/boot/xen-3.4.gz
-%{__rm} $RPM_BUILD_ROOT/boot/xen-3.gz
+%{__rm} $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-/sbin/chkconfig --add xend
+/sbin/chkconfig --add xencommons
 /sbin/chkconfig --add xendomains
 
 %preun
 if [ "$1" = "0" ]; then
-	%service xend stop
-	/sbin/chkconfig --del xend
-
 	%service xendomains stop
 	/sbin/chkconfig --del xendomains
+
+	%service xencommons stop
+	/sbin/chkconfig --del xencommons
+fi
+
+%post  xend
+/sbin/chkconfig --add xend
+
+%preun xend
+if [ "$1" = "0" ]; then
+	%service xend stop
+	/sbin/chkconfig --del xend
+fi
+
+%post  watchdog
+/sbin/chkconfig --add xen-watchdog
+
+%preun watchdog
+if [ "$1" = "0" ]; then
+	%service xen-watchdog stop
+	/sbin/chkconfig --del xen-watchdog
 fi
 
 %post	libs -p /sbin/ldconfig
@@ -246,23 +259,30 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc COPYING README docs/misc/*
+%doc COPYING README* docs/misc/* 
 %doc docs/html/*
+%doc tools/blktap/README.blktap tools/xenmon/README.xenmon
+%doc tools/ioemu-dir/*.html
 /boot/%{name}-syms-%{version}
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
-%attr(754,root,root) /etc/rc.d/init.d/*
+%attr(754,root,root) /etc/rc.d/init.d/xencommons
+%attr(754,root,root) /etc/rc.d/init.d/xendomains
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
 %dir %{_sysconfdir}/xen
-%attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/qemu-ifup
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/*.*
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/README
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xmexample[123]
 %dir %{_sysconfdir}/xen/auto
+%dir %{_sysconfdir}/xen/examples
 %dir %{_sysconfdir}/xen/scripts
 %attr(755,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/scripts/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/examples/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/README*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/cpupool
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xl.conf
 %attr(755,root,root) %{_bindir}/*
-%attr(755,root,root) %{_sbindir}/*
+%attr(755,root,root) %{_sbindir}/[bfgikloqtv]*
+%attr(755,root,root) %{_sbindir}/xen??*
+%attr(755,root,root) %{_sbindir}/xl
+%attr(755,root,root) %{_sbindir}/xsview
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
@@ -275,8 +295,6 @@ fi
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored
-%dir /var/run/xen-hotplug
-%dir %attr(700,root,root) /var/run/xend
 %dir /var/run/xenstored
 
 %files libs
@@ -300,13 +318,23 @@ fi
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
 
-%files hotplug
-%defattr(644,root,root,755)
-%attr(755,root,root) /etc/hotplug/*
-
 %files udev
 %defattr(644,root,root,755)
 %config(noreplace) %verify(not md5 mtime size) /etc/udev/*
+
+%files xend
+%defattr(644,root,root,755)
+%attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xend
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xm*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xend*
+%attr(755,root,root) %{_sbindir}/xend
+%attr(755,root,root) %{_sbindir}/xm
+%dir %attr(700,root,root) /var/run/xend
+
+%files watchdog
+%defattr(644,root,root,755)
+%attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xen-watchdog
+%attr(755,root,root) %{_sbindir}/xenwatchdogd
 
 %files -n python-xen
 %defattr(644,root,root,755)
@@ -316,6 +344,7 @@ fi
 %dir %{py_sitedir}/xen/lowlevel
 %{py_sitedir}/xen/lowlevel/*.py*
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/*.so
+%{py_sitedir}/xen/remus
 %{py_sitedir}/xen/sv
 %{py_sitedir}/xen/util
 %{py_sitedir}/xen/web
@@ -326,3 +355,7 @@ fi
 %if "%{py_ver}" > "2.4"
 %{py_sitedir}/*.egg-info
 %endif
+
+%files -n bash-completion-%{name}
+%defattr(644,root,root,755)
+/etc/bash_completion.d/*

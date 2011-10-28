@@ -10,7 +10,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.1.2
-Release:	0.1
+Release:	0.2
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -148,17 +148,6 @@ xend daemon.
 %description xend -l pl.UTF-8
 Demon xend.
 
-%package watchdog
-Summary:	watchdog daemon
-Summary(pl.UTF-8):	Demon watchdog
-Group:		Daemons
-
-%description watchdog
-watchdog daemon.
-
-%description watchdog -l pl.UTF-8
-Demon watchdog.
-
 %package -n python-xen
 Summary:	xen Python modules
 Summary(pl.UTF-8):	Moduły Pythona dla xena
@@ -225,6 +214,7 @@ cp -a tools/xenmon/README{,.xenmon}
 rm -rf $RPM_BUILD_ROOT
 
 %post
+/sbin/chkconfig --add xen-watchdog
 /sbin/chkconfig --add xencommons
 /sbin/chkconfig --add xendomains
 
@@ -235,6 +225,9 @@ if [ "$1" = "0" ]; then
 
 	%service xencommons stop
 	/sbin/chkconfig --del xencommons
+
+	%service xen-watchdog stop
+	/sbin/chkconfig --del xen-watchdog
 fi
 
 %post  xend
@@ -244,15 +237,6 @@ fi
 if [ "$1" = "0" ]; then
 	%service xend stop
 	/sbin/chkconfig --del xend
-fi
-
-%post  watchdog
-/sbin/chkconfig --add xen-watchdog
-
-%preun watchdog
-if [ "$1" = "0" ]; then
-	%service xen-watchdog stop
-	/sbin/chkconfig --del xen-watchdog
 fi
 
 %post	libs -p /sbin/ldconfig
@@ -267,6 +251,7 @@ fi
 /boot/%{name}-syms-%{version}
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
+%attr(754,root,root) /etc/rc.d/init.d/xen-watchdog
 %attr(754,root,root) /etc/rc.d/init.d/xencommons
 %attr(754,root,root) /etc/rc.d/init.d/xendomains
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
@@ -331,11 +316,6 @@ fi
 %attr(755,root,root) %{_sbindir}/xend
 %attr(755,root,root) %{_sbindir}/xm
 %dir %attr(700,root,root) /var/run/xend
-
-%files watchdog
-%defattr(644,root,root,755)
-%attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xen-watchdog
-%attr(755,root,root) %{_sbindir}/xenwatchdogd
 
 %files -n python-xen
 %defattr(644,root,root,755)

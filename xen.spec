@@ -32,6 +32,7 @@ Patch1:		%{name}-gcc.patch
 Patch2:		%{name}-symbols.patch
 Patch3:		%{name}-curses.patch
 Patch4:		%{name}-python27.patch
+Patch5:		%{name}-drbd-hvm.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	SDL-devel
 %{?with_hvm:BuildRequires:	bcc}
@@ -182,6 +183,7 @@ Moduły Pythona dla xena.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 find '(' -name '*~' -o -name '*.orig' -o -name '.gitignore' ')' -print0 | xargs -0 -r -l512 rm -fv
 

@@ -1,0 +1,19 @@
+diff -uNr xen-3.4.3.orig/tools/ioemu-qemu-xen/xenstore.c xen-3.4.3/tools/ioemu-qemu-xen/xenstore.c
+--- xen-3.4.3.orig/tools/ioemu-qemu-xen/xenstore.c	2010-04-14 16:34:59.000000000 +0200
++++ xen-3.4.3/tools/ioemu-qemu-xen/xenstore.c	2011-11-23 15:17:56.929696307 +0100
+@@ -453,6 +453,15 @@
+             params = newparams;
+ 	    format = &bdrv_raw;
+         }
++	/* handle drbd mapping */
++	if (!strcmp(drv, "drbd")) {
++	    char *newparams = malloc(17 + strlen(params) + 1);
++	    sprintf(newparams, "/dev/drbd/by-res/%s", params);
++	    free(params);
++	    sleep(10);
++	    params = newparams;
++	    format = &bdrv_raw;
++	} 
+ 
+ #if 0
+ 	/* Phantom VBDs are disabled because the use of paths

@@ -11,7 +11,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.1.2
-Release:	0.2
+Release:	0.3
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -35,6 +35,7 @@ Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
 Patch3:		%{name}-gcc.patch
+Patch4:		%{name}-xz.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	SDL-devel
 %{?with_hvm:BuildRequires:	bcc}
@@ -189,6 +190,7 @@ This package provides bash-completion for xen.
 %patch1 -p1
 %patch2 -p1
 #%%patch3 -p1
+%patch4 -p1
 
 %{__rm} -v tools/check/*.orig
 

@@ -5,7 +5,8 @@
 #
 # Conditional build:
 %bcond_without	hvm		# build with hvm (full virtualization) support
-#
+
+%define	xen_extfiles_url	http://xenbits.xensource.com/xen-extfiles
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
@@ -17,6 +18,19 @@ Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}
 # Source0-md5:	73561faf3c1b5e36ec5c089b5db848ad
 Source1:	%{name}-xend.init
 Source2:	%{name}-xendomains.init
+# used by stubdoms
+Source10: %{xen_extfiles_url}/lwip-1.3.0.tar.gz
+# Source10-md5:	36cc57650cffda9a0269493be2a169bb
+Source11: %{xen_extfiles_url}/newlib-1.16.0.tar.gz
+# Source11-md5:	bf8f1f9e3ca83d732c00a79a6ef29bc4
+Source12: %{xen_extfiles_url}/zlib-1.2.3.tar.gz
+# Source12-md5:	debc62758716a169df9f62e6ab2bc634
+Source13: %{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
+# Source13-md5:	cec05e7785497c5e19da2f114b934ffd
+Source14: %{xen_extfiles_url}/grub-0.97.tar.gz
+# Source14-md5:	cd3f3eb54446be6003156158d51f4884
+Source15: %{xen_extfiles_url}/ipxe-git-v1.0.0.tar.gz
+# Source15-md5:	fb7df96781d337899066d82059346885
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
@@ -176,7 +190,12 @@ This package provides bash-completion for xen.
 %patch2 -p1
 #%%patch3 -p1
 
-rm -f tools/check/*.orig
+%{__rm} -v tools/check/*.orig
+
+# stubdom sources
+ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
+ln -s %{PATCH23} stubdom/grub.patches/99grub-ext4-support.patch
+ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 
 %build
 CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
@@ -189,15 +208,15 @@ CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/xen/examples
 
-%{__make} install-xen install-tools install-docs \
+%{__make} install-xen install-tools install-stubdom install-docs \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
 	DESTDIR=$RPM_BUILD_ROOT
 
 mv $RPM_BUILD_ROOT/etc/xen/{xmexample*,examples}
 
-cp -a tools/blktap/README{,.blktap}
-cp -a tools/xenmon/README{,.xenmon}
+cp -p tools/blktap/README{,.blktap}
+cp -p tools/xenmon/README{,.xenmon}
 
 %py_comp $RPM_BUILD_ROOT%{py_sitedir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}

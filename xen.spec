@@ -11,13 +11,11 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.1.2
-Release:	0.3
+Release:	1
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	73561faf3c1b5e36ec5c089b5db848ad
-Source1:	%{name}-xend.init
-Source2:	%{name}-xendomains.init
 # used by stubdoms
 Source10: %{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb

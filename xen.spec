@@ -36,6 +36,7 @@ Patch3:		%{name}-gcc.patch
 Patch4:		%{name}-xz.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	SDL-devel
+BuildRequires:	acpica
 %{?with_hvm:BuildRequires:	bcc}
 BuildRequires:	curl-devel
 BuildRequires:	e2fsprogs-devel

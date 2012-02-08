@@ -64,7 +64,6 @@ Requires:	coreutils
 Requires:	diffutils
 Requires:	gawk
 Requires:	iptables
-Requires:	kernel(xen0)
 Requires:	losetup
 Requires:	net-tools
 Requires:	python-%{name} = %{version}-%{release}

@@ -230,11 +230,11 @@ install -d $RPM_BUILD_ROOT/etc/xen/examples \
 install %{SOURCE30} $RPM_BUILD_ROOT%{systemdunitdir}/proc-xen.mount
 install %{SOURCE31} $RPM_BUILD_ROOT%{systemdunitdir}/var-lib-xenstored.mount
 install %{SOURCE32} $RPM_BUILD_ROOT%{systemdunitdir}/blktapctrl.service
-install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl.sysconfig
+install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl
 install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
-install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled.sysconfig
+install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
 install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
-install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored.sysconfig
+install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored
 install %{SOURCE38} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xenstored.conf
 install %{SOURCE39} $RPM_BUILD_ROOT%{systemdunitdir}/xend.service
 install %{SOURCE40} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xend.conf

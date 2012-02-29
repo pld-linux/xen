@@ -21,7 +21,7 @@
 . /etc/rc.d/init.d/functions
 
 # Read in configuration options.
-[ /etc/sysconfig/xenstored ] && . /etc/sysconfig/xenstored
+[ -f /etc/sysconfig/xenstored ] && . /etc/sysconfig/xenstored
 
 if [ "$1" = "start" -a -d /proc/xen -a ! -f /proc/xen/capabilities ] && \
 		! grep -qs '^xenfs ' /proc/mounts >/dev/null; then

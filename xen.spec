@@ -48,8 +48,17 @@ Source55:	xen.logrotate
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
-Patch3:		%{name}-gcc.patch
-Patch4:		%{name}-xz.patch
+Patch3:		%{name}-xz.patch
+Patch4:		pygrubfix.patch
+Patch5:		pygrubfix2.patch
+Patch6:		qemu-xen-4.1-testing.git-3cf61880403b4e484539596a95937cc066243388.patch
+Patch7:		xen-4.1-testing.23190.patch
+Patch8:		xend.catchbt.patch
+Patch9:		xend.empty.xml.patch
+Patch10:	xend-pci-loop.patch
+Patch11:	xen-dumpdir.patch
+# stubdom patch
+Patch100:	grub-ext4-support.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	SDL-devel
 BuildRequires:	acpica
@@ -193,14 +202,21 @@ This package provides bash-completion for xen.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-#%%patch3 -p1
+%patch3 -p1
 %patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
 
 %{__rm} -v tools/check/*.orig
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
-ln -s %{PATCH23} stubdom/grub.patches/99grub-ext4-support.patch
+ln -s %{PATCH100} stubdom/grub.patches/99grub-ext4-support.patch
 ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 
 %build
@@ -229,8 +245,9 @@ install -d $RPM_BUILD_ROOT/etc/xen/examples \
 
 install %{SOURCE30} $RPM_BUILD_ROOT%{systemdunitdir}/proc-xen.mount
 install %{SOURCE31} $RPM_BUILD_ROOT%{systemdunitdir}/var-lib-xenstored.mount
-install %{SOURCE32} $RPM_BUILD_ROOT%{systemdunitdir}/blktapctrl.service
-install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl
+# started internally by xend
+#install %{SOURCE32} $RPM_BUILD_ROOT%{systemdunitdir}/blktapctrl.service
+#install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl
 install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
 install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
 install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
@@ -309,14 +326,15 @@ fi
 /boot/%{name}-syms-%{version}
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenconsoled
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenstored
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xendomains
 %attr(754,root,root) /etc/rc.d/init.d/xen-watchdog
 %attr(754,root,root) /etc/rc.d/init.d/xenconsoled
 %attr(754,root,root) /etc/rc.d/init.d/xenstored
 %attr(754,root,root) /etc/rc.d/init.d/xendomains
 %{systemdunitdir}/proc-xen.mount
 %{systemdunitdir}/var-lib-xenstored.mount
-%{systemdunitdir}/blktapctrl.service
 %{systemdunitdir}/xen-watchdog.service
 %{systemdunitdir}/xenconsoled.service
 %{systemdunitdir}/xenstored.service
@@ -380,8 +398,10 @@ fi
 
 %files xend
 %defattr(644,root,root,755)
-%attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xend
+#%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/blktapctrl
+#%{systemdunitdir}/blktapctrl.service
 %{systemdunitdir}/xend.service
+%attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xend
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xm*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xend*
 %attr(755,root,root) %{_sbindir}/xend

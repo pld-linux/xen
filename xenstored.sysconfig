@@ -1,0 +1,5 @@
+# Running xenstored on XENSTORED_ROOTDIR
+#XENSTORED_ROOTDIR=/var/lib/xenstored
+
+# Log xenstored messages
+#XENSTORED_ARGS="-T /var/log/xen/xenstored-trace.log"

@@ -1,0 +1,7 @@
+# Log xenconsoled messages (none|guest console only|hypervisor messages only|both)
+#XENCONSOLED_LOG=[none|guest|hv|all]
+
+# Location to store guest & hypervisor logs
+#XENCONSOLED_LOG_DIR=/var/log/xen/console
+
+#XENCONSOLED_ARGS=

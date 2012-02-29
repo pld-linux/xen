@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# xen-watchdog		Run XEN domain watchdog daemon
+#
+# chkconfig:		2345 21 79
+# description:		Run XEN domain watchdog daemon
+# processname:		xenwatchdogd
+#
+### BEGIN INIT INFO
+# Provides:          xen-watchdog
+# Required-Start:    $syslog $remote_fs
+# Should-Start:      xend
+# Required-Stop:     $syslog $remote_fs
+# Should-Stop:       xend
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop xen-watchdog
+# Description:       Run XEN domain watchdog daemon.
+### END INIT INFO
+#
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+start() {
+	if [ -f /var/lock/subsys/xen-watchdog ]; then
+		msg_already_running "XEN domain watchdog daemon"
+		return
+	fi
+	msg_starting "XEN domain watchdog daemon"
+
+	/usr/sbin/xenwatchdogd 30 15
+	RETVAL=$?
+	if [ $RETVAL -ne 0 ]; then
+		return 7
+	fi
+	touch /var/lock/subsys/xen-watchdog
+}
+
+stop() {
+	if [ ! -f /var/lock/subsys/xen-watchdog ]; then
+		msg_not_running "XEN domain watchdog daemon"
+		return
+	fi
+	msg_stopping "XEN domain watchdog daemon"
+
+	killproc xenwatchdogd -USR1
+	RETVAL=$?
+	rm -f /var/lock/subsys/xen-watchdog
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+	stop
+	;;
+  restart)
+	stop
+	start
+	;;
+  status)
+	status xenwatchdogd
+	;;
+  condrestart)
+	stop
+	start
+	;;
+  *)
+	msg_usage "$0 {start|stop|status|restart|condrestart}"
+	exit 3
+esac
+
+exit $RETVAL

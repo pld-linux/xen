@@ -1,0 +1,97 @@
+#!/bin/sh
+#
+# xenstored	Script to start and stop xenstored
+#
+# chkconfig:	2345 70 10
+# description:	Starts and stops xenstored
+#
+### BEGIN INIT INFO
+# Provides:          xenstored
+# Required-Start:    $syslog $remote_fs
+# Should-Start:
+# Required-Stop:     $syslog $remote_fs
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop xenstored
+# Description:       Starts and stops the daemons neeeded for xl/xend
+### END INIT INFO
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+# Read in configuration options.
+[ /etc/sysconfig/xenstored ] && . /etc/sysconfig/xenstored
+
+if [ "$1" = "start" -a -d /proc/xen -a ! -f /proc/xen/capabilities ] && \
+		! grep -qs '^xenfs ' /proc/mounts >/dev/null; then
+	mount -t xenfs xenfs /proc/xen
+fi
+
+grep -qs "control_d" /proc/xen/capabilities || exit 0
+
+start () {
+	if [ -f /var/lock/subsys/xenstored ]; then
+		msg_already_running xenstored
+		return
+	fi
+	xenstore-read -s / >/dev/null 2>/dev/null && return
+
+	[ -z "$XENSTORED_ROOTDIR" ] || XENSTORED_ROOTDIR="/var/lib/xenstored"
+	rm -f "$XENSTORED_ROOTDIR"/tdb* >/dev/null 2>/dev/null
+
+	show "Starting xenstored"
+	busy
+	/usr/sbin/xenstored --pid-file=/var/run/xenstored.pid $XENSTORED_ARGS
+
+	# Wait for xenstored to actually come up, timing out after 30 seconds
+        time=0
+	timeout=30
+        while [ $time -lt $timeout ] && ! xenstore-read -s / >/dev/null 2>/dev/null ; do
+	    time=$(($time+1))
+            sleep 1
+        done
+
+	if [ $time -ge $timeout ]; then
+		fail
+		RETVAL=1
+	    	return
+	fi
+	ok
+
+	show "Setting domain 0 name"
+	busy
+	xenstore-write "/local/domain/0/name" "Domain-0"
+	ok
+	touch /var/lock/subsys/xenstored
+}
+
+stop() {
+	if [ -f /var/lock/subsys/xenstored ]; then
+		echo WARNING: Not stopping xenstored, as it cannot be restarted.
+	fi
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  status)
+	status xenstored
+        xenstore-read -s /
+	;;
+  stop)
+	stop
+	;;
+  force-reload|restart)
+        stop
+	start
+	;;
+  *)
+	msg_usage "$0 {start|stop|status|restart|force-reload}"
+	exit 3
+esac
+
+exit $RETVAL

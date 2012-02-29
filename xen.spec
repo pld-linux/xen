@@ -3,9 +3,6 @@
 #  - most of the qemu config options aren't detected (curses, NPTL, vde, fdt)
 #  - package the ocaml stuff
 #
-# Conditional build:
-%bcond_without	hvm		# build with hvm (full virtualization) support
-
 %define	xen_extfiles_url	http://xenbits.xensource.com/xen-extfiles
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
@@ -29,6 +26,25 @@ Source14: %{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
 Source15: %{xen_extfiles_url}/ipxe-git-v1.0.0.tar.gz
 # Source15-md5:	fb7df96781d337899066d82059346885
+Source30:	proc-xen.mount
+Source31:	var-lib-xenstored.mount
+Source32:	blktapctrl.service
+Source33:	blktapctrl.sysconfig
+Source34:	xenconsoled.service
+Source35:	xenconsoled.sysconfig
+Source36:	xenstored.service
+Source37:	xenstored.sysconfig
+Source38:	xenstored.tmpfiles
+Source39:	xend.service
+Source40:	xend.tmpfiles
+Source41:	xen-watchdog.service
+# sysvinit scripts
+Source50:	xend.init
+Source51:	xenconsoled.init
+Source52:	xenstored.init
+Source53:	xen-watchdog.init
+Source54:	xendomains.init
+Source55:	xen.logrotate
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
@@ -37,7 +53,7 @@ Patch4:		%{name}-xz.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	SDL-devel
 BuildRequires:	acpica
-%{?with_hvm:BuildRequires:	bcc}
+BuildRequires:	bcc
 BuildRequires:	curl-devel
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 5:3.4
@@ -72,6 +88,7 @@ Requires:	sed
 Requires:	util-linux
 Requires:	which
 Obsoletes:	xen-doc
+Obsoletes:	xen-udev
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -139,17 +156,6 @@ Static xen libraries.
 %description static -l pl.UTF-8
 Statyczne biblioteki xena.
 
-%package udev
-Summary:	xen udev scripts
-Summary(pl.UTF-8):	Skrypty udev dla xena
-Group:		Applications/System
-
-%description udev
-xen udev scripts.
-
-%description udev -l pl.UTF-8
-Skrypty udev dla xena.
-
 %package xend
 Summary:	xend daemon
 Summary(pl.UTF-8):	Demon xend
@@ -198,20 +204,49 @@ ln -s %{PATCH23} stubdom/grub.patches/99grub-ext4-support.patch
 ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 
 %build
-CFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
-CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses" \
-%{__make} -j1 xen tools \
+export CFLAGS="%{rpmcflags} -I/usr/include/ncurses"
+export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
+
+%{__make} dist-xen dist-tools dist-docs \
+	prefix=%{_prefix} \
+	CC="%{__cc}" \
+	CXX="%{__cxx}"
+
+unset CFLAGS
+unset CXXFLAGS
+%{__make} -j1 dist-stubdom \
 	CC="%{__cc}" \
 	CXX="%{__cxx}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/etc/xen/examples
+install -d $RPM_BUILD_ROOT/etc/xen/examples \
+	$RPM_BUILD_ROOT{/usr/lib/tmpfiles.d,%{systemdunitdir}}
 
-%{__make} install-xen install-tools install-stubdom install-docs \
-	CC="%{__cc}" \
-	CXX="%{__cxx}" \
+%{__make} -j1 install-xen install-tools install-stubdom install-docs \
+	prefix=%{_prefix} \
 	DESTDIR=$RPM_BUILD_ROOT
+
+install %{SOURCE30} $RPM_BUILD_ROOT%{systemdunitdir}/proc-xen.mount
+install %{SOURCE31} $RPM_BUILD_ROOT%{systemdunitdir}/var-lib-xenstored.mount
+install %{SOURCE32} $RPM_BUILD_ROOT%{systemdunitdir}/blktapctrl.service
+install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl.sysconfig
+install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
+install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled.sysconfig
+install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
+install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored.sysconfig
+install %{SOURCE38} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xenstored.conf
+install %{SOURCE39} $RPM_BUILD_ROOT%{systemdunitdir}/xend.service
+install %{SOURCE40} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xend.conf
+install %{SOURCE41} $RPM_BUILD_ROOT%{systemdunitdir}/xen-watchdog.service
+# sysvinit scripts
+%{__rm} $RPM_BUILD_ROOT/etc/rc.d/init.d/*
+install %{SOURCE50} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
+install %{SOURCE51} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenconsoled
+install %{SOURCE52} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenstored
+install %{SOURCE53} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-watchdog
+install %{SOURCE54} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
+#install %{SOURCE55} $RPM_BUILD_ROOT/etc/logrotate.d/xen
 
 mv $RPM_BUILD_ROOT/etc/xen/{xmexample*,examples}
 
@@ -234,7 +269,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/chkconfig --add xen-watchdog
-/sbin/chkconfig --add xencommons
+/sbin/chkconfig --add xenconsoled
+/sbin/chkconfig --add xenstored
 /sbin/chkconfig --add xendomains
 
 %preun
@@ -242,8 +278,11 @@ if [ "$1" = "0" ]; then
 	%service xendomains stop
 	/sbin/chkconfig --del xendomains
 
-	%service xencommons stop
-	/sbin/chkconfig --del xencommons
+	%service xenconsoled stop
+	/sbin/chkconfig --del xenconsoled
+
+	%service xenstored stop
+	/sbin/chkconfig --del xenstored
 
 	%service xen-watchdog stop
 	/sbin/chkconfig --del xen-watchdog
@@ -270,10 +309,17 @@ fi
 /boot/%{name}-syms-%{version}
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
-%attr(754,root,root) /etc/rc.d/init.d/xen-watchdog
-%attr(754,root,root) /etc/rc.d/init.d/xencommons
-%attr(754,root,root) /etc/rc.d/init.d/xendomains
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/*
+%attr(754,root,root) /etc/rc.d/init.d/xen-watchdog
+%attr(754,root,root) /etc/rc.d/init.d/xenconsoled
+%attr(754,root,root) /etc/rc.d/init.d/xenstored
+%attr(754,root,root) /etc/rc.d/init.d/xendomains
+%{systemdunitdir}/proc-xen.mount
+%{systemdunitdir}/var-lib-xenstored.mount
+%{systemdunitdir}/blktapctrl.service
+%{systemdunitdir}/xen-watchdog.service
+%{systemdunitdir}/xenconsoled.service
+%{systemdunitdir}/xenstored.service
 %dir %{_sysconfdir}/xen
 %dir %{_sysconfdir}/xen/auto
 %dir %{_sysconfdir}/xen/examples
@@ -283,6 +329,7 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/README*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/cpupool
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xl.conf
+%config(noreplace) %verify(not md5 mtime size) /etc/udev/*
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/[bfgikloqtv]*
 %attr(755,root,root) %{_sbindir}/xen??*
@@ -293,14 +340,22 @@ fi
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
 %if "%{_lib}" != "lib"
 %dir %{_prefix}/lib/%{name}
+%dir %{_prefix}/lib/%{name}/bin
+%attr(755,root,root) %{_prefix}/lib/%{name}/bin/qemu-dm
+%attr(755,root,root) %{_prefix}/lib/%{name}/bin/stubdom-dm
+%attr(755,root,root) %{_prefix}/lib/%{name}/bin/stubdompath.sh
 %endif
 %dir %{_prefix}/lib/%{name}/boot
-%{?with_hvm:%attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader}
+%{_prefix}/lib/%{name}/boot/ioemu-stubdom.gz
+%{_prefix}/lib/%{name}/boot/pv-grub-x86_32.gz
+%{_prefix}/lib/%{name}/boot/pv-grub-x86_64.gz
+%attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
 %{_datadir}/xen
 %{_mandir}/man?/*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored
 %dir /var/run/xenstored
+%{systemdtmpfilesdir}/xenstored.conf
 
 %files libs
 %defattr(644,root,root,755)
@@ -323,18 +378,16 @@ fi
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
 
-%files udev
-%defattr(644,root,root,755)
-%config(noreplace) %verify(not md5 mtime size) /etc/udev/*
-
 %files xend
 %defattr(644,root,root,755)
 %attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xend
+%{systemdunitdir}/xend.service
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xm*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xend*
 %attr(755,root,root) %{_sbindir}/xend
 %attr(755,root,root) %{_sbindir}/xm
 %dir %attr(700,root,root) /var/run/xend
+%{systemdtmpfilesdir}/xend.conf
 
 %files -n python-xen
 %defattr(644,root,root,755)

@@ -1,0 +1,19 @@
+[Unit]
+Description=Xenstored - daemon managing xenstore file system
+Requires=proc-xen.mount var-lib-xenstored.mount
+After=proc-xen.mount var-lib-xenstored.mount
+Before=libvirtd.service libvirt-guests.service
+RefuseManualStop=true
+
+[Service]
+Type=forking
+Environment=XENSTORED_ARGS=
+Environment=XENSTORED_ROOTDIR=/var/lib/xenstored
+EnvironmentFile=-/etc/sysconfig/xenstored
+PIDFile=/var/run/xenstored.pid
+ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
+ExecStartPre=-/bin/rm -f "$XENSTORED_ROOTDIR"/tdb*
+ExecStart=/usr/sbin/xenstored --pid-file /var/run/xenstored.pid $XENSTORED_ARGS
+
+[Install]
+WantedBy=multi-user.target

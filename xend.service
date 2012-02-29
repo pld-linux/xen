@@ -8,7 +8,9 @@ Before=libvirtd.service libvirt-guests.service
 Type=forking
 PIDFile=/var/run/xend.pid
 ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
-ExecStart=/usr/sbin/xend
+ExecStart=/usr/sbin/xend start
+ExecStop=/usr/sbin/xend stop
+ExecReload=/usr/sbin/xend reload
 
 [Install]
 WantedBy=multi-user.target

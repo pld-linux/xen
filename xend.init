@@ -17,6 +17,9 @@
 # Description:       Starts and stops the Xen control daemon.
 ### END INIT INFO
 
+# Source function library.
+. /etc/rc.d/init.d/functions
+
 waitfordaemon() {
 	i=1
 	rets=10

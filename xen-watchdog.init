@@ -28,8 +28,7 @@ start() {
 		return
 	fi
 	msg_starting "XEN domain watchdog daemon"
-
-	/usr/sbin/xenwatchdogd 30 15
+	daemon /usr/sbin/xenwatchdogd 30 15
 	RETVAL=$?
 	if [ $RETVAL -ne 0 ]; then
 		return 7
@@ -43,7 +42,6 @@ stop() {
 		return
 	fi
 	msg_stopping "XEN domain watchdog daemon"
-
 	killproc xenwatchdogd -USR1
 	RETVAL=$?
 	rm -f /var/lock/subsys/xen-watchdog

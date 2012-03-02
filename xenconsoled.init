@@ -38,7 +38,7 @@ start() {
 		return
 	fi
 	msg_starting xenconsoled
-	daemon /usr/sbin/xenconsoled --pidfile=/var/run/xenconsoled.pid --log=${XENCONSOLED_LOG} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
+	daemon /usr/sbin/xenconsoled --pid-file=/var/run/xenconsoled.pid --log=${XENCONSOLED_LOG} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
 	RETVAL=$?
 	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/xenconsoled
 }

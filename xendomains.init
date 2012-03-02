@@ -78,31 +78,30 @@ rdnames() {
 }
 
 parseln() {
-    if [[ "$1" =~ '(domain' ]]; then
+    if [[ "$1" = "*(domain*" ]]; then
         name=;id=
-    else if [[ "$1" =~ '(name' ]]; then
+    elif [[ "$1" = "*(name*" ]]; then
         name=$(echo $1 | sed -e 's/^.*(name \(.*\))$/\1/')
-    else if [[ "$1" =~ '(domid' ]]; then
+    elif [[ "$1" = "*(domid*" ]]; then
         id=$(echo $1 | sed -e 's/^.*(domid \(.*\))$/\1/')
-    fi; fi; fi
-
+    fi
     [ -n "$name" -a -n "$id" ] && return 0 || return 1
 }
 
 is_running() {
     rdname $1
-    RC=1
     name=;id=
+    $CMD list -l | grep '(\(domain\|domid\|name\)' | \
     while read LN; do
 	parseln "$LN" || continue
 	[ $id = 0 ] && continue
 	case $name in 
 	    ($NM)
-		RC=0
+		return 0
 		;;
 	esac
-    done < <($CMD list -l | grep '(\(domain\|domid\|name\)')
-    return $RC
+    done
+    return 1
 }
 
 start() {
@@ -170,13 +169,14 @@ start() {
 
 all_zombies() {
     name=;id=
+    $CMD list -l | grep '(\(domain\|domid\|name\)' | \
     while read LN; do
 	parseln "$LN" || continue
 	if test $id = 0; then continue; fi
 	if test "$state" != "-b---d" -a "$state" != "-----d"; then
 	    return 1;
 	fi
-    done < <($CMD list -l | grep '(\(domain\|domid\|name\)')
+    done
     return 0
 }
 
@@ -202,7 +202,7 @@ watchdog_xencmd() {
 	if all_zombies && test -n "$2"; then break; fi
     done
     sleep 1
-    read PSF PSUID PSPID PSPPID < <(echo "$PSAX")
+    PSPID=$($PSAX | awk '{ print $3 }')
     # kill $CMD $1
     kill $PSPID >/dev/null 2>&1
     
@@ -216,6 +216,7 @@ stop() {
     fi
     echo -n "Shutting down Xen domains:"
     name=;id=
+    $CMD list -l | grep '(\(domain\|domid\|name\)' | \
     while read LN; do
 	parseln "$LN" || continue
 	if test $id = 0; then continue; fi
@@ -299,7 +300,7 @@ stop() {
 	    fi
 	    kill $WDOG_PID >/dev/null 2>&1
 	fi
-    done < <($CMD list -l | grep '(\(domain\|domid\|name\)')
+    done
 
     # NB. this shuts down ALL Xen domains (politely), not just the ones in
     # AUTODIR/*
@@ -325,6 +326,7 @@ stop() {
 check_domain_up()
 {
     name=;id=
+    $CMD list -l | grep '(\(domain\|domid\|name\)' | \
     while read LN; do
 	parseln "$LN" || continue
 	if test $id = 0; then continue; fi
@@ -333,7 +335,7 @@ check_domain_up()
 		return 0
 		;;
 	esac
-    done < <($CMD list -l | grep '(\(domain\|domid\|name\)')
+    done
     return 1
 }
 

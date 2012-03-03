@@ -57,6 +57,7 @@ Patch8:		xend.catchbt.patch
 Patch9:		xend.empty.xml.patch
 Patch10:	xend-pci-loop.patch
 Patch11:	xen-dumpdir.patch
+Patch12:	xen-net-disable-iptables-on-bridge.patch
 # stubdom patch
 Patch100:	grub-ext4-support.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
@@ -211,6 +212,7 @@ This package provides bash-completion for xen.
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 
 %{__rm} -v tools/check/*.orig
 

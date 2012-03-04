@@ -257,7 +257,7 @@ new file mode 100644
 +				b.in_pos = 0;
 +
 +				in_size = fill(in, XZ_IOBUF_SIZE);
-+				if (in_size < 0) {
++				if ((int) in_size < 0) {
 +					/*
 +					 * This isn't an optimal error code
 +					 * but it probably isn't worth making
@@ -405,7 +405,7 @@ diff --git a/xen/common/xz/dec_bcj.c b/xen/common/xz/dec_bcj.c
 new file mode 100644
 --- /dev/null
 +++ b/xen/common/xz/dec_bcj.c
-@@ -0,0 +1,562 @@
+@@ -0,0 +1,575 @@
 +/*
 + * Branch/Call/Jump (BCJ) filter decoders
 + *
@@ -850,8 +850,12 @@ new file mode 100644
 +	 * next filter in the chain. Apply the BCJ filter on the new data
 +	 * in the output buffer. If everything cannot be filtered, copy it
 +	 * to temp and rewind the output buffer position accordingly.
++	 *
++	 * This needs to be always run when temp.size == 0 to handle a special
++	 * case where the output buffer is full and the next filter has no
++	 * more output coming but hasn't returned XZ_STREAM_END yet.
 +	 */
-+	if (s->temp.size < b->out_size - b->out_pos) {
++	if (s->temp.size < b->out_size - b->out_pos || s->temp.size == 0) {
 +		out_start = b->out_pos;
 +		memcpy(b->out + b->out_pos, s->temp.buf, s->temp.size);
 +		b->out_pos += s->temp.size;
@@ -874,16 +878,25 @@ new file mode 100644
 +		s->temp.size = b->out_pos - out_start;
 +		b->out_pos -= s->temp.size;
 +		memcpy(s->temp.buf, b->out + b->out_pos, s->temp.size);
++
++		/*
++		 * If there wasn't enough input to the next filter to fill
++		 * the output buffer with unfiltered data, there's no point
++		 * to try decoding more data to temp.
++		 */
++		if (b->out_pos + s->temp.size < b->out_size)
++			return XZ_OK;
 +	}
 +
 +	/*
-+	 * If we have unfiltered data in temp, try to fill by decoding more
-+	 * data from the next filter. Apply the BCJ filter on temp. Then we
-+	 * hopefully can fill the actual output buffer by copying filtered
-+	 * data from temp. A mix of filtered and unfiltered data may be left
-+	 * in temp; it will be taken care on the next call to this function.
++	 * We have unfiltered data in temp. If the output buffer isn't full
++	 * yet, try to fill the temp buffer by decoding more data from the
++	 * next filter. Apply the BCJ filter on temp. Then we hopefully can
++	 * fill the actual output buffer by copying filtered data from temp.
++	 * A mix of filtered and unfiltered data may be left in temp; it will
++	 * be taken care on the next call to this function.
 +	 */
-+	if (s->temp.size > 0) {
++	if (b->out_pos < b->out_size) {
 +		/* Make b->out{,_pos,_size} temporarily point to s->temp. */
 +		s->out = b->out;
 +		s->out_pos = b->out_pos;
@@ -1944,6 +1957,9 @@ new file mode 100644
 +			 */
 +			tmp = b->in[b->in_pos++];
 +
++			if (tmp == 0x00)
++				return XZ_STREAM_END;
++
 +			if (tmp >= 0xE0 || tmp == 0x01) {
 +				s->lzma2.need_props = true;
 +				s->lzma2.need_dict_reset = false;
@@ -1976,9 +1992,6 @@ new file mode 100644
 +						lzma_reset(s);
 +				}
 +			} else {
-+				if (tmp == 0x00)
-+					return XZ_STREAM_END;
-+
 +				if (tmp > 0x02)
 +					return XZ_DATA_ERROR;
 +

@@ -38,6 +38,7 @@ Source38:	xenstored.tmpfiles
 Source39:	xend.service
 Source40:	xend.tmpfiles
 Source41:	xen-watchdog.service
+Source42:	xen-dom0-modules-load.conf
 # sysvinit scripts
 Source50:	xend.init
 Source51:	xenconsoled.init
@@ -240,7 +241,7 @@ unset CXXFLAGS
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/etc/xen/examples \
+install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d} \
 	$RPM_BUILD_ROOT{/usr/lib/tmpfiles.d,%{systemdunitdir}}
 
 %{__make} -j1 install-xen install-tools install-stubdom install-docs \
@@ -264,6 +265,7 @@ install %{SOURCE38} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xenstored.conf
 install %{SOURCE39} $RPM_BUILD_ROOT%{systemdunitdir}/xend.service
 install %{SOURCE40} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xend.conf
 install %{SOURCE41} $RPM_BUILD_ROOT%{systemdunitdir}/xen-watchdog.service
+install %{SOURCE42} $RPM_BUILD_ROOT/etc/modules-load.d/xen-dom0.conf
 # sysvinit scripts
 %{__rm} $RPM_BUILD_ROOT/etc/rc.d/init.d/*
 install %{SOURCE50} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
@@ -341,6 +343,7 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/xenconsoled
 %attr(754,root,root) /etc/rc.d/init.d/xenstored
 %attr(754,root,root) /etc/rc.d/init.d/xendomains
+%config(noreplace) %verify(not md5 mtime size) /etc/modules-load.d/xen-dom0.conf
 %{systemdunitdir}/proc-xen.mount
 %{systemdunitdir}/var-lib-xenstored.mount
 %{systemdunitdir}/xen-watchdog.service

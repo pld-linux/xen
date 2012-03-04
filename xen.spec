@@ -247,6 +247,10 @@ install -d $RPM_BUILD_ROOT/etc/xen/examples \
 	prefix=%{_prefix} \
 	DESTDIR=$RPM_BUILD_ROOT
 
+%if "%{_lib}" == "lib64"
+ln -s %{_prefix}/lib/%{name}/bin/qemu-dm $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/qemu-dm
+%endif
+
 install %{SOURCE30} $RPM_BUILD_ROOT%{systemdunitdir}/proc-xen.mount
 install %{SOURCE31} $RPM_BUILD_ROOT%{systemdunitdir}/var-lib-xenstored.mount
 # started internally by xend

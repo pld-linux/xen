@@ -241,7 +241,7 @@ unset CXXFLAGS
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d} \
+install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d,logrotate.d} \
 	$RPM_BUILD_ROOT{/usr/lib/tmpfiles.d,%{systemdunitdir}}
 
 %{__make} -j1 install-xen install-tools install-stubdom install-docs \
@@ -273,7 +273,7 @@ install %{SOURCE51} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenconsoled
 install %{SOURCE52} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenstored
 install %{SOURCE53} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-watchdog
 install %{SOURCE54} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
-#install %{SOURCE55} $RPM_BUILD_ROOT/etc/logrotate.d/xen
+install %{SOURCE55} $RPM_BUILD_ROOT/etc/logrotate.d/xen
 
 mv $RPM_BUILD_ROOT/etc/xen/{xmexample*,examples}
 
@@ -339,6 +339,7 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenconsoled
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenstored
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xendomains
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/xen
 %attr(754,root,root) /etc/rc.d/init.d/xen-watchdog
 %attr(754,root,root) /etc/rc.d/init.d/xenconsoled
 %attr(754,root,root) /etc/rc.d/init.d/xenstored

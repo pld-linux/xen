@@ -403,7 +403,9 @@ fi
 %dir %{_prefix}/lib/%{name}/boot
 %{_prefix}/lib/%{name}/boot/ioemu-stubdom.gz
 %{_prefix}/lib/%{name}/boot/pv-grub-x86_32.gz
+%ifarch %{x8664}
 %{_prefix}/lib/%{name}/boot/pv-grub-x86_64.gz
+%endif
 %attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
 %{_datadir}/xen
 %{_mandir}/man?/*

@@ -78,7 +78,7 @@ BuildRequires:	pciutils-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
-BuildRequires:	rpmbuild(macros) >= 1.268
+BuildRequires:	rpmbuild(macros) >= 1.647
 #BuildRequires:	texlive-dvips
 #BuildRequires:	texlive-latex-data
 BuildRequires:	texlive-latex-psnfss
@@ -98,6 +98,7 @@ Requires:	net-tools
 Requires:	python-%{name} = %{version}-%{release}
 Requires:	rc-scripts
 Requires:	sed
+Requires:	systemd-units >= 38
 Requires:	util-linux
 Requires:	which
 Obsoletes:	xen-doc
@@ -173,6 +174,7 @@ Statyczne biblioteki xena.
 Summary:	xend daemon
 Summary(pl.UTF-8):	Demon xend
 Group:		Daemons
+Requires:	systemd-units >= 38
 
 %description xend
 xend daemon.
@@ -256,9 +258,8 @@ ln -s %{_prefix}/lib/%{name}/bin/qemu-dm $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/q
 
 install %{SOURCE30} $RPM_BUILD_ROOT%{systemdunitdir}/proc-xen.mount
 install %{SOURCE31} $RPM_BUILD_ROOT%{systemdunitdir}/var-lib-xenstored.mount
-# started internally by xend
-#install %{SOURCE32} $RPM_BUILD_ROOT%{systemdunitdir}/blktapctrl.service
-#install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl
+install %{SOURCE32} $RPM_BUILD_ROOT%{systemdunitdir}/blktapctrl.service
+install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl
 install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
 install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
 install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
@@ -301,6 +302,7 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add xenconsoled
 /sbin/chkconfig --add xenstored
 /sbin/chkconfig --add xendomains
+%systemd_post xen-watchdog.service xenconsoled.service xenstored.service
 
 %preun
 if [ "$1" = "0" ]; then
@@ -316,15 +318,24 @@ if [ "$1" = "0" ]; then
 	%service xen-watchdog stop
 	/sbin/chkconfig --del xen-watchdog
 fi
+%systemd_preun xen-watchdog.service xenconsoled.service xenstored.service
 
-%post  xend
+%postun
+%systemd_reload
+
+%post xend
 /sbin/chkconfig --add xend
+%systemd_post xend.service
 
 %preun xend
 if [ "$1" = "0" ]; then
 	%service xend stop
 	/sbin/chkconfig --del xend
 fi
+%systemd_preun xend.service
+
+%postun xend
+%systemd_reload
 
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
@@ -412,8 +423,8 @@ fi
 
 %files xend
 %defattr(644,root,root,755)
-#%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/blktapctrl
-#%{systemdunitdir}/blktapctrl.service
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/blktapctrl
+%{systemdunitdir}/blktapctrl.service
 %{systemdunitdir}/xend.service
 %attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xend
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xm*

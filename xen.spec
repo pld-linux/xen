@@ -3,6 +3,10 @@
 #  - most of the qemu config options aren't detected (curses, NPTL, vde, fdt)
 #  - package the ocaml stuff
 #
+#
+# Conditional build:
+%bcond_with	ocaml		# build Ocaml libraries for Xen tools
+#
 %define	xen_extfiles_url	http://xenbits.xensource.com/xen-extfiles
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
@@ -74,6 +78,11 @@ BuildRequires:	gettext-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
+%if %{with ocaml}
+BuildRequires:	ocaml >= 3.04-7
+BuildRequires:	ocaml-findlib
+%requires_eq	ocaml-runtime
+%endif
 BuildRequires:	pciutils-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel
@@ -233,6 +242,7 @@ export CFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 
 %{__make} dist-xen dist-tools dist-docs \
+	%{!?with_ocaml:OCAML_TOOLS=n} \
 	prefix=%{_prefix} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}"
@@ -240,6 +250,7 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 unset CFLAGS
 unset CXXFLAGS
 %{__make} -j1 dist-stubdom \
+	%{!?with_ocaml:OCAML_TOOLS=n} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}"
 
@@ -249,6 +260,7 @@ install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d,logrotate.d} \
 	$RPM_BUILD_ROOT{/usr/lib/tmpfiles.d,%{systemdunitdir}}
 
 %{__make} -j1 install-xen install-tools install-stubdom install-docs \
+	%{!?with_ocaml:OCAML_TOOLS=n} \
 	prefix=%{_prefix} \
 	DESTDIR=$RPM_BUILD_ROOT
 

@@ -3696,7 +3696,7 @@ diff --git a/xen/include/xen/decompress.h b/xen/include/xen/decompress.h
              return -EINVAL;
          }
 +    }
-+    else if ( check_magic(dom, "\3757zXZ", 5) )
++    else if ( check_magic(dom, "\3757zXZ", 6) )
 +    {
 +        ret = xc_try_xz_decode(dom, &dom->kernel_blob, &dom->kernel_size);
 +        if ( ret < 0 )

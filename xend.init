@@ -20,18 +20,6 @@
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-waitfordaemon() {
-	i=1
-	rets=10
-	/usr/sbin/xend status
-	while [ $? -ne 0 -a $i -lt $rets ]; do
-		sleep 1
-		i=$(($i + 1))
-		/usr/sbin/xend status
-	done
-	return $?
-}
-
 start() {
 	if [ -f /var/lock/subsys/xend ]; then
 		msg_already_running "Xen control daemon"
@@ -41,17 +29,10 @@ start() {
 		echo "xenconsoled and xenstored must be started first"
 		return
 	fi
-	show "Starting Xen control daemon"
-	busy
-	/usr/sbin/xend start
-	waitfordaemon
+	msg_starting "Starting Xen control daemon"
+	daemon /usr/sbin/xend
 	RETVAL=$?
-	if [ $RETVAL -eq 0 ]; then
-		touch /var/lock/subsys/xend
-		ok
-	else
-		fail
-	fi
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/xend
 }
 
 stop() {
@@ -59,38 +40,29 @@ stop() {
 		msg_not_running "Xen control daemon"
 		return
 	fi
-	show "Stopping Xen control daemon"
-	busy
-	/usr/sbin/xend stop
-	ok
+	msg_stopping "Stopping Xen control daemon"
+	killproc xend
 	rm -f /var/lock/subsys/xend
 }
 
 reload() {
 	if [ ! -f /var/lock/subsys/xend ]; then
 		msg_not_running "Xen control daemon"
-		return
+		RETVAL=7
+	else
+		msg_reloading "Reloading Xen control daemon"
+		killproc /usr/sbin/xend -HUP
+		RETVAL=$?
 	fi
-	show "Reloading Xen control daemon"
-	busy
-	/usr/sbin/xend reload
-	ok
 }
 
-restart() {
+condrestart() {
 	if [ ! -f /var/lock/subsys/xend ]; then
 		msg_not_running "Xen control daemon"
-		return
-	fi
-	show "Restarting Xen control daemon"
-	busy
-	/usr/sbin/xend restart
-	waitfordaemon
-	RETVAL=$?
-	if [ $RETVAL -eq 0 ]; then
-		ok
+		RETVAL=$1
 	else
-		fail
+		stop
+		start
 	fi
 }
 
@@ -103,17 +75,22 @@ case "$1" in
   stop)
 	stop
 	;;
-  status)
-	/usr/sbin/xend status
+  restart)
+	stop
+	start
 	;;
-  reload)
+  try-restart)
+	condrestart 0
+	;;
+  reload|force-reload)
         reload
         ;;
-  restart|force-reload)
-	restart
+  status)
+	status xend
+	exit $?
 	;;
   *)
-	msg_usage "$0 {start|stop|status|restart|reload|force-reload}"
+	msg_usage "$0 {start|stop|restart|try-restart|reload|force-reload|status}"
 	exit 3
 esac
 

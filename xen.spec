@@ -8,7 +8,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.1.2
-Release:	0.3
+Release:	0.6
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -60,6 +60,7 @@ Patch10:	xend-pci-loop.patch
 Patch11:	xen-dumpdir.patch
 Patch12:	xen-net-disable-iptables-on-bridge.patch
 Patch13:	xen-configure-xend.patch
+Patch14:	xen-initscript.patch
 # stubdom patch
 Patch100:	grub-ext4-support.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
@@ -216,6 +217,7 @@ This package provides bash-completion for xen.
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
+%patch14 -p1
 
 %{__rm} -v tools/check/*.orig
 

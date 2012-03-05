@@ -2,14 +2,14 @@
 #
 # xend		Script to start and stop the Xen control daemon.
 #
-# chkconfig:	2345 95 01
+# chkconfig:	2345 95 05
 # description:	Starts and stops the Xen control daemon.
 #
 ### BEGIN INIT INFO
 # Provides:          xend
-# Required-Start:    $syslog $remote_fs xenstored xenconsoled 
+# Required-Start:    $syslog $remote_fs xenstored xenconsoled
 # Should-Start:
-# Required-Stop:     $syslog $remote_fs xenstored xenconsoled 
+# Required-Stop:     $syslog $remote_fs xenstored xenconsoled
 # Should-Stop:
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6

@@ -2,7 +2,7 @@
 #
 # xend		Script to start and stop the Xen control daemon.
 #
-# chkconfig:	2345 98 01
+# chkconfig:	2345 96 01
 # description:	Starts and stops the Xen control daemon.
 #
 ### BEGIN INIT INFO

@@ -12,7 +12,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.1.2
-Release:	1
+Release:	2
 License:	GPL
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -257,7 +257,7 @@ unset CXXFLAGS
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d,logrotate.d} \
-	$RPM_BUILD_ROOT{/usr/lib/tmpfiles.d,%{systemdunitdir}}
+	$RPM_BUILD_ROOT{/usr/lib/tmpfiles.d,%{systemdunitdir},/var/log/xen/console}
 
 %{__make} -j1 install-xen install-tools install-stubdom install-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
@@ -413,6 +413,8 @@ fi
 %{_sharedstatedir}/xenstored
 %dir /var/run/xenstored
 %{systemdtmpfilesdir}/xenstored.conf
+%dir %attr(0700,root,root) /var/log/xen
+%dir %attr(0700,root,root) /var/log/xen/console
 
 %files libs
 %defattr(644,root,root,755)

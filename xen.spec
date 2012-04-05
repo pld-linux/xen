@@ -384,7 +384,7 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/README*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/cpupool
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xl.conf
-%config(noreplace) %verify(not md5 mtime size) /etc/udev/*
+%config(noreplace) %verify(not md5 mtime size) /etc/udev/xen-backend.rules
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_sbindir}/[bfgikloqtv]*
 %attr(755,root,root) %{_sbindir}/xen??*
@@ -443,6 +443,7 @@ fi
 %{systemdunitdir}/blktapctrl.service
 %{systemdunitdir}/xend.service
 %attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xend
+%config(noreplace) %verify(not md5 mtime size) /etc/udev/xend.rules
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xm*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xend*
 %attr(755,root,root) %{_sbindir}/xend

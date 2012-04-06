@@ -262,7 +262,8 @@ install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d,logrotate.d} \
 %{__make} -j1 install-xen install-tools install-stubdom install-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	prefix=%{_prefix} \
-	DESTDIR=$RPM_BUILD_ROOT
+	DESTDIR=$RPM_BUILD_ROOT \
+	HOTPLUGS=install-udev
 
 %if "%{_lib}" == "lib64"
 ln -s %{_prefix}/lib/%{name}/bin/qemu-dm $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/qemu-dm

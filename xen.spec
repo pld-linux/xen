@@ -18,17 +18,17 @@ Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	73561faf3c1b5e36ec5c089b5db848ad
 # used by stubdoms
-Source10: %{xen_extfiles_url}/lwip-1.3.0.tar.gz
+Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
-Source11: %{xen_extfiles_url}/newlib-1.16.0.tar.gz
+Source11:	%{xen_extfiles_url}/newlib-1.16.0.tar.gz
 # Source11-md5:	bf8f1f9e3ca83d732c00a79a6ef29bc4
-Source12: %{xen_extfiles_url}/zlib-1.2.3.tar.gz
+Source12:	%{xen_extfiles_url}/zlib-1.2.3.tar.gz
 # Source12-md5:	debc62758716a169df9f62e6ab2bc634
-Source13: %{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
+Source13:	%{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
 # Source13-md5:	cec05e7785497c5e19da2f114b934ffd
-Source14: %{xen_extfiles_url}/grub-0.97.tar.gz
+Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
-Source15: %{xen_extfiles_url}/ipxe-git-v1.0.0.tar.gz
+Source15:	%{xen_extfiles_url}/ipxe-git-v1.0.0.tar.gz
 # Source15-md5:	fb7df96781d337899066d82059346885
 Source30:	proc-xen.mount
 Source31:	var-lib-xenstored.mount
@@ -204,13 +204,17 @@ xen Python modules.
 Moduły Pythona dla xena.
 
 %package -n bash-completion-%{name}
-Summary:    bash-completion for xen
+Summary:    bash-completion for xen (xl)
+Summary(pl.UTF-8):	Bashowe dopełnianie poleceń dla xena (xl)
 Group:      Applications/Shells
 Requires:   %{name} = %{version}-%{release}
 Requires:   bash-completion
 
 %description -n bash-completion-%{name}
-This package provides bash-completion for xen.
+This package provides bash-completion for xen (xl).
+
+%description -n bash-completion-%{name} -l pl.UTF-8
+Ten pakiet zapewnia bashowe dopełnianie poleceń dla xena (xl).
 
 %prep
 %setup -q
@@ -386,9 +390,40 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/cpupool
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xl.conf
 %config(noreplace) %verify(not md5 mtime size) /etc/udev/rules.d/xen-backend.rules
-%attr(755,root,root) %{_bindir}/*
-%attr(755,root,root) %{_sbindir}/[bfgikloqtv]*
-%attr(755,root,root) %{_sbindir}/xen??*
+%attr(755,root,root) %{_bindir}/pygrub
+%attr(755,root,root) %{_bindir}/qemu-img-xen
+%attr(755,root,root) %{_bindir}/qemu-nbd-xen
+%attr(755,root,root) %{_bindir}/remus
+%attr(755,root,root) %{_bindir}/xen-detect
+%attr(755,root,root) %{_bindir}/xencons
+%attr(755,root,root) %{_bindir}/xenstore*
+%attr(755,root,root) %{_bindir}/xentrace*
+%attr(755,root,root) %{_sbindir}/blktapctrl
+%attr(755,root,root) %{_sbindir}/flask-*
+%attr(755,root,root) %{_sbindir}/gdbsx
+%attr(755,root,root) %{_sbindir}/gtrace*
+%attr(755,root,root) %{_sbindir}/img2qcow
+%attr(755,root,root) %{_sbindir}/kdd
+%attr(755,root,root) %{_sbindir}/lock-util
+%attr(755,root,root) %{_sbindir}/qcow-create
+%attr(755,root,root) %{_sbindir}/qcow2raw
+%attr(755,root,root) %{_sbindir}/tap-ctl
+%attr(755,root,root) %{_sbindir}/tapdisk*
+%attr(755,root,root) %{_sbindir}/td-util
+%attr(755,root,root) %{_sbindir}/vhd-*
+%attr(755,root,root) %{_sbindir}/xen-*
+%attr(755,root,root) %{_sbindir}/xenbaked
+%attr(755,root,root) %{_sbindir}/xenconsoled
+%attr(755,root,root) %{_sbindir}/xenlockprof
+%attr(755,root,root) %{_sbindir}/xenmon.py
+%attr(755,root,root) %{_sbindir}/xenpaging
+%attr(755,root,root) %{_sbindir}/xenperf
+%attr(755,root,root) %{_sbindir}/xenpm
+%attr(755,root,root) %{_sbindir}/xenpmd
+%attr(755,root,root) %{_sbindir}/xenstored
+%attr(755,root,root) %{_sbindir}/xentop
+%attr(755,root,root) %{_sbindir}/xentrace_setmask
+%attr(755,root,root) %{_sbindir}/xenwatchdogd
 %attr(755,root,root) %{_sbindir}/xl
 %attr(755,root,root) %{_sbindir}/xsview
 %dir %{_libdir}/%{name}
@@ -409,7 +444,12 @@ fi
 %endif
 %attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
 %{_datadir}/xen
-%{_mandir}/man?/*
+%{_mandir}/man1/xentop.1*
+%{_mandir}/man1/xentrace_format.1*
+%{_mandir}/man1/xm.1*
+%{_mandir}/man5/xend-config.sxp.5*
+%{_mandir}/man5/xmdomain.cfg.5*
+%{_mandir}/man8/xentrace.8*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored
 %dir /var/run/xenstored
@@ -419,7 +459,26 @@ fi
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/lib*.so.*
+%attr(755,root,root) %{_libdir}/libblktap.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libblktap.so.3.0
+%attr(755,root,root) %{_libdir}/libblktapctl.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libblktapctl.so.1.0
+%attr(755,root,root) %{_libdir}/libflask.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libflask.so.1.0
+%attr(755,root,root) %{_libdir}/libfsimage.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libfsimage.so.1.0
+%attr(755,root,root) %{_libdir}/libvhd.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libvhd.so.1.0
+%attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.0
+%attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.0
+%attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.1.0
+%attr(755,root,root) %{_libdir}/libxenstore.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenstore.so.3.0
+%attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.1.0
 %dir %{_libdir}/fs
 %dir %{_libdir}/fs/ext2fs-lib
 %dir %{_libdir}/fs/fat
@@ -427,16 +486,39 @@ fi
 %dir %{_libdir}/fs/reiserfs
 %dir %{_libdir}/fs/ufs
 %dir %{_libdir}/fs/zfs
-%attr(755,root,root) %{_libdir}/fs/*/*.so
+%attr(755,root,root) %{_libdir}/fs/*/fsimage.so
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/lib*.so
-%{_includedir}/*
+%attr(755,root,root) %{_libdir}/libblktap.so
+%attr(755,root,root) %{_libdir}/libblktapctl.so
+%attr(755,root,root) %{_libdir}/libflask.so
+%attr(755,root,root) %{_libdir}/libfsimage.so
+%attr(755,root,root) %{_libdir}/libvhd.so
+%attr(755,root,root) %{_libdir}/libxenctrl.so
+%attr(755,root,root) %{_libdir}/libxenguest.so
+%attr(755,root,root) %{_libdir}/libxenlight.so
+%attr(755,root,root) %{_libdir}/libxenstore.so
+%attr(755,root,root) %{_libdir}/libxlutil.so
+%{_includedir}/_libxl_types.h
+%{_includedir}/blktaplib.h
+%{_includedir}/fsimage*.h
+%{_includedir}/libxl*.h
+%{_includedir}/xen*.h
+%{_includedir}/xs*.h
+%{_includedir}/xen
 
 %files static
 %defattr(644,root,root,755)
-%{_libdir}/lib*.a
+%{_libdir}/libblktap.a
+%{_libdir}/libblktapctl.a
+%{_libdir}/libflask.a
+%{_libdir}/libvhd.a
+%{_libdir}/libxenctrl.a
+%{_libdir}/libxenguest.a
+%{_libdir}/libxenlight.a
+%{_libdir}/libxenstore.a
+%{_libdir}/libxlutil.a
 
 %files xend
 %defattr(644,root,root,755)
@@ -469,9 +551,10 @@ fi
 %{py_sitedir}/xen/xsview
 %{py_sitedir}/xen/*.py*
 %if "%{py_ver}" > "2.4"
-%{py_sitedir}/*.egg-info
+%{py_sitedir}/pygrub-0.3-py*.egg-info
+%{py_sitedir}/xen-3.0-py*.egg-info
 %endif
 
 %files -n bash-completion-%{name}
 %defattr(644,root,root,755)
-/etc/bash_completion.d/*
+/etc/bash_completion.d/xl.sh

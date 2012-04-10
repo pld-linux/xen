@@ -1,11 +1,10 @@
 #
 # TODO:
 #  - most of the qemu config options aren't detected (curses, NPTL, vde, fdt)
-#  - package the ocaml stuff
 #
 #
 # Conditional build:
-%bcond_with	ocaml		# build Ocaml libraries for Xen tools
+%bcond_without	ocaml		# build Ocaml libraries for Xen tools
 #
 %define	xen_extfiles_url	http://xenbits.xensource.com/xen-extfiles
 Summary:	Xen - a virtual machine monitor
@@ -13,7 +12,7 @@ Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.1.2
 Release:	2
-License:	GPL
+License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	73561faf3c1b5e36ec5c089b5db848ad
@@ -81,7 +80,6 @@ BuildRequires:	ncurses-devel
 %if %{with ocaml}
 BuildRequires:	ocaml >= 3.04-7
 BuildRequires:	ocaml-findlib
-%requires_eq	ocaml-runtime
 %endif
 BuildRequires:	pciutils-devel
 BuildRequires:	pkgconfig
@@ -145,39 +143,39 @@ być zdziwionym, jeśli ten pakiet zje dane, wypije całą kawę czy będzie
 się wyśmiewał w obecności przyjaciół.
 
 %package libs
-Summary:	xen libraries
-Summary(pl.UTF-8):	Biblioteki xena
+Summary:	Xen libraries
+Summary(pl.UTF-8):	Biblioteki Xena
 Group:		Libraries
 
 %description libs
-xen libraries.
+Xen libraries.
 
 %description libs -l pl.UTF-8
-Biblioteki xena.
+Biblioteki Xena.
 
 %package devel
-Summary:	Header files for xen
-Summary(pl.UTF-8):	Pliki nagłówkowe xena
+Summary:	Header files for Xen
+Summary(pl.UTF-8):	Pliki nagłówkowe Xena
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
 
 %description devel
-Header files for xen.
+Header files for Xen.
 
 %description devel -l pl.UTF-8
-Pliki nagłówkowe xena.
+Pliki nagłówkowe Xena.
 
 %package static
-Summary:	Static xen libraries
-Summary(pl.UTF-8):	Statyczne biblioteki xena
+Summary:	Static Xen libraries
+Summary(pl.UTF-8):	Statyczne biblioteki Xena
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 
 %description static
-Static xen libraries.
+Static Xen libraries.
 
 %description static -l pl.UTF-8
-Statyczne biblioteki xena.
+Statyczne biblioteki Xena.
 
 %package xend
 Summary:	xend daemon
@@ -191,30 +189,59 @@ xend daemon.
 %description xend -l pl.UTF-8
 Demon xend.
 
-%package -n python-xen
-Summary:	xen Python modules
-Summary(pl.UTF-8):	Moduły Pythona dla xena
+%package -n ocaml-xen
+Summary:	OCaml bindings for Xen
+Summary(pl.UTF-8):	Wiązania OCamla dla Xena
+License:	LGPL v2.1 with linking exception
 Group:		Libraries
+Requires:	%{name}-libs = %{version}-%{release}
+%requires_eq	ocaml-runtime
+
+%description -n ocaml-xen
+OCaml bindings for Xen.
+
+%description -n ocaml-xen -l pl.UTF-8
+Wiązania OCamla dla Xena.
+
+%package -n ocaml-xen-devel
+Summary:	OCaml bindings for Xen - development files
+Summary(pl.UTF-8):	Wiązania OCamla dla Xena - pliki programistyczne
+License:	LGPL v2.1 with linking exception
+Group:		Development/Libraries
+Requires:	ocaml-xen = %{version}-%{release}
+%requires_eq	ocaml
+
+%description -n ocaml-xen-devel
+OCaml bindings for Xen - development files.
+
+%description -n ocaml-xen-devel -l pl.UTF-8
+Wiązania OCamla dla Xena - pliki programistyczne.
+
+%package -n python-xen
+Summary:	Xen Python modules
+Summary(pl.UTF-8):	Moduły Pythona dla Xena
+Group:		Libraries
+Requires:	%{name}-libs = %{version}-%{release}
 Conflicts:	xen < 3.2.1-0.3
 
 %description -n python-xen
-xen Python modules.
+Xen Python modules.
 
 %description -n python-xen -l pl.UTF-8
-Moduły Pythona dla xena.
+Moduły Pythona dla Xena.
 
 %package -n bash-completion-%{name}
-Summary:    bash-completion for xen (xl)
-Summary(pl.UTF-8):	Bashowe dopełnianie poleceń dla xena (xl)
+Summary:    bash-completion for Xen (xl)
+Summary(pl.UTF-8):	Bashowe dopełnianie poleceń dla Xena (xl)
 Group:      Applications/Shells
 Requires:   %{name} = %{version}-%{release}
 Requires:   bash-completion
 
 %description -n bash-completion-%{name}
-This package provides bash-completion for xen (xl).
+This package provides bash-completion for Xen (xl).
 
 %description -n bash-completion-%{name} -l pl.UTF-8
-Ten pakiet zapewnia bashowe dopełnianie poleceń dla xena (xl).
+Ten pakiet zapewnia bashowe dopełnianie poleceń dla Xena (xl).
 
 %prep
 %setup -q
@@ -533,6 +560,61 @@ fi
 %attr(755,root,root) %{_sbindir}/xm
 %dir %attr(700,root,root) /var/run/xend
 %{systemdtmpfilesdir}/xend.conf
+
+%if %{with ocaml}
+%files -n ocaml-xen
+%defattr(644,root,root,755)
+%doc tools/ocaml/LICENSE
+%attr(755,root,root) %{_sbindir}/oxenstored
+%dir %{_libdir}/ocaml/site-lib/eventchn
+%attr(755,root,root) %{_libdir}/ocaml/site-lib/eventchn/dlleventchn_stubs.so
+%dir %{_libdir}/ocaml/site-lib/log
+%attr(755,root,root) %{_libdir}/ocaml/site-lib/log/dllsyslog_stubs.so
+%dir %{_libdir}/ocaml/site-lib/mmap
+%attr(755,root,root) %{_libdir}/ocaml/site-lib/mmap/dllmmap_stubs.so
+%dir %{_libdir}/ocaml/site-lib/xb
+%attr(755,root,root) %{_libdir}/ocaml/site-lib/xb/dllxb_stubs.so
+%dir %{_libdir}/ocaml/site-lib/xc
+%attr(755,root,root) %{_libdir}/ocaml/site-lib/xc/dllxc_stubs.so
+%dir %{_libdir}/ocaml/site-lib/xl
+%attr(755,root,root) %{_libdir}/ocaml/site-lib/xl/dllxl_stubs.so
+
+%files -n ocaml-xen-devel
+%defattr(644,root,root,755)
+%{_libdir}/ocaml/site-lib/eventchn/META
+%{_libdir}/ocaml/site-lib/eventchn/libeventchn_stubs.a
+%{_libdir}/ocaml/site-lib/eventchn/eventchn.a
+%{_libdir}/ocaml/site-lib/eventchn/eventchn.cm[aix]*
+%{_libdir}/ocaml/site-lib/log/META
+%{_libdir}/ocaml/site-lib/log/libsyslog_stubs.a
+%{_libdir}/ocaml/site-lib/log/log.a
+%{_libdir}/ocaml/site-lib/log/*.cm[aix]*
+%{_libdir}/ocaml/site-lib/mmap/META
+%{_libdir}/ocaml/site-lib/mmap/libmmap_stubs.a
+%{_libdir}/ocaml/site-lib/mmap/mmap.a
+%{_libdir}/ocaml/site-lib/mmap/mmap.cm[aix]*
+%dir %{_libdir}/ocaml/site-lib/uuid
+%{_libdir}/ocaml/site-lib/uuid/META
+%{_libdir}/ocaml/site-lib/uuid/uuid.a
+%{_libdir}/ocaml/site-lib/uuid/uuid.cm[aix]*
+%{_libdir}/ocaml/site-lib/xb/META
+%{_libdir}/ocaml/site-lib/xb/libxb_stubs.a
+%{_libdir}/ocaml/site-lib/xb/xb.a
+%{_libdir}/ocaml/site-lib/xb/*.cm[aix]*
+%{_libdir}/ocaml/site-lib/xc/META
+%{_libdir}/ocaml/site-lib/xc/libxc_stubs.a
+%{_libdir}/ocaml/site-lib/xc/xc.a
+%{_libdir}/ocaml/site-lib/xc/xc.cm[aix]*
+%{_libdir}/ocaml/site-lib/xl/META
+%{_libdir}/ocaml/site-lib/xl/libxl_stubs.a
+%{_libdir}/ocaml/site-lib/xl/xl.a
+%{_libdir}/ocaml/site-lib/xl/xl.cm[aix]*
+%dir %{_libdir}/ocaml/site-lib/xs
+%{_libdir}/ocaml/site-lib/xs/META
+%{_libdir}/ocaml/site-lib/xs/xs.a
+%{_libdir}/ocaml/site-lib/xs/*.cm[aix]*
+%{_libdir}/ocaml/site-lib/xs/xs*.mli
+%endif
 
 %files -n python-xen
 %defattr(644,root,root,755)

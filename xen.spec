@@ -67,13 +67,17 @@ Patch14:	xen-initscript.patch
 # stubdom patch
 Patch100:	grub-ext4-support.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
+BuildRequires:	OpenGL-devel
 BuildRequires:	SDL-devel
 BuildRequires:	acpica
 BuildRequires:	bcc
+BuildRequires:	bluez-libs-devel
+BuildRequires:	brlapi-devel
 BuildRequires:	curl-devel
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 5:3.4
 BuildRequires:	gettext-devel
+BuildRequires:	gnutls-devel
 BuildRequires:	latex2html
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
@@ -91,6 +95,8 @@ BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	transfig
 BuildRequires:	which
+BuildRequires:	xorg-lib-libX11-devel
+BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}-libs = %{version}-%{release}
@@ -276,7 +282,8 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	prefix=%{_prefix} \
 	CC="%{__cc}" \
-	CXX="%{__cxx}"
+	CXX="%{__cxx}" \
+	V=1
 
 unset CFLAGS
 unset CXXFLAGS

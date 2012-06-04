@@ -6,18 +6,6 @@
 # description:		Run XEN domain watchdog daemon
 # processname:		xenwatchdogd
 #
-### BEGIN INIT INFO
-# Provides:          xen-watchdog
-# Required-Start:    $syslog $remote_fs
-# Should-Start:      xend
-# Required-Stop:     $syslog $remote_fs
-# Should-Stop:       xend
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Start/stop xen-watchdog
-# Description:       Run XEN domain watchdog daemon.
-### END INIT INFO
-#
 
 # Source function library.
 . /etc/rc.d/init.d/functions

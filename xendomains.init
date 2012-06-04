@@ -13,18 +13,6 @@
 # Applications HOWTO" by Avi Alkalay
 # <http://www.tldp.org/HOWTO/HighQuality-Apps-HOWTO/>
 #
-### BEGIN INIT INFO
-# Provides:          xendomains
-# Required-Start:    $syslog $remote_fs xenstored xenconsoled
-# Should-Start:      xend
-# Required-Stop:     $syslog $remote_fs xenstored xenconsoled
-# Should-Stop:       xend
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Start/stop secondary xen domains
-# Description:       Start / stop domains automatically when domain 0 
-#                    boots / shuts down.
-### END INIT INFO
 
 . /etc/rc.d/init.d/functions
 

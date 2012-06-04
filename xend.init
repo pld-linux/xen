@@ -5,17 +5,6 @@
 # chkconfig:	2345 95 05
 # description:	Starts and stops the Xen control daemon.
 #
-### BEGIN INIT INFO
-# Provides:          xend
-# Required-Start:    $syslog $remote_fs xenstored xenconsoled
-# Should-Start:
-# Required-Stop:     $syslog $remote_fs xenstored xenconsoled
-# Should-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Start/stop xend
-# Description:       Starts and stops the Xen control daemon.
-### END INIT INFO
 
 # Source function library.
 . /etc/rc.d/init.d/functions

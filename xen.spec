@@ -203,8 +203,10 @@ Summary(pl.UTF-8):	Wiązania OCamla dla Xena
 License:	LGPL v2.1 with linking exception
 Group:		Libraries
 Requires:	%{name}-libs = %{version}-%{release}
+%if %{with ocaml}
 %requires_eq	ocaml-runtime
 
+%endif
 %description -n ocaml-xen
 OCaml bindings for Xen.
 
@@ -217,7 +219,9 @@ Summary(pl.UTF-8):	Wiązania OCamla dla Xena - pliki programistyczne
 License:	LGPL v2.1 with linking exception
 Group:		Development/Libraries
 Requires:	ocaml-xen = %{version}-%{release}
+%if %{with ocaml}
 %requires_eq	ocaml
+%endif
 
 %description -n ocaml-xen-devel
 OCaml bindings for Xen - development files.

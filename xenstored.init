@@ -2,7 +2,7 @@
 #
 # xenstored	Script to start and stop xenstored
 #
-# chkconfig:	2345 69 10
+# chkconfig:	2345 69 31
 # description:	Starts and stops xenstored
 #
 

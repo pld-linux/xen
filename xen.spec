@@ -1,6 +1,8 @@
 #
 # TODO:
 #  - most of the qemu config options aren't detected (curses, NPTL, vde, fdt)
+#  - check if other tools/libs are not usable in domU, move them to -guest
+#    packages if so
 #
 #
 # Conditional build:
@@ -115,6 +117,7 @@ Requires:	sed
 Requires:	systemd-units >= 38
 Requires:	util-linux
 Requires:	which
+Requires:	%{name}-guest = %{version}-%{release}
 Obsoletes:	xen-doc
 Obsoletes:	xen-udev
 ExclusiveArch:	%{ix86} %{x8664}
@@ -149,6 +152,18 @@ Xen jest ciągle rozwijana, a ten RPM był słabo testowany. Nie należy
 być zdziwionym, jeśli ten pakiet zje dane, wypije całą kawę czy będzie
 się wyśmiewał w obecności przyjaciół.
 
+%package guest
+Summary:	Xen tools for virtual machines
+Summary(pl.UTF-8):	Narzędzia Xen dla maszyn virtualnych
+Group:		Applications/System
+Requires:	%{name}-libs-guest = %{version}-%{release}
+
+%description guest
+Xen utilities for both dom0 and domU virtual domains.
+
+%description guest -l pl.UTF-8
+Narzędzia Xena dla maszyn wirtualnych dom0 i domU.
+
 %package libs
 Summary:	Xen libraries
 Summary(pl.UTF-8):	Biblioteki Xena
@@ -159,6 +174,17 @@ Xen libraries.
 
 %description libs -l pl.UTF-8
 Biblioteki Xena.
+
+%package libs-guest
+Summary:	Xen libraries for virtual machines
+Summary(pl.UTF-8):	Biblioteki Xena dla maszyn wirtualnych
+Group:		Libraries
+
+%description libs-guest
+Xen libraries for both dom0 and domU virtual machines.
+
+%description libs-guest -l pl.UTF-8
+Biblioteki Xena dla maszyn wirtualnych dom0 i domU.
 
 %package devel
 Summary:	Header files for Xen
@@ -241,6 +267,19 @@ Xen Python modules.
 
 %description -n python-xen -l pl.UTF-8
 Moduły Pythona dla Xena.
+
+%package -n python-xen-guest
+Summary:	Xen Python modules for virtual machines
+Summary(pl.UTF-8):	Moduły Pythona dla maszyn wirtualnych Xena
+Group:		Libraries
+Requires:	%{name}-libs-guest = %{version}-%{release}
+Conflicts:	xen < 3.2.1-0.3
+
+%description -n python-xen-guest
+Xen Python modules for both dom0 and domU virtual machines.
+
+%description -n python-xen-guest -l pl.UTF-8
+Moduły Pythona dla maszyn wirtualnych dom0 i domU.
 
 %package -n bash-completion-%{name}
 Summary:    bash-completion for Xen (xl)
@@ -397,6 +436,9 @@ fi
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
 
+%post	libs-guest -p /sbin/ldconfig
+%postun	libs-guest -p /sbin/ldconfig
+
 %files
 %defattr(644,root,root,755)
 %doc COPYING README* docs/misc/* 
@@ -434,9 +476,7 @@ fi
 %attr(755,root,root) %{_bindir}/qemu-img-xen
 %attr(755,root,root) %{_bindir}/qemu-nbd-xen
 %attr(755,root,root) %{_bindir}/remus
-%attr(755,root,root) %{_bindir}/xen-detect
 %attr(755,root,root) %{_bindir}/xencons
-%attr(755,root,root) %{_bindir}/xenstore*
 %attr(755,root,root) %{_bindir}/xentrace*
 %attr(755,root,root) %{_sbindir}/blktapctrl
 %attr(755,root,root) %{_sbindir}/flask-*
@@ -497,6 +537,11 @@ fi
 %dir %attr(0700,root,root) /var/log/xen
 %dir %attr(0700,root,root) /var/log/xen/console
 
+%files guest
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/xen-detect
+%attr(755,root,root) %{_bindir}/xenstore*
+
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libblktap.so.*.*.*
@@ -515,8 +560,6 @@ fi
 %attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.0
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenlight.so.1.0
-%attr(755,root,root) %{_libdir}/libxenstore.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenstore.so.3.0
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxlutil.so.1.0
 %dir %{_libdir}/fs
@@ -527,6 +570,11 @@ fi
 %dir %{_libdir}/fs/ufs
 %dir %{_libdir}/fs/zfs
 %attr(755,root,root) %{_libdir}/fs/*/fsimage.so
+
+%files libs-guest
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libxenstore.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenstore.so.3.0
 
 %files devel
 %defattr(644,root,root,755)
@@ -633,10 +681,13 @@ fi
 %defattr(644,root,root,755)
 %attr(755,root,root) %{py_sitedir}/fsimage.so
 %{py_sitedir}/grub
-%dir %{py_sitedir}/xen
-%dir %{py_sitedir}/xen/lowlevel
-%{py_sitedir}/xen/lowlevel/*.py*
-%attr(755,root,root) %{py_sitedir}/xen/lowlevel/*.so
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/acm.so
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/checkpoint.so
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/flask.so
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/netlink.so
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/ptsname.so
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/xc.so
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/xl.so
 %{py_sitedir}/xen/remus
 %{py_sitedir}/xen/sv
 %{py_sitedir}/xen/util
@@ -649,6 +700,14 @@ fi
 %{py_sitedir}/pygrub-0.3-py*.egg-info
 %{py_sitedir}/xen-3.0-py*.egg-info
 %endif
+
+%files -n python-xen-guest
+%defattr(644,root,root,755)
+%dir %{py_sitedir}/xen
+%{py_sitedir}/xen/__init__.py*
+%dir %{py_sitedir}/xen/lowlevel
+%{py_sitedir}/xen/lowlevel/__init__.py*
+%attr(755,root,root) %{py_sitedir}/xen/lowlevel/xs.so
 
 %files -n bash-completion-%{name}
 %defattr(644,root,root,755)

@@ -92,6 +92,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
+BuildRequires:	texi2html
 #BuildRequires:	texlive-dvips
 #BuildRequires:	texlive-latex-data
 BuildRequires:	texlive-latex-psnfss

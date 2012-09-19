@@ -80,7 +80,7 @@ BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 5:3.4
 BuildRequires:	gettext-devel
 BuildRequires:	gnutls-devel
-BuildRequires:	latex2html
+BuildRequires:	latex2html >= 2008
 BuildRequires:	libidn-devel
 BuildRequires:	ncurses-devel
 %if %{with ocaml}

@@ -452,6 +452,7 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenconsoled
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenstored
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xendomains
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xencommons
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/xen
 %attr(754,root,root) /etc/rc.d/init.d/xen-watchdog
 %attr(754,root,root) /etc/rc.d/init.d/xenconsoled

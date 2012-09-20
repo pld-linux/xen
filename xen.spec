@@ -66,6 +66,7 @@ Patch11:	xen-dumpdir.patch
 Patch12:	xen-net-disable-iptables-on-bridge.patch
 Patch13:	xen-configure-xend.patch
 Patch14:	xen-initscript.patch
+Patch15:	xen-no_Werror.patch
 # stubdom patch
 Patch100:	grub-ext4-support.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
@@ -96,6 +97,7 @@ BuildRequires:	texi2html
 #BuildRequires:	texlive-dvips
 #BuildRequires:	texlive-latex-data
 BuildRequires:	texlive-latex-psnfss
+BuildRequires:	texlive-xetex
 BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	xorg-lib-libX11-devel
@@ -312,6 +314,7 @@ Ten pakiet zapewnia bashowe dopełnianie poleceń dla Xena (xl).
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
 
 %{__rm} -v tools/check/*.orig
 

@@ -1,6 +1,7 @@
---- xen-4.1.0-orig/tools/hotplug/Linux/vif-bridge	2008-08-22 10:49:07.000000000 +0100
-+++ xen-4.1.0-new/tools/hotplug/Linux/vif-bridge	2008-08-29 11:29:38.000000000 +0100
-@@ -96,10 +96,6 @@ case "$command" in
+diff -dur -x '*.orig' -x '*.rej' -x '*~' xen-4.2.0.orig/tools/hotplug/Linux/vif-bridge xen-4.2.0/tools/hotplug/Linux/vif-bridge
+--- xen-4.2.0.orig/tools/hotplug/Linux/vif-bridge	2012-09-17 12:21:18.000000000 +0200
++++ xen-4.2.0/tools/hotplug/Linux/vif-bridge	2012-10-22 13:05:43.000000000 +0200
+@@ -101,10 +101,6 @@
          ;;
  esac
  
@@ -8,12 +9,13 @@
 -    handle_iptable
 -fi
 -
+ call_hooks vif post
+ 
  log debug "Successful vif-bridge $command for $dev, bridge $bridge."
- if [ "$type_if" = vif -a "$command" = "online" ]
- then
---- xen-3.3.0-orig/tools/hotplug/Linux/xen-network-common.sh	2008-08-22 10:49:07.000000000 +0100
-+++ xen-3.3.0-new/tools/hotplug/Linux/xen-network-common.sh	2008-08-29 11:29:38.000000000 +0100
-@@ -99,6 +99,13 @@ create_bridge () {
+diff -dur -x '*.orig' -x '*.rej' -x '*~' xen-4.2.0.orig/tools/hotplug/Linux/xen-network-common.sh xen-4.2.0/tools/hotplug/Linux/xen-network-common.sh
+--- xen-4.2.0.orig/tools/hotplug/Linux/xen-network-common.sh	2012-09-17 12:21:18.000000000 +0200
++++ xen-4.2.0/tools/hotplug/Linux/xen-network-common.sh	2012-10-22 13:05:02.000000000 +0200
+@@ -115,6 +115,13 @@
  	brctl addbr ${bridge}
  	brctl stp ${bridge} off
  	brctl setfd ${bridge} 0

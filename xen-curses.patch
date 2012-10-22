@@ -1,6 +1,30 @@
-diff -uNr xen-3.4.3/tools/xenstat/Makefile xen-3.4.3.new//tools/xenstat/Makefile
---- xen-3.4.3/tools/xenstat/Makefile	2010-06-03 19:42:38.000000000 +0200
-+++ xen-3.4.3.new//tools/xenstat/Makefile	2011-01-22 08:25:29.621404344 +0100
+diff -dur xen-4.2.0.orig/tools/qemu-xen/configure xen-4.2.0/tools/qemu-xen/configure
+--- xen-4.2.0.orig/tools/qemu-xen/configure	2012-09-10 20:10:52.000000000 +0200
++++ xen-4.2.0/tools/qemu-xen/configure	2012-10-22 10:53:22.000000000 +0200
+@@ -1859,7 +1859,7 @@
+ if test "$curses" != "no" ; then
+   curses_found=no
+   cat > $TMPC << EOF
+-#include <curses.h>
++#include <ncurses/curses.h>
+ #ifdef __OpenBSD__
+ #define resize_term resizeterm
+ #endif
+diff -dur xen-4.2.0.orig/tools/qemu-xen/console.h xen-4.2.0/tools/qemu-xen/console.h
+--- xen-4.2.0.orig/tools/qemu-xen/console.h	2012-09-10 20:10:52.000000000 +0200
++++ xen-4.2.0/tools/qemu-xen/console.h	2012-10-22 10:53:12.000000000 +0200
+@@ -329,7 +329,7 @@
+ }
+ 
+ #ifdef CONFIG_CURSES
+-#include <curses.h>
++#include <ncurses/curses.h>
+ typedef chtype console_ch_t;
+ #else
+ typedef unsigned long console_ch_t;
+diff -dur xen-4.2.0.orig/tools/xenstat/Makefile xen-4.2.0/tools/xenstat/Makefile
+--- xen-4.2.0.orig/tools/xenstat/Makefile	2012-09-17 12:21:19.000000000 +0200
++++ xen-4.2.0/tools/xenstat/Makefile	2012-10-22 10:51:45.000000000 +0200
 @@ -6,7 +6,7 @@
  
  # This doesn't cross-compile (cross-compile environments rarely have curses)
@@ -10,29 +34,3 @@ diff -uNr xen-3.4.3/tools/xenstat/Makefile xen-3.4.3.new//tools/xenstat/Makefile
  SUBDIRS += xentop
  endif
  endif
---- xen-4.1.2/tools/ioemu-qemu-xen/configure~	2011-02-11 18:54:51.000000000 +0100
-+++ xen-4.1.2/tools/ioemu-qemu-xen/configure	2011-10-28 21:47:32.610940849 +0200
-@@ -968,10 +968,10 @@
- if test "$curses" = "yes" ; then
-   curses=no
-   cat > $TMPC << EOF
--#include <curses.h>
-+#include <ncurses/curses.h>
- int main(void) { return curses_version(); }
- EOF
--  if $cc $ARCH_CFLAGS -o $TMPE $TMPC -lcurses > /dev/null 2> /dev/null ; then
-+  if $cc $ARCH_CFLAGS -o $TMPE $TMPC -lncurses > /dev/null 2> /dev/null ; then
-     curses=yes
-   fi
- fi # test "$curses"
---- xen-4.1.2/tools/ioemu-qemu-xen/curses.c~	2011-02-11 18:54:51.000000000 +0100
-+++ xen-4.1.2/tools/ioemu-qemu-xen/curses.c	2011-10-28 21:47:04.862996728 +0200
-@@ -26,7 +26,7 @@
- #include "console.h"
- #include "sysemu.h"
- 
--#include <curses.h>
-+#include <ncurses/curses.h>
- 
- #ifndef _WIN32
- #include <signal.h>

@@ -1,0 +1,57 @@
+From: http://git.qemu.org/?p=qemu.git;a=commitdiff;h=3bf7e40ab9140e577a6e7e17d3f5711b28aed833
+
+From: Avi Kivity <avi@redhat.com>
+Date: Tue, 27 Dec 2011 15:11:20 +0000 (+0200)
+Subject: softfloat: fix for C99
+
+softfloat: fix for C99
+
+C99 appears to consider compound literals as non-constants, and complains
+when they are used in static initializers.  Switch to ordinary initializer
+syntax.
+
+
+diff -dur xen-4.2.0.orig/tools/qemu-xen/fpu/softfloat-specialize.h xen-4.2.0/tools/qemu-xen/fpu/softfloat-specialize.h
+--- xen-4.2.0.orig/tools/qemu-xen/fpu/softfloat-specialize.h	2012-09-10 20:10:52.000000000 +0200
++++ xen-4.2.0/tools/qemu-xen/fpu/softfloat-specialize.h	2012-10-22 14:58:26.000000000 +0200
+@@ -89,8 +89,8 @@
+ #define floatx80_default_nan_low  LIT64( 0xC000000000000000 )
+ #endif
+ 
+-const floatx80 floatx80_default_nan = make_floatx80(floatx80_default_nan_high,
+-                                                    floatx80_default_nan_low);
++const floatx80 floatx80_default_nan
++    = make_floatx80_init(floatx80_default_nan_high, floatx80_default_nan_low);
+ 
+ /*----------------------------------------------------------------------------
+ | The pattern for a default generated quadruple-precision NaN.  The `high' and
+@@ -104,8 +104,8 @@
+ #define float128_default_nan_low  LIT64( 0x0000000000000000 )
+ #endif
+ 
+-const float128 float128_default_nan = make_float128(float128_default_nan_high,
+-                                                    float128_default_nan_low);
++const float128 float128_default_nan
++    = make_float128_init(float128_default_nan_high, float128_default_nan_low);
+ 
+ /*----------------------------------------------------------------------------
+ | Raises the exceptions specified by `flags'.  Floating-point traps can be
+diff -dur xen-4.2.0.orig/tools/qemu-xen/fpu/softfloat.h xen-4.2.0/tools/qemu-xen/fpu/softfloat.h
+--- xen-4.2.0.orig/tools/qemu-xen/fpu/softfloat.h	2012-09-10 20:10:52.000000000 +0200
++++ xen-4.2.0/tools/qemu-xen/fpu/softfloat.h	2012-10-22 14:58:26.000000000 +0200
+@@ -129,6 +129,7 @@
+     uint16_t high;
+ } floatx80;
+ #define make_floatx80(exp, mant) ((floatx80) { mant, exp })
++#define make_floatx80_init(exp, mant) { .low = mant, .high = exp }
+ typedef struct {
+ #ifdef HOST_WORDS_BIGENDIAN
+     uint64_t high, low;
+@@ -137,6 +138,7 @@
+ #endif
+ } float128;
+ #define make_float128(high_, low_) ((float128) { .high = high_, .low = low_ })
++#define make_float128_init(high_, low_) { .high = high_, .low = low_ }
+ 
+ /*----------------------------------------------------------------------------
+ | Software IEC/IEEE floating-point underflow tininess-detection mode.

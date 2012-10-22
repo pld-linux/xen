@@ -12,12 +12,12 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.1.2
-Release:	4
+Version:	4.2.0
+Release:	0.1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	73561faf3c1b5e36ec5c089b5db848ad
+# Source0-md5:	f4f217969afc38f09251039966d91a87
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -29,8 +29,8 @@ Source13:	%{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
 # Source13-md5:	cec05e7785497c5e19da2f114b934ffd
 Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
-Source15:	%{xen_extfiles_url}/ipxe-git-v1.0.0.tar.gz
-# Source15-md5:	fb7df96781d337899066d82059346885
+Source15:	http://xenbits.xen.org/xen-extfiles/ipxe-git-9a93db3f0947484e30e753bbd61a10b17336e20e.tar.gz
+# Source15-md5:	7496268cebf47d5c9ccb0696e3b26065
 Source30:	proc-xen.mount
 Source31:	var-lib-xenstored.mount
 Source32:	blktapctrl.service
@@ -56,19 +56,19 @@ Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
 Patch3:		%{name}-xz.patch
 Patch4:		pygrubfix.patch
-Patch5:		pygrubfix2.patch
-Patch6:		qemu-xen-4.1-testing.git-3cf61880403b4e484539596a95937cc066243388.patch
-Patch7:		xen-4.1-testing.23190.patch
+#Patch5:		pygrubfix2.patch
+#Patch6:		qemu-xen-4.1-testing.git-3cf61880403b4e484539596a95937cc066243388.patch
+#Patch7:		xen-4.1-testing.23190.patch
 Patch8:		xend.catchbt.patch
-Patch9:		xend.empty.xml.patch
+#Patch9:		xend.empty.xml.patch
 Patch10:	xend-pci-loop.patch
 Patch11:	xen-dumpdir.patch
+# Warning: this disables ingress filtering implemented in xen scripts!
 Patch12:	xen-net-disable-iptables-on-bridge.patch
 Patch13:	xen-configure-xend.patch
 Patch14:	xen-initscript.patch
 Patch15:	xen-no_Werror.patch
-# stubdom patch
-Patch100:	grub-ext4-support.patch
+Patch16:	xen-quemu-softloat-c99.patch
 URL:		http://www.cl.cam.ac.uk/Research/SRG/netos/xen/index.html
 BuildRequires:	OpenGL-devel
 BuildRequires:	SDL-devel
@@ -102,6 +102,7 @@ BuildRequires:	transfig
 BuildRequires:	which
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
+BuildRequires:	yajl-devel
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,preun,postun):	systemd-units >= 38
@@ -300,32 +301,36 @@ Ten pakiet zapewnia bashowe dopełnianie poleceń dla Xena (xl).
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
+#%patch1 -p1
+#%patch2 -p1
+#%patch3 -p1
 %patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
+#%patch5 -p1
+#%patch6 -p1
+#%patch7 -p1
 %patch8 -p1
-%patch9 -p1
+#%patch9 -p1
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
-%patch15 -p1
-
-%{__rm} -v tools/check/*.orig
+#%patch15 -p1
+%patch16 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
-ln -s %{PATCH100} stubdom/grub.patches/99grub-ext4-support.patch
 ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 
 %build
 export CFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
+
+cd tools
+%configure \
+	--disable-debug \
+	CPPFLAGS="%{rpmcppflags} -I/usr/include/ncurses"
+cd ..
 
 %{__make} dist-xen dist-tools dist-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
@@ -336,6 +341,7 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 
 unset CFLAGS
 unset CXXFLAGS
+
 %{__make} -j1 dist-stubdom \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	CC="%{__cc}" \
@@ -389,10 +395,16 @@ cp -p tools/xenmon/README{,.xenmon}
 %py_postclean
 
 # remove unneeded files
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.1.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.2.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
 %{__rm} $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
+
+# strip complains on those
+%{__rm} $RPM_BUILD_ROOT%{_datadir}/qemu-xen/openbios-ppc
+%{__rm} $RPM_BUILD_ROOT%{_datadir}/qemu-xen/openbios-sparc32
+%{__rm} $RPM_BUILD_ROOT%{_datadir}/qemu-xen/openbios-sparc64
+%{__rm} $RPM_BUILD_ROOT%{_datadir}/qemu-xen/palcode-clipper
 
 %clean
 rm -rf $RPM_BUILD_ROOT

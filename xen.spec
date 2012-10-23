@@ -240,8 +240,8 @@ Group:		Libraries
 Requires:	%{name}-libs = %{version}-%{release}
 %if %{with ocaml}
 %requires_eq	ocaml-runtime
-
 %endif
+
 %description -n ocaml-xen
 OCaml bindings for Xen.
 

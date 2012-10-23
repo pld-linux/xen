@@ -132,8 +132,8 @@ Obsoletes:	xen-udev
 ExclusiveArch:	%{ix86} %{x8664}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-# some PPC/SPARC boot image in ELF format
-%define         _noautostrip    .*%{_datadir}/xen/qemu/openbios-.*
+# some PPC/SPARC boot images in ELF format
+%define         _noautostrip    .*%{_datadir}/\\(xen/qemu\\|qemu-xen\\)/\\(openbios-.*\\|palcode-clipper\\)
 
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run
@@ -401,8 +401,11 @@ cp -al tools/qemu-xen/docs _doc/qemu-xen
 
 %py_postclean
 
+%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/qemu.1
 mv $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img{,-xen}.1
 mv $RPM_BUILD_ROOT%{_mandir}/man8/qemu-nbd{,-xen}.8
+# seems not needed, the path is wrong anyway
+%{__rm} $RPM_BUILD_ROOT%{_prefix}/etc/qemu/target-x86_64.conf
 
 # remove unneeded files
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.2.gz
@@ -410,12 +413,6 @@ mv $RPM_BUILD_ROOT%{_mandir}/man8/qemu-nbd{,-xen}.8
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/qemu
 %{__rm} $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
-
-# strip complains on those
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/qemu-xen/openbios-ppc
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/qemu-xen/openbios-sparc32
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/qemu-xen/openbios-sparc64
-%{__rm} $RPM_BUILD_ROOT%{_datadir}/qemu-xen/palcode-clipper
 
 %clean
 rm -rf $RPM_BUILD_ROOT

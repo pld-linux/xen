@@ -8,8 +8,8 @@
 #
 #
 # Conditional build:
-%bcond_with	OpenGL		# enable OpenGL support in Xen qemu
-%bcond_without	SDL		# disable SDL support in Xen tools
+%bcond_with	opengl		# enable OpenGL support in Xen qemu
+%bcond_without	sdl		# disable SDL support in Xen tools
 %bcond_without	bluetooth	# disable bluetooth support in Xen tools
 %bcond_without	brlapi		# disable brlapi support in Xen tools
 %bcond_without	ocaml		# build Ocaml libraries for Xen tools
@@ -77,8 +77,8 @@ Patch8:		xen-configure-xend.patch
 Patch9:		xen-initscript.patch
 Patch10:	xen-quemu-softloat-c99.patch
 URL:		http://www.xen.org/products/xenhyp.html
-%{?with_OpenGL:BuildRequires:	OpenGL-devel}
-%{?with_SDL:BuildRequires:	SDL-devel}
+%{?with_opengl:BuildRequires:	OpenGL-devel}
+%{?with_sdl:BuildRequires:	SDL-devel}
 BuildRequires:	acpica
 BuildRequires:	bcc
 %{?with_bluetooth:BuildRequires:	bluez-libs-devel}

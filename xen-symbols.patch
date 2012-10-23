@@ -1,18 +1,6 @@
-diff -uNr xen-3.4.3.orig/tools/flask/libflask/Makefile xen-3.4.3/tools/flask/libflask/Makefile
---- xen-3.4.3.orig/tools/flask/libflask/Makefile	2010-06-03 19:42:29.000000000 +0200
-+++ xen-3.4.3/tools/flask/libflask/Makefile	2011-01-21 13:01:57.000000000 +0100
-@@ -15,7 +15,7 @@
- 
- # Get gcc to generate the dependencies for us.
- CFLAGS   += -Wp,-MD,.$(@F).d
--LDFLAGS  += -L.
-+LDFLAGS  += -L. -L../../libxc -lxenctrl 
- 
- LIB_OBJS := $(patsubst %.c,%.o,$(SRCS))
- PIC_OBJS := $(patsubst %.c,%.opic,$(SRCS))
-diff -uNr xen-3.4.3.orig/tools/libfsimage/common/Makefile xen-3.4.3/tools/libfsimage/common/Makefile
---- xen-3.4.3.orig/tools/libfsimage/common/Makefile	2010-06-03 19:42:31.000000000 +0200
-+++ xen-3.4.3/tools/libfsimage/common/Makefile	2011-01-21 13:05:34.290513274 +0100
+diff -dur xen-4.2.0.orig/tools/libfsimage/common/Makefile xen-4.2.0/tools/libfsimage/common/Makefile
+--- xen-4.2.0.orig/tools/libfsimage/common/Makefile	2012-09-17 12:21:18.000000000 +0200
++++ xen-4.2.0/tools/libfsimage/common/Makefile	2012-10-23 09:20:47.000000000 +0200
 @@ -5,7 +5,7 @@
  MINOR = 0
  
@@ -21,15 +9,18 @@ diff -uNr xen-3.4.3.orig/tools/libfsimage/common/Makefile xen-3.4.3/tools/libfsi
 +LDFLAGS-$(CONFIG_Linux) = -Wl,mapfile-GNU -ldl
  LDFLAGS = $(LDFLAGS-y)
  
- LIB_SRCS-y = fsimage.c fsimage_plugin.c fsimage_grub.c
---- xen-4.1.2/tools/libxl/Makefile.orig	2011-10-28 20:03:02.698804554 +0200
-+++ xen-4.1.2/tools/libxl/Makefile	2011-10-28 20:17:35.919050445 +0200
-@@ -8,6 +8,8 @@
- MAJOR = 1.0
- MINOR = 0
+ CFLAGS += $(PTHREAD_CFLAGS)
+diff -dur xen-4.2.0.orig/tools/libxl/Makefile xen-4.2.0/tools/libxl/Makefile
+--- xen-4.2.0.orig/tools/libxl/Makefile	2012-09-17 12:21:18.000000000 +0200
++++ xen-4.2.0/tools/libxl/Makefile	2012-10-23 09:24:52.000000000 +0200
+@@ -173,8 +173,8 @@
+ libxlutil.so.$(XLUMAJOR): libxlutil.so.$(XLUMAJOR).$(XLUMINOR)
+ 	ln -sf $< $@
  
-+LDFLAGS += -lutil -luuid -L../libxc -lxenctrl -lxenguest -L../xenstore -lxenstore -L../blktap2/control -lblktapctl
-+
- XLUMAJOR = 1.0
- XLUMINOR = 0
+-libxlutil.so.$(XLUMAJOR).$(XLUMINOR): $(LIBXLU_OBJS)
+-	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG) -Wl,libxlutil.so.$(XLUMAJOR) $(SHLIB_LDFLAGS) -o $@ $^ $(LIBXLU_LIBS) $(APPEND_LDFLAGS)
++libxlutil.so.$(XLUMAJOR).$(XLUMINOR): $(LIBXLU_OBJS) libxenlight.so
++	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG) -Wl,libxlutil.so.$(XLUMAJOR) $(SHLIB_LDFLAGS) -o $@ $^ $(LIBXLU_LIBS) -L. -lxenlight $(APPEND_LDFLAGS)
  
+ libxlutil.a: $(LIBXLU_OBJS)
+ 	$(AR) rcs libxlutil.a $^

@@ -1,30 +1,5 @@
-diff -dur xen-4.2.0.orig/tools/qemu-xen/configure xen-4.2.0/tools/qemu-xen/configure
---- xen-4.2.0.orig/tools/qemu-xen/configure	2012-09-10 20:10:52.000000000 +0200
-+++ xen-4.2.0/tools/qemu-xen/configure	2012-10-22 10:53:22.000000000 +0200
-@@ -1859,7 +1859,7 @@
- if test "$curses" != "no" ; then
-   curses_found=no
-   cat > $TMPC << EOF
--#include <curses.h>
-+#include <ncurses/curses.h>
- #ifdef __OpenBSD__
- #define resize_term resizeterm
- #endif
-diff -dur xen-4.2.0.orig/tools/qemu-xen/console.h xen-4.2.0/tools/qemu-xen/console.h
---- xen-4.2.0.orig/tools/qemu-xen/console.h	2012-09-10 20:10:52.000000000 +0200
-+++ xen-4.2.0/tools/qemu-xen/console.h	2012-10-22 10:53:12.000000000 +0200
-@@ -329,7 +329,7 @@
- }
- 
- #ifdef CONFIG_CURSES
--#include <curses.h>
-+#include <ncurses/curses.h>
- typedef chtype console_ch_t;
- #else
- typedef unsigned long console_ch_t;
-diff -dur xen-4.2.0.orig/tools/xenstat/Makefile xen-4.2.0/tools/xenstat/Makefile
 --- xen-4.2.0.orig/tools/xenstat/Makefile	2012-09-17 12:21:19.000000000 +0200
-+++ xen-4.2.0/tools/xenstat/Makefile	2012-10-22 10:51:45.000000000 +0200
++++ xen-4.2.0/tools/xenstat/Makefile	2012-10-23 09:59:58.000000000 +0200
 @@ -6,7 +6,7 @@
  
  # This doesn't cross-compile (cross-compile environments rarely have curses)

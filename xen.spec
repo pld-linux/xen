@@ -177,6 +177,7 @@ Narzędzia Xena dla maszyn wirtualnych dom0 i domU.
 Summary:	Xen libraries
 Summary(pl.UTF-8):	Biblioteki Xena
 Group:		Libraries
+Requires:	%{name}-libs-guest = %{version}-%{release}
 
 %description libs
 Xen libraries.
@@ -269,7 +270,6 @@ Summary:	Xen Python modules
 Summary(pl.UTF-8):	Moduły Pythona dla Xena
 Group:		Libraries
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	%{name}-xen-guest = %{version}-%{release}
 Conflicts:	xen < 3.2.1-0.3
 
 %description -n python-xen

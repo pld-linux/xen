@@ -8,10 +8,10 @@
 #
 #
 # Conditional build:
-%bcond_with	opengl		# enable OpenGL support in Xen qemu
-%bcond_without	sdl		# disable SDL support in Xen tools
-%bcond_without	bluetooth	# disable bluetooth support in Xen tools
-%bcond_without	brlapi		# disable brlapi support in Xen tools
+%bcond_without	opengl		# disable OpenGL support in Xen qemu
+%bcond_without	sdl		# disable SDL support in Xen qemu
+%bcond_without	bluetooth	# disable bluetooth support in Xen qemu
+%bcond_without	brlapi		# disable brlapi support in Xen qemu
 %bcond_without	ocaml		# build Ocaml libraries for Xen tools
 #
 # from Config.mk:
@@ -78,37 +78,65 @@ Patch9:		xen-initscript.patch
 Patch10:	xen-quemu-softloat-c99.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
-%{?with_sdl:BuildRequires:	SDL-devel}
+%{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
+%ifarch %{ix86} %{x8664}
 BuildRequires:	acpica
 BuildRequires:	bcc
+%endif
 %{?with_bluetooth:BuildRequires:	bluez-libs-devel}
 %{?with_brlapi:BuildRequires:	brlapi-devel}
+BuildRequires:	bzip2-devel
+BuildRequires:	ceph-devel
 BuildRequires:	curl-devel
+BuildRequires:	cyrus-sasl-devel >= 2
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 5:3.4
 BuildRequires:	gettext-devel
+BuildRequires:	glib2-devel >= 1:2.12
 BuildRequires:	gnutls-devel
 BuildRequires:	latex2html >= 2008
+BuildRequires:	libaio-devel
+BuildRequires:	libiscsi-devel
+BuildRequires:	libjpeg-devel
+BuildRequires:	libpng-devel
+BuildRequires:	libuuid-devel
+BuildRequires:	lzo-devel >= 2
 BuildRequires:	ncurses-devel
 %if %{with ocaml}
 BuildRequires:	ocaml >= 3.04-7
 BuildRequires:	ocaml-findlib
 %endif
+BuildRequires:	nss-devel >= 3.12.8
+BuildRequires:	openssl-devel
 BuildRequires:	pciutils-devel
+BuildRequires:	perl-base
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
+BuildRequires:	spice-protocol >= 0.6.0
+BuildRequires:	spice-server-devel >= 0.6.0
 BuildRequires:	texi2html
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	texlive-xetex
+# not adjusted for usbredir 0.5.x (libusbredirparser-0.5)
+#BuildRequires:	usbredir-devel
+BuildRequires:	vde2-devel
 BuildRequires:	which
+# for xfsctl (<xfs/xfs.h>)
+BuildRequires:	xfsprogs-devel
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 BuildRequires:	xz-devel
 BuildRequires:	yajl-devel
 BuildRequires:	zlib-devel
+# FIXME: see qemu configure comments on top of spec
+%{!?with_opengl:BuildConflicts:	OpenGL-devel}
+%{!?with_sdl:BuildConflicts:	SDL-devel}
+%{!?with_sdl:BuildConflicts:	SDL-devel}
+%{!?with_bluetooth:BuildConflicts:	bluez-libs-devel}
+%{!?with_brlapi:BuildConflicts:	brlapi-devel}
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name}-libs = %{version}-%{release}
@@ -329,10 +357,16 @@ echo GIT=/bin/false >> Config.mk
 export CFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 
+# NOTE:
+# - there is a quoting bug (in tools/driver/Makefile) that causes
+#   openssl is used instead of gcrypt; that's OK, openssl is obligatory
+#   anyway (see configure), gcrypt is optional
+# - prevent libiconv from being detected (not needed with glibc)
 cd tools
 %configure \
-	--disable-debug \
-	CPPFLAGS="%{rpmcppflags} -I/usr/include/ncurses"
+	CPPFLAGS="%{rpmcppflags} -I/usr/include/ncurses" \
+	ac_cv_lib_iconv_libiconv_open=no \
+	--disable-debug
 cd ..
 
 %{__make} dist-xen dist-tools dist-docs \

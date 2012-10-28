@@ -1,6 +1,5 @@
 #
 # TODO:
-#  - most of the qemu config options aren't detected (NPTL, vde, fdt)
 #  - check if other tools/libs are not usable in domU, move them to -guest
 #    packages if so
 #  - pass bconds to qemu configure script (tricky, as the script is called from
@@ -76,6 +75,7 @@ Patch7:		xen-net-disable-iptables-on-bridge.patch
 Patch8:		xen-configure-xend.patch
 Patch9:		xen-initscript.patch
 Patch10:	xen-quemu-softloat-c99.patch
+Patch11:	xen-qemu.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -120,8 +120,7 @@ BuildRequires:	texi2html
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	texlive-xetex
-# not adjusted for usbredir 0.5.x (libusbredirparser-0.5)
-#BuildRequires:	usbredir-devel
+BuildRequires:	usbredir-devel
 BuildRequires:	vde2-devel
 BuildRequires:	which
 # for xfsctl (<xfs/xfs.h>)
@@ -345,6 +344,7 @@ Ten pakiet zapewnia bashowe dopełnianie poleceń dla Xena (xl).
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -382,7 +382,8 @@ unset CXXFLAGS
 %{__make} -j1 dist-stubdom \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	CC="%{__cc}" \
-	CXX="%{__cxx}"
+	CXX="%{__cxx}" \
+	V=1
 
 %install
 rm -rf $RPM_BUILD_ROOT

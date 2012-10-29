@@ -12,10 +12,15 @@
 %bcond_without	bluetooth	# disable bluetooth support in Xen qemu
 %bcond_without	brlapi		# disable brlapi support in Xen qemu
 %bcond_without	ocaml		# build Ocaml libraries for Xen tools
-#
+%bcond_without	efi		# build the EFI hypervisor
+
+%ifnarch x86_64
+%undefine	with_efi
+%endif
+
 # from Config.mk:
 %define	seabios_version		1.6.3.2
-#
+
 %define	xen_extfiles_url	http://xenbits.xensource.com/xen-extfiles
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
@@ -85,6 +90,7 @@ BuildRequires:	bcc
 %endif
 %{?with_bluetooth:BuildRequires:	bluez-libs-devel}
 %{?with_brlapi:BuildRequires:	brlapi-devel}
+%{?with_efi:BuildRequires:	binutils >= 2.23.51.0.3-2}
 BuildRequires:	bzip2-devel
 BuildRequires:	ceph-devel
 BuildRequires:	curl-devel
@@ -330,6 +336,20 @@ This package provides bash-completion for Xen (xl).
 
 %description -n bash-completion-%{name} -l pl.UTF-8
 Ten pakiet zapewnia bashowe dopełnianie poleceń dla Xena (xl).
+
+%package efi
+Summary:	Xen hypervisor binary for EFI
+Summary(pl.UTF-8):	Hybervisor Xen dla EFI
+Group:		Applications/System
+Requires:	%{name}-libs-guest = %{version}-%{release}
+
+%description efi
+Xen hypervisor EFI binary, which can be booted directly from (U)EFI
+firmware without help from any additional bootloader.
+
+%description efi -l pl.UTF-8
+Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
+(U)EFI, bez potrzeby oddzielnego bootloadera.
 
 %prep
 %setup -q -a 16
@@ -775,3 +795,10 @@ fi
 %files -n bash-completion-%{name}
 %defattr(644,root,root,755)
 /etc/bash_completion.d/xl.sh
+
+%if %{with efi}
+%files efi
+%defattr(644,root,root,755)
+%dir %{_libdir}/efi
+%{_libdir}/efi/*.efi
+%endif

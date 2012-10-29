@@ -90,7 +90,7 @@ BuildRequires:	bcc
 %endif
 %{?with_bluetooth:BuildRequires:	bluez-libs-devel}
 %{?with_brlapi:BuildRequires:	brlapi-devel}
-%{?with_efi:BuildRequires:	binutils >= 2.23.51.0.3-2}
+%{?with_efi:BuildRequires:	binutils >= 3:2.23.51.0.3-2}
 BuildRequires:	bzip2-devel
 BuildRequires:	ceph-devel
 BuildRequires:	curl-devel

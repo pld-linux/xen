@@ -339,7 +339,7 @@ Ten pakiet zapewnia bashowe dopełnianie poleceń dla Xena (xl).
 
 %package efi
 Summary:	Xen hypervisor binary for EFI
-Summary(pl.UTF-8):	Hybervisor Xen dla EFI
+Summary(pl.UTF-8):	Hipernadzorca Xen dla EFI
 Group:		Applications/System
 Requires:	%{name}-libs-guest = %{version}-%{release}
 

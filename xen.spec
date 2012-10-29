@@ -14,7 +14,7 @@
 %bcond_without	ocaml		# build Ocaml libraries for Xen tools
 %bcond_without	efi		# build the EFI hypervisor
 
-%ifnarch x86_64
+%ifnarch %{x8664}
 %undefine	with_efi
 %endif
 

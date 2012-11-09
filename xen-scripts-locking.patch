@@ -1,0 +1,28 @@
+commit a4ef9c9753467ae2eaeff858bcb63a5ba5337d18
+Author: Jacek Konieczny <jajcus@jajcus.net>
+Date:   Fri Nov 9 14:47:40 2012 +0100
+
+    Fix locking in tools/hotplug/Linux/locking.sh
+    
+    The claim_lock() function would fail in the perl code with:
+    
+      Invalid argument at -e line 2.
+    
+    because the Perl snippet opens for reading the file descriptor, which
+    was earlier opened for write (append).
+    
+    Signed-off-by: Jacek Konieczny <jajcus@jajcus.net>
+
+diff --git a/tools/hotplug/Linux/locking.sh b/tools/hotplug/Linux/locking.sh
+index 0e2a531..5c4f365 100644
+--- a/tools/hotplug/Linux/locking.sh
++++ b/tools/hotplug/Linux/locking.sh
+@@ -44,7 +44,7 @@ claim_lock()
+     # See below for a correctness proof.
+     local rightfile
+     while true; do
+-        eval "exec $_lockfd>>$_lockfile"
++        eval "exec $_lockfd<>$_lockfile"
+         flock -x $_lockfd || return $?
+         # We can't just stat /dev/stdin or /proc/self/fd/$_lockfd or
+         # use bash's test -ef because those all go through what is

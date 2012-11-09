@@ -483,7 +483,13 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add xenconsoled
 /sbin/chkconfig --add xenstored
 /sbin/chkconfig --add xendomains
-%systemd_post xen-watchdog.service xenconsoled.service xenstored.service
+%systemd_post xen-watchdog.service xenconsoled.service
+
+export NORESTART=1
+%systemd_post xenstored.service
+if [ $1 -ne 1 ] ; then
+	/bin/systemd_booted && echo "xenstored.service must not be restarted, ever!" || :
+fi
 
 %preun
 if [ "$1" = "0" ]; then

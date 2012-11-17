@@ -113,7 +113,7 @@ start() {
         for dom in $XENDOMAINS_SAVE/*; do
             if [ -f $dom ] ; then
                 HEADER=`head -c 16 $dom | head -n 1 2> /dev/null`
-                if [ $HEADER = "LinuxGuestRecord" ]; then
+                if [ "$HEADER" = "LinuxGuestRecord" ]; then
                     echo -n " ${dom##*/}"
                     XMR=`$CMD restore $dom 2>&1 1>/dev/null`
                     #$CMD restore $dom

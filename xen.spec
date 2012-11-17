@@ -72,6 +72,7 @@ Source52:	xenstored.init
 Source53:	xen-watchdog.init
 Source54:	xendomains.init
 Source55:	xen.logrotate
+Source56:	xen.tmpfiles
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
@@ -447,6 +448,7 @@ install %{SOURCE52} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenstored
 install %{SOURCE53} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-watchdog
 install %{SOURCE54} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 install %{SOURCE55} $RPM_BUILD_ROOT/etc/logrotate.d/xen
+install %{SOURCE56} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xen.conf
 
 mv $RPM_BUILD_ROOT/etc/xen/{x{m,l}example*,examples}
 
@@ -626,6 +628,7 @@ fi
 %{_sharedstatedir}/xenstored
 %dir /var/run/xenstored
 %{systemdtmpfilesdir}/xenstored.conf
+%{systemdtmpfilesdir}/xen.conf
 %dir %attr(0700,root,root) /var/log/xen
 %dir %attr(0700,root,root) /var/log/xen/console
 %{_datadir}/qemu-xen

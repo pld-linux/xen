@@ -415,7 +415,7 @@ unset CXXFLAGS
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d,logrotate.d} \
-	$RPM_BUILD_ROOT{/usr/lib/tmpfiles.d,%{systemdunitdir},/var/log/xen/console}
+	$RPM_BUILD_ROOT{%{systemdtmpfilesdir},%{systemdunitdir},/var/log/xen/console}
 
 %{__make} -j1 install-xen install-tools install-stubdom install-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
@@ -435,9 +435,9 @@ install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
 install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
 install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
 install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored
-install %{SOURCE38} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xenstored.conf
+install %{SOURCE38} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xenstored.conf
 install %{SOURCE39} $RPM_BUILD_ROOT%{systemdunitdir}/xend.service
-install %{SOURCE40} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xend.conf
+install %{SOURCE40} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xend.conf
 install %{SOURCE41} $RPM_BUILD_ROOT%{systemdunitdir}/xen-watchdog.service
 install %{SOURCE42} $RPM_BUILD_ROOT/etc/modules-load.d/xen-dom0.conf
 # sysvinit scripts
@@ -448,7 +448,7 @@ install %{SOURCE52} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenstored
 install %{SOURCE53} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-watchdog
 install %{SOURCE54} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 install %{SOURCE55} $RPM_BUILD_ROOT/etc/logrotate.d/xen
-install %{SOURCE56} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/xen.conf
+install %{SOURCE56} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xen.conf
 
 mv $RPM_BUILD_ROOT/etc/xen/{x{m,l}example*,examples}
 

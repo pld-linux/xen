@@ -87,6 +87,7 @@ Patch9:		xen-initscript.patch
 Patch10:	xen-quemu-softloat-c99.patch
 Patch11:	xen-qemu.patch
 Patch12:	xen-scripts-locking.patch
+Patch13:	xen-close_lockfd_after_lock_attempt.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -372,6 +373,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

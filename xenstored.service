@@ -2,7 +2,7 @@
 Description=Xenstored - daemon managing xenstore file system
 Requires=proc-xen.mount var-lib-xenstored.mount
 After=proc-xen.mount var-lib-xenstored.mount
-Before=libvirtd.service libvirt-guests.service
+Before=libvirtd.service libvirt-guests.service xendomains.service xend.service
 RefuseManualStop=true
 
 [Service]

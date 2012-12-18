@@ -537,6 +537,9 @@ fi
 %post	libs-guest -p /sbin/ldconfig
 %postun	libs-guest -p /sbin/ldconfig
 
+%post efi
+[ -x /sbin/efi-boot-update ] && /sbin/efi-boot-update --auto || :
+
 %files
 %defattr(644,root,root,755)
 %doc COPYING README* docs/misc/* 

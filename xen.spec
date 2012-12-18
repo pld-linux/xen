@@ -73,6 +73,8 @@ Source53:	xen-watchdog.init
 Source54:	xendomains.init
 Source55:	xen.logrotate
 Source56:	xen.tmpfiles
+Source57:	xen.cfg
+Source58:	xen.efi-boot-update
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
@@ -417,7 +419,8 @@ unset CXXFLAGS
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d,logrotate.d} \
-	$RPM_BUILD_ROOT{%{systemdtmpfilesdir},%{systemdunitdir},/var/log/xen/console}
+	$RPM_BUILD_ROOT{%{systemdtmpfilesdir},%{systemdunitdir},/var/log/xen/console} \
+	$RPM_BUILD_ROOT/etc/efi-boot/update.d
 
 %{__make} -j1 install-xen install-tools install-stubdom install-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
@@ -451,6 +454,12 @@ install %{SOURCE53} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-watchdog
 install %{SOURCE54} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 install %{SOURCE55} $RPM_BUILD_ROOT/etc/logrotate.d/xen
 install %{SOURCE56} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xen.conf
+
+%if %{with efi}
+install %{SOURCE57} $RPM_BUILD_ROOT/etc/efi-boot/xen.cfg
+sed -e's;@libdir@;%{_libdir};g' -e's;@target_cpu@;%{_target_cpu};g' \
+			%{SOURCE58} > $RPM_BUILD_ROOT/etc/efi-boot/update.d/xen.conf
+%endif
 
 mv $RPM_BUILD_ROOT/etc/xen/{x{m,l}example*,examples}
 
@@ -812,4 +821,6 @@ fi
 %defattr(644,root,root,755)
 %dir %{_libdir}/efi
 %{_libdir}/efi/*.efi
+%attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/efi-boot/xen.cfg
+%attr(644,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/efi-boot/update.d/xen.conf
 %endif

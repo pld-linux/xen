@@ -1,0 +1,17 @@
+ENABLED=yes
+LABEL="Xen native EFI"
+ARCH=@target_cpu@
+BINARY=xen.efi
+ARGS=""
+
+install_files() {
+
+    update_file @libdir@/efi/xen.efi xen.efi
+    update_file /etc/efi-boot/xen.cfg xen.cfg
+
+    update_file /boot/initrd initrd
+    update_file /boot/vmlinuz vmlinuz
+
+    update_file --missingok /boot/initrd.old initrd.old
+    update_file --missingok /boot/vmlinuz.old vmlinuz.old
+}

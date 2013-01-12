@@ -81,15 +81,16 @@ Patch2:		%{name}-curses.patch
 Patch3:		pygrubfix.patch
 Patch4:		xend.catchbt.patch
 Patch5:		xend-pci-loop.patch
-Patch6:		xen-dumpdir.patch
+Patch6:		%{name}-dumpdir.patch
 # Warning: this disables ingress filtering implemented in xen scripts!
-Patch7:		xen-net-disable-iptables-on-bridge.patch
-Patch8:		xen-configure-xend.patch
-Patch9:		xen-initscript.patch
-Patch10:	xen-quemu-softloat-c99.patch
-Patch11:	xen-qemu.patch
-Patch12:	xen-scripts-locking.patch
-Patch13:	xen-close_lockfd_after_lock_attempt.patch
+Patch7:		%{name}-net-disable-iptables-on-bridge.patch
+Patch8:		%{name}-configure-xend.patch
+Patch9:		%{name}-initscript.patch
+Patch10:	%{name}-quemu-softloat-c99.patch
+Patch11:	%{name}-qemu.patch
+Patch12:	%{name}-scripts-locking.patch
+Patch13:	%{name}-close_lockfd_after_lock_attempt.patch
+Patch14:	%{name}-librt.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -376,6 +377,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
+%patch14 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

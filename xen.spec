@@ -30,7 +30,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.2.1
-Release:	1
+Release:	2
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -91,6 +91,7 @@ Patch11:	%{name}-qemu.patch
 Patch12:	%{name}-scripts-locking.patch
 Patch13:	%{name}-close_lockfd_after_lock_attempt.patch
 Patch14:	%{name}-librt.patch
+Patch15:	%{name}-ulong.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -378,6 +379,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

@@ -30,7 +30,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.2.1
-Release:	2
+Release:	3
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -75,6 +75,7 @@ Source55:	xen.logrotate
 Source56:	xen.tmpfiles
 Source57:	xen.cfg
 Source58:	xen.efi-boot-update
+Source59:	vif-openvswitch
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
@@ -466,6 +467,8 @@ sed -e's;@libdir@;%{_libdir};g' -e's;@target_cpu@;%{_target_cpu};g' \
 %endif
 
 mv $RPM_BUILD_ROOT/etc/xen/{x{m,l}example*,examples}
+
+install %{SOURCE59} $RPM_BUILD_ROOT%{_sysconfdir}/xen/scripts/vif-openvswitch
 
 # for %%doc
 install -d _doc

@@ -30,7 +30,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.2.1
-Release:	3
+Release:	4
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -390,6 +390,11 @@ ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 echo GIT=/bin/false >> Config.mk
 
 %build
+# if gold is used then bioses and grub doesn't build
+install -d our-ld
+ln -s /usr/bin/ld.bfd our-ld/ld
+export PATH=$(pwd)/our-ld:$PATH
+
 export CFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 

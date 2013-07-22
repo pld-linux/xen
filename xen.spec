@@ -519,6 +519,7 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add xenconsoled
 /sbin/chkconfig --add xenstored
 /sbin/chkconfig --add xendomains
+NORESTART=1
 %systemd_post xen-watchdog.service xenconsoled.service xenstored.service xendomains.service
 
 %preun

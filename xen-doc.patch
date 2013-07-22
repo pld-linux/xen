@@ -1,0 +1,114 @@
+diff -ur xen-4.2.2/docs/man/xl.cfg.pod.5 xen-4.2.2.doc/docs/man/xl.cfg.pod.5
+--- xen-4.2.2/docs/man/xl.cfg.pod.5	2013-04-23 18:42:55.000000000 +0200
++++ xen-4.2.2.doc/docs/man/xl.cfg.pod.5	2013-07-22 13:43:13.044717979 +0200
+@@ -402,10 +402,10 @@
+ 
+ =back
+ 
+-=item B<ioports=[ "IOPORT_RANGE", "IOPORT_RANGE", ... ]>
+-
+ =over 4
+ 
++=item B<ioports=[ "IOPORT_RANGE", "IOPORT_RANGE", ... ]>
++
+ Allow guest to access specific legacy I/O ports. Each B<IOPORT_RANGE>
+ is given in hexadecimal and may either a span e.g. C<2f8-2ff>
+ (inclusive) or a single I/O port C<2f8>.
+@@ -415,10 +415,10 @@
+ 
+ =back
+ 
+-=item B<irqs=[ NUMBER, NUMBER, ... ]>
+-
+ =over 4
+ 
++=item B<irqs=[ NUMBER, NUMBER, ... ]>
++
+ Allow a guest to access specific physical IRQs.
+ 
+ It is recommended to use this option only for trusted VMs under
+@@ -680,8 +680,6 @@
+ 
+ =back
+ 
+-=back
+-
+ Please see F<docs/misc/tscmode.txt> for more information on this option.
+ 
+ =item B<localtime=BOOLEAN>
+@@ -692,6 +690,8 @@
+ 
+ Set the real time clock offset in seconds. 0 by default.
+ 
++=back
++
+ =head3 Support for Paravirtualisation of HVM Guests
+ 
+ The following options allow Paravirtualised features (such as devices)
+diff -ur xen-4.2.2/docs/man/xl.pod.1 xen-4.2.2.doc/docs/man/xl.pod.1
+--- xen-4.2.2/docs/man/xl.pod.1	2013-04-23 18:42:55.000000000 +0200
++++ xen-4.2.2.doc/docs/man/xl.pod.1	2013-07-22 13:41:46.400526793 +0200
+@@ -851,8 +851,6 @@
+ 
+ =item B<-p [pool] -d>...       : Illegal
+ 
+-=item
+-
+ =back
+ 
+ =item B<sched-credit2> [I<OPTIONS>]
+--- xen-4.2.2/tools/qemu-xen/qemu-options.hx~	2013-04-06 01:39:54.000000000 +0200
++++ xen-4.2.2/tools/qemu-xen/qemu-options.hx	2013-07-22 14:17:13.970296816 +0200
+@@ -1799,7 +1799,7 @@
+ devices.
+ 
+ Syntax for specifying a sheepdog device
+-@table @list
++@table @code
+ ``sheepdog:<vdiname>''
+ 
+ ``sheepdog:<vdiname>:<snapid>''
+--- xen-4.2.2/tools/qemu-xen/scripts/texi2pod.pl~	2013-04-06 01:39:54.000000000 +0200
++++ xen-4.2.2/tools/qemu-xen/scripts/texi2pod.pl	2013-07-22 14:27:37.959914694 +0200
+@@ -339,6 +339,8 @@
+ $sects{NAME} = "$fn \- $tl\n";
+ $sects{FOOTNOTES} .= "=back\n" if exists $sects{FOOTNOTES};
+ 
++print "=encoding utf8\n";
++
+ for $sect (qw(NAME SYNOPSIS DESCRIPTION OPTIONS ENVIRONMENT FILES
+ 	      BUGS NOTES FOOTNOTES SEEALSO AUTHOR COPYRIGHT)) {
+     if(exists $sects{$sect}) {
+--- xen-4.2.2/tools/qemu-xen-traditional/texi2pod.pl~	2013-04-06 01:39:54.000000000 +0200
++++ xen-4.2.2/tools/qemu-xen-traditional/texi2pod.pl	2013-07-22 14:27:37.959914694 +0200
+@@ -339,6 +339,8 @@
+ $sects{NAME} = "$fn \- $tl\n";
+ $sects{FOOTNOTES} .= "=back\n" if exists $sects{FOOTNOTES};
+ 
++print "=encoding utf8\n";
++
+ for $sect (qw(NAME SYNOPSIS DESCRIPTION OPTIONS ENVIRONMENT FILES
+ 	      BUGS NOTES FOOTNOTES SEEALSO AUTHOR COPYRIGHT)) {
+     if(exists $sects{$sect}) {
+--- xen-4.2.2/tools/qemu-xen-traditional/configure~	2013-07-22 14:35:56.118261587 +0200
++++ xen-4.2.2/tools/qemu-xen-traditional/configure	2013-07-22 14:43:48.376345178 +0200
+@@ -1087,7 +1087,7 @@
+ fi
+ 
+ # Check if tools are available to build documentation.
+-if [ -x "`which texi2html 2>/dev/null`" ] && \
++if [ -x "`which texi2any 2>/dev/null`" ] && \
+    [ -x "`which pod2man 2>/dev/null`" ]; then
+   build_docs="yes"
+ fi
+--- xen-4.2.2/tools/qemu-xen-traditional/Makefile~	2013-01-17 17:00:26.000000000 +0100
++++ xen-4.2.2/tools/qemu-xen-traditional/Makefile	2013-07-22 14:44:29.273423099 +0200
+@@ -275,7 +275,7 @@
+ 
+ # documentation
+ %.html: %.texi
+-	texi2html -monolithic -number $<
++	texi2any --html --no-split --number-sections $<
+ 
+ %.info: %.texi
+ 	makeinfo $< -o $@

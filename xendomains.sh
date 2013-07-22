@@ -1,12 +1,4 @@
 #!/bin/bash
-#
-# xendomains            Start / stop domains automatically when domain 0 boots / shuts down.
-#
-# chkconfig:            345 99 00
-# description:          Start / stop Xen domains.
-#
-
-. /etc/rc.d/init.d/functions
 
 if ! [ -e /proc/xen/privcmd ]; then
 	exit 0
@@ -60,9 +52,9 @@ timeout_coproc()
 	wait $PID
 	local rc=$?
 	if [ $rc -eq 0 ]; then
-		ok
+		echo "ok"
 	else
-		fail
+		echo "fail ($rc)"
 	fi
 
 	[ $rc -gt 0 ] && cat <&$COPROC_OUT
@@ -89,19 +81,18 @@ do_start_restore()
 	for file in $XENDOMAINS_SAVE/*; do
 		if [ -f $file ] ; then
 			name="${file##*/}"
-			show "Restoring Xen domain $name (from $file)"
-			busy
+			echo -n "Restoring Xen domain $name (from $file): "
 
 			out=$(/usr/lib/xen/bin/xen-toolstack restore "$file" >/dev/null 2>&1)
 			case "$?" in
 				0)
 					rm "$file"
 					domains[$name]='started'
-					ok
+					echo "ok"
 					;;
 				*)
 					domains[$name]='failed'
-					fail
+					echo "fail"
 					echo "$out"
 					;;
 			esac
@@ -122,19 +113,18 @@ do_start_auto()
 		elif check_running "$name"; then
 			echo "Xen domain $name already running"
 		else
-			show "Starting Xen domain $name (from $file)"
-			busy
+			echo -n "Starting Xen domain $name (from $file): "
 
 			if [ "${domains[$name]}" = failed ]; then
-				fail
+				echo "fail"
 			else
 				out=$(/usr/lib/xen/bin/xen-toolstack create --quiet --defconfig "$file" >/dev/null 2>&1)
 				case "$?" in
 					0)
-						ok
+						echo "ok"
 						;;
 					*)
-						fail
+						echo "fail"
 						echo "$out"
 						;;
 				esac
@@ -147,15 +137,8 @@ do_start()
 {
 	declare -A domains
 
-	if [ -f /var/lock/subsys/xendomains ]; then 
-		msg_already_running "xendomains"
-		return
-	fi
-
 	do_start_restore
 	do_start_auto
-
-	touch /var/lock/subsys/xendomains
 }
 
 do_stop_migrate()
@@ -163,8 +146,7 @@ do_stop_migrate()
 	[ -n "$XENDOMAINS_MIGRATE" ] || return
 
 	while read id name rest; do
-		show "Migrating Xen domain $name ($id)"
-		busy
+		echo -n "Migrating Xen domain $name ($id): "
 		(timeout_coproc "$XENDOMAINS_STOP_MAXWAIT" /usr/lib/xen/bin/xen-toolstack migrate $id $XENDOMAINS_MIGRATE)
 	done < <(/usr/lib/xen/bin/xen-init-list)
 }
@@ -175,8 +157,7 @@ do_stop_save()
 	[ -d "$XENDOMAINS_SAVE" ] || mkdir -m 0700 -p "$XENDOMAINS_SAVE"
 
 	while read id name rest; do
-		show "Saving Xen domain $name ($id)"
-		busy
+		echo -n "Saving Xen domain $name ($id): "
 		(timeout_coproc "$XENDOMAINS_STOP_MAXWAIT" /usr/lib/xen/bin/xen-toolstack save $id $XENDOMAINS_SAVE/$name)
 	done < <(/usr/lib/xen/bin/xen-init-list)
 }
@@ -184,39 +165,32 @@ do_stop_save()
 do_stop_shutdown()
 {
 	while read id name rest; do
-		show "Shutting down Xen domain $name ($id)"
-		busy
+		echo -n "Shutting down Xen domain $name ($id): "
 		/usr/lib/xen/bin/xen-toolstack shutdown $id >/dev/null 2>&1
-		if [ $? -eq 0 ]; then
-			ok
+		rc=$?
+		if [ $rc -eq 0 ]; then
+			echo "ok"
 		else
-			fail
+			echo "fail ($rc)"
 		fi
 	done < <(/usr/lib/xen/bin/xen-init-list)
 	while read id name rest; do
-		show "Waiting for Xen domain $name ($id) to shut down"
-		busy
+		echo -n "Waiting for Xen domain $name ($id) to shut down: "
 		timeout_domain "$name" "$XENDOMAINS_STOP_MAXWAIT"
-		if [ $? -eq 0 ]; then
-			ok
+		rc=$?
+		if [ $rc -eq 0 ]; then
+			echo "ok"
 		else
-			fail
+			echo "fail ($rc)"
 		fi
 	done < <(/usr/lib/xen/bin/xen-init-list)
 }
 
 do_stop()
 {
-	if [ ! -f /var/lock/subsys/xendomains ]; then 
-		msg_not_running "xendomains"
-		return
-	fi
-
 	do_stop_migrate
 	do_stop_save
 	do_stop_shutdown
-
-	rm -f /var/lock/subsys/xendomains
 }
 
 case "$1" in
@@ -235,9 +209,7 @@ case "$1" in
 		do_start
 		;;
 	status)
-		if [ -f /var/lock/subsys/xendomains ]; then
-			/usr/lib/xen/bin/xen-toolstack list -v
-		fi
+		/usr/lib/xen/bin/xen-toolstack list -v
 		;;
 	*)
 		echo "Usage: $0 {start|stop|status|restart|reload|force-reload}"

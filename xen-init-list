@@ -1,0 +1,77 @@
+#!/usr/bin/python
+
+from __future__ import print_function
+
+import json
+import re
+import sys
+import subprocess
+
+
+class SXPParser(object):
+    tokenizer_rules = r""" (?P<open> \( ) | (?P<close> \) ) | (?P<whitespace> \s+ ) | [^()^\s]+ """
+    tokenizer_re = re.compile(tokenizer_rules, re.X)
+
+    def __init__(self):
+        self.stack = []
+        self.data = []
+
+    def __call__(self, input):
+        for match in self.tokenizer_re.finditer(input):
+            if match.group('open'):
+                self.stack.append([])
+            elif match.group('close'):
+                top = self.stack.pop()
+                if self.stack:
+                    self.stack[-1].append(top)
+                else:
+                    self.data.append(top)
+            elif match.group('whitespace'):
+                pass
+            else:
+                if self.stack:
+                    self.stack[-1].append(match.group())
+        return self.data
+
+
+class Data(object):
+    def __call__(self, out):
+        for domid, info in sorted(self.data.iteritems(), reverse=True):
+            print(str(domid), *info)
+
+
+class DataJSON(Data):
+    def __init__(self, p):
+        s = json.loads(p)
+        self.data = d = {}
+        for i in s:
+            domid = i['domid']
+            name = i['config']['c_info']['name']
+            d[domid] = (name, )
+
+
+class DataSXP(Data):
+    def __init__(self, p):
+        s = SXPParser()(p)
+        self.data = d = {}
+        for i in s:
+            if i and i[0] == 'domain':
+                try:
+                    data = dict(j for j in i if len(j) == 2)
+                    domid = int(data['domid'])
+                    name = data['name']
+                    if domid == 0:
+                        continue
+                    d[domid] = (name, )
+                except (KeyError, ValueError) as e:
+                    pass
+
+
+if __name__ == '__main__':
+    p = subprocess.check_output(('/usr/lib/xen/bin/xen-toolstack', 'list', '-l'))
+    if p[0] == '(':
+        d = DataSXP(p)
+    else:
+        d = DataJSON(p)
+    d(sys.stdout)
+

@@ -1,0 +1,33 @@
+#!/bin/sh -e
+
+if [ -r /etc/sysconfig/xen ]; then
+	. /etc/sysconfig/xen
+fi
+
+if [ -n "$TOOLSTACK" ]; then
+	cmd=$(command -v "$TOOLSTACK" || :)
+	if [ -z "$cmd" ]; then
+		echo "WARING:  Can't find toolstack $TOOLSTACK, fallback to default!" >&2
+		TOOLSTACK=
+	fi
+fi
+
+if [ -z "$TOOLSTACK" ]; then
+	cmd_xl=$(command -v xl || :)
+	cmd_xm=$(command -v xm || :)
+	if [ -n "$cmd_xl" ]; then
+		cmd="$cmd_xl"
+	elif [ -n "$cmd_xm" ]; then
+		cmd="$cmd_xm"
+	else
+		echo "ERROR:  Toolstack not specifed and nothing detected, bailing out!" >&2
+		exit 127
+	fi
+fi
+
+if [ "$1" == "toolstack" ]; then
+	echo $cmd
+	exit 0
+fi
+
+exec "$cmd" "$@"

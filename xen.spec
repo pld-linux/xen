@@ -65,6 +65,8 @@ Source39:	xend.service
 Source40:	xend.tmpfiles
 Source41:	xen-watchdog.service
 Source42:	xen-dom0-modules-load.conf
+Source43:	xendomains.sh
+Source44:	xendomains.service
 # sysvinit scripts
 Source50:	xend.init
 Source51:	xenconsoled.init
@@ -76,6 +78,8 @@ Source56:	xen.tmpfiles
 Source57:	xen.cfg
 Source58:	xen.efi-boot-update
 Source59:	vif-openvswitch
+Source60:	xen-init-list
+Source61:	xen-toolstack
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-curses.patch
@@ -93,6 +97,7 @@ Patch12:	%{name}-scripts-locking.patch
 Patch13:	%{name}-close_lockfd_after_lock_attempt.patch
 Patch14:	%{name}-librt.patch
 Patch15:	%{name}-ulong.patch
+Patch16:	%{name}-doc.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -381,6 +386,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
+%patch16 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -455,6 +461,8 @@ install %{SOURCE39} $RPM_BUILD_ROOT%{systemdunitdir}/xend.service
 install %{SOURCE40} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xend.conf
 install %{SOURCE41} $RPM_BUILD_ROOT%{systemdunitdir}/xen-watchdog.service
 install %{SOURCE42} $RPM_BUILD_ROOT/etc/modules-load.d/xen-dom0.conf
+install %{SOURCE43} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xendomains.sh
+install %{SOURCE44} $RPM_BUILD_ROOT%{systemdunitdir}/xendomains.service
 # sysvinit scripts
 %{__rm} $RPM_BUILD_ROOT/etc/rc.d/init.d/*
 install %{SOURCE50} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
@@ -464,6 +472,9 @@ install %{SOURCE53} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-watchdog
 install %{SOURCE54} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
 install %{SOURCE55} $RPM_BUILD_ROOT/etc/logrotate.d/xen
 install %{SOURCE56} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xen.conf
+
+install %{SOURCE60} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xen-init-list
+install %{SOURCE61} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xen-toolstack
 
 %if %{with efi}
 install %{SOURCE57} $RPM_BUILD_ROOT/etc/efi-boot/xen.cfg
@@ -508,7 +519,7 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add xenconsoled
 /sbin/chkconfig --add xenstored
 /sbin/chkconfig --add xendomains
-%systemd_post xen-watchdog.service xenconsoled.service xenstored.service
+%systemd_post xen-watchdog.service xenconsoled.service xenstored.service xendomains.service
 
 %preun
 if [ "$1" = "0" ]; then
@@ -524,7 +535,7 @@ if [ "$1" = "0" ]; then
 	%service xen-watchdog stop
 	/sbin/chkconfig --del xen-watchdog
 fi
-%systemd_preun xen-watchdog.service xenconsoled.service xenstored.service
+%systemd_preun xen-watchdog.service xenconsoled.service xenstored.service xendomains.service
 
 %postun
 %systemd_reload
@@ -554,7 +565,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc COPYING README* docs/misc/* 
+%doc COPYING README* docs/misc/*
 %doc docs/html/*
 %doc tools/qemu-xen-dir/*.html
 %doc _doc/*
@@ -576,6 +587,7 @@ fi
 %{systemdunitdir}/xen-watchdog.service
 %{systemdunitdir}/xenconsoled.service
 %{systemdunitdir}/xenstored.service
+%{systemdunitdir}/xendomains.service
 %dir %{_sysconfdir}/xen
 %dir %{_sysconfdir}/xen/auto
 %dir %{_sysconfdir}/xen/examples
@@ -625,9 +637,7 @@ fi
 %if "%{_lib}" != "lib"
 %dir %{_prefix}/lib/%{name}
 %dir %{_prefix}/lib/%{name}/bin
-%attr(755,root,root) %{_prefix}/lib/%{name}/bin/qemu-dm
-%attr(755,root,root) %{_prefix}/lib/%{name}/bin/stubdom-dm
-%attr(755,root,root) %{_prefix}/lib/%{name}/bin/stubdompath.sh
+%attr(755,root,root) %{_prefix}/lib/%{name}/bin/*
 %endif
 %dir %{_prefix}/lib/%{name}/boot
 %{_prefix}/lib/%{name}/boot/ioemu-stubdom.gz

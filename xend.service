@@ -3,6 +3,7 @@ Description=Xend - interface between hypervisor and some applications
 Requires=proc-xen.mount
 After=proc-xen.mount
 Before=libvirtd.service libvirt-guests.service
+ConditionPathExists=/proc/xen
 
 [Service]
 Type=forking

@@ -3,6 +3,7 @@ Description=blktapctrl daemon
 Requires=proc-xen.mount
 After=proc-xen.mount
 RefuseManualStop=true
+ConditionPathExists=/proc/xen
 
 [Service]
 Type=forking

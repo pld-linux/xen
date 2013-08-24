@@ -1,12 +1,3 @@
-diff -dur xen-4.2.0.orig/docs/pythfilter.py xen-4.2.0/docs/pythfilter.py
---- xen-4.2.0.orig/docs/pythfilter.py	2012-09-17 12:21:17.000000000 +0200
-+++ xen-4.2.0/docs/pythfilter.py	2012-10-22 10:46:31.000000000 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python
- 
- # pythfilter.py v1.5.5, written by Matthias Baas (baas@ira.uka.de)
- 
 diff -dur xen-4.2.0.orig/tools/misc/xenpvnetboot xen-4.2.0/tools/misc/xenpvnetboot
 --- xen-4.2.0.orig/tools/misc/xenpvnetboot	2012-09-17 12:21:18.000000000 +0200
 +++ xen-4.2.0/tools/misc/xenpvnetboot	2012-10-22 10:46:30.000000000 +0200

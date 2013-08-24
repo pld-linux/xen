@@ -1,7 +1,5 @@
 qemu-xen-traditional/configure: define _GNU_SOURCE for NPTL defs
 qemu-xen/configure: use -O2 for tests to eliminate fortify warnings (-Werror is in effect sometimes)
-qemu-xen/configure: support usbredir 0.5+
-tools/qemu-xen/block/iscsi.c: update for libiscsi 1.6.0(?)
 --- xen-4.2.0/tools/qemu-xen-traditional/configure.orig	2012-09-06 18:05:30.000000000 +0200
 +++ xen-4.2.0/tools/qemu-xen-traditional/configure	2012-10-27 08:16:21.702515768 +0200
 @@ -738,10 +738,10 @@
@@ -25,60 +23,25 @@ tools/qemu-xen/block/iscsi.c: update for libiscsi 1.6.0(?)
              aa="no"
              `$sdl_config --static-libs 2>/dev/null | grep \\\-laa > /dev/null` && aa="yes"
              sdl_static_libs=`$sdl_config --static-libs 2>/dev/null`
---- xen-4.2.0/tools/qemu-xen/configure.orig	2012-09-10 20:10:52.000000000 +0200
-+++ xen-4.2.0/tools/qemu-xen/configure	2012-10-27 13:28:33.178396347 +0200
-@@ -21,14 +21,14 @@
- rm -f config.log
+--- xen-4.3.0/tools/qemu-xen/configure.orig	2013-08-22 20:01:19.903704095 +0200
++++ xen-4.3.0/tools/qemu-xen/configure	2013-08-22 20:35:51.880283814 +0200
+@@ -270,10 +270,6 @@
+ QEMU_CFLAGS="-Wstrict-prototypes -Wredundant-decls $QEMU_CFLAGS"
+ QEMU_CFLAGS="-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $QEMU_CFLAGS"
+ QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/fpu"
+-if test "$debug_info" = "yes"; then
+-    CFLAGS="-g $CFLAGS"
+-    LDFLAGS="-g $LDFLAGS"
+-fi
  
- compile_object() {
--  echo $cc $QEMU_CFLAGS -c -o $TMPO $TMPC >> config.log
--  $cc $QEMU_CFLAGS -c -o $TMPO $TMPC >> config.log 2>&1
-+  echo $cc -O2 $QEMU_CFLAGS -c -o $TMPO $TMPC >> config.log
-+  $cc -O2 $QEMU_CFLAGS -c -o $TMPO $TMPC >> config.log 2>&1
- }
+ # make source path absolute
+ source_path=`cd "$source_path"; pwd`
+@@ -3067,7 +3063,7 @@
+ # After here, no more $cc or $ld runs
  
- compile_prog() {
-   local_cflags="$1"
-   local_ldflags="$2"
--  echo $cc $QEMU_CFLAGS $local_cflags -o $TMPE $TMPC $LDFLAGS $local_ldflags >> config.log
--  $cc $QEMU_CFLAGS $local_cflags -o $TMPE $TMPC $LDFLAGS $local_ldflags >> config.log 2>&1
-+  echo $cc -O2 $QEMU_CFLAGS $local_cflags -o $TMPE $TMPC $LDFLAGS $local_ldflags >> config.log
-+  $cc -O2 $QEMU_CFLAGS $local_cflags -o $TMPE $TMPC $LDFLAGS $local_ldflags >> config.log 2>&1
- }
+ if test "$debug" = "no" ; then
+-  CFLAGS="-O2 -D_FORTIFY_SOURCE=2 $CFLAGS"
++  CFLAGS="-O2 $CFLAGS"
+ fi
  
-@@ -2543,6 +2543,12 @@
-         usb_redir_libs=$($pkg_config --libs libusbredirparser 2>/dev/null)
-         QEMU_CFLAGS="$QEMU_CFLAGS $usb_redir_cflags"
-         LIBS="$LIBS $usb_redir_libs"
-+    elif $pkg_config libusbredirparser-0.5 >/dev/null 2>&1 ; then
-+        usb_redir="yes"
-+        usb_redir_cflags=$($pkg_config --cflags libusbredirparser-0.5 2>/dev/null)
-+        usb_redir_libs=$($pkg_config --libs libusbredirparser-0.5 2>/dev/null)
-+        QEMU_CFLAGS="$QEMU_CFLAGS $usb_redir_cflags"
-+        LIBS="$LIBS $usb_redir_libs"
-     else
-         if test "$usb_redir" = "yes"; then
-             feature_not_found "usb-redir"
---- xen-4.2.0/tools/qemu-xen/block/iscsi.c.orig	2012-09-10 20:10:52.000000000 +0200
-+++ xen-4.2.0/tools/qemu-xen/block/iscsi.c	2012-10-27 21:27:02.120524882 +0200
-@@ -224,9 +224,9 @@
-     size = nb_sectors * BDRV_SECTOR_SIZE;
-     acb->buf = g_malloc(size);
-     qemu_iovec_to_buffer(acb->qiov, acb->buf);
--    acb->task = iscsi_write10_task(iscsi, iscsilun->lun, acb->buf, size,
--                              sector_qemu2lun(sector_num, iscsilun),
--                              fua, 0, iscsilun->block_size,
-+    acb->task = iscsi_write10_task(iscsi, iscsilun->lun, sector_qemu2lun(sector_num, iscsilun),
-+		              acb->buf, size, iscsilun->block_size,
-+			      0, 0, fua, 0, 0,
-                               iscsi_aio_write10_cb, acb);
-     if (acb->task == NULL) {
-         error_report("iSCSI: Failed to send write10 command. %s",
-@@ -309,6 +309,7 @@
-     acb->task = iscsi_read10_task(iscsi, iscsilun->lun,
-                              sector_qemu2lun(sector_num, iscsilun),
-                              lun_read_size, iscsilun->block_size,
-+			     0, 0, 0, 0, 0,
-                              iscsi_aio_read10_cb, acb);
-     if (acb->task == NULL) {
-         error_report("iSCSI: Failed to send read10 command. %s",
+ # Disable zero malloc errors for official releases unless explicitly told to

@@ -1,0 +1,11 @@
+--- xen-4.3.0/tools/Makefile.orig	2013-08-24 06:55:14.928431689 +0200
++++ xen-4.3.0/tools/Makefile	2013-08-24 09:11:37.931421617 +0200
+@@ -188,7 +188,7 @@
+ 	fi; \
+ 	cd qemu-xen-dir; \
+ 	$$source/configure --enable-xen --target-list=i386-softmmu \
+-		--prefix=$(PREFIX) \
++		--prefix=$(PREFIX) --libexecdir=$(LIBEXEC) \
+ 		--source-path=$$source \
+ 		--extra-cflags="-I$(XEN_ROOT)/tools/include \
+ 		-I$(XEN_ROOT)/tools/libxc \

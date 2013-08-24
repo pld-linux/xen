@@ -9,17 +9,24 @@
 #  - now the build dependencies are insane (because of what qemu can use)
 #    we should make them optional or get rid of them all properly
 #
-#
 # Conditional build:
-%bcond_without	opengl		# disable OpenGL support in Xen qemu
-%bcond_without	sdl		# disable SDL support in Xen qemu
-%bcond_without	bluetooth	# disable bluetooth support in Xen qemu
-%bcond_without	brlapi		# disable brlapi support in Xen qemu
-%bcond_without	ocaml		# build Ocaml libraries for Xen tools
-%bcond_without	efi		# build the EFI hypervisor
+%bcond_without	opengl		# OpenGL support in Xen qemu
+%bcond_without	sdl		# SDL support in Xen qemu
+%bcond_without	bluetooth	# bluetooth support in Xen qemu
+%bcond_without	brlapi		# brlapi support in Xen qemu
+%bcond_without	ocaml		# Ocaml libraries for Xen tools
+%bcond_without	efi		# EFI hypervisor
+%bcond_without	hypervisor	# Xen hypervisor build
+%bcond_without	stubdom		# stubdom build
 
+%ifnarch %{x8664} arm
+%undefine	with_hypervisor
+%endif
 %ifnarch %{x8664}
 %undefine	with_efi
+%endif
+%ifnarch %{ix86} %{x8664}
+%undefine	with_stubdom
 %endif
 
 # from Config.mk:
@@ -29,12 +36,12 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.2.2
-Release:	4
+Version:	4.3.0
+Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	f7362b19401a47826f2d8fd603a1782a
+# Source0-md5:	7b18cfb58f1ac2ce39cf35a1867f0c0a
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -91,59 +98,17 @@ Patch6:		%{name}-dumpdir.patch
 Patch7:		%{name}-net-disable-iptables-on-bridge.patch
 Patch8:		%{name}-configure-xend.patch
 Patch9:		%{name}-initscript.patch
-Patch10:	%{name}-quemu-softloat-c99.patch
-Patch11:	%{name}-qemu.patch
-Patch12:	%{name}-scripts-locking.patch
-Patch13:	%{name}-close_lockfd_after_lock_attempt.patch
-Patch14:	%{name}-librt.patch
-Patch15:	%{name}-ulong.patch
-Patch16:	%{name}-doc.patch
-Patch100:	CVE-2013-1918-1
-Patch101:	CVE-2013-1918-2
-Patch102:	CVE-2013-1918-3
-Patch103:	CVE-2013-1918-4
-Patch104:	CVE-2013-1918-5
-Patch105:	CVE-2013-1918-6
-Patch106:	CVE-2013-1918-7
-Patch107:	CVE-2013-1952
-Patch108:	CVE-2013-2072
-Patch109:	CVE-2013-2076
-Patch110:	CVE-2013-2077
-Patch111:	CVE-2013-2078
-#CVE-2013-2194 XEN XSA-55 integer overflows
-#CVE-2013-2195 XEN XSA-55 pointer dereferences
-#CVE-2013-2196 XEN XSA-55 other problems
-Patch112:	0001-libelf-abolish-libelf-relocate.c.patch
-Patch113:	0002-libxc-introduce-xc_dom_seg_to_ptr_pages.patch
-Patch114:	0003-libxc-Fix-range-checking-in-xc_dom_pfn_to_ptr-etc.patch
-Patch115:	0004-libelf-add-struct-elf_binary-parameter-to-elf_load_i.patch
-Patch116:	0005-libelf-abolish-elf_sval-and-elf_access_signed.patch
-Patch117:	0006-libelf-move-include-of-asm-guest_access.h-to-top-of-.patch
-Patch118:	0007-libelf-xc_dom_load_elf_symtab-Do-not-use-syms-uninit.patch
-Patch119:	0008-libelf-introduce-macros-for-memory-access-and-pointe.patch
-Patch120:	0009-tools-xcutils-readnotes-adjust-print_l1_mfn_valid_no.patch
-Patch121:	0010-libelf-check-nul-terminated-strings-properly.patch
-Patch122:	0011-libelf-check-all-pointer-accesses.patch
-Patch123:	0012-libelf-Check-pointer-references-in-elf_is_elfbinary.patch
-Patch124:	0013-libelf-Make-all-callers-call-elf_check_broken.patch
-Patch125:	0014-libelf-use-C99-bool-for-booleans.patch
-Patch126:	0015-libelf-use-only-unsigned-integers.patch
-Patch127:	0016-libelf-check-loops-for-running-away.patch
-Patch128:	0017-libelf-abolish-obsolete-macros.patch
-Patch129:	0018-libxc-Add-range-checking-to-xc_dom_binloader.patch
-Patch130:	0019-libxc-check-failure-of-xc_dom_-_to_ptr-xc_map_foreig.patch
-Patch131:	0020-libxc-check-return-values-from-malloc.patch
-Patch132:	0021-libxc-range-checks-in-xc_dom_p2m_host-and-_guest.patch
-Patch133:	0022-libxc-check-blob-size-before-proceeding-in-xc_dom_ch.patch
-Patch134:	0023-libxc-Better-range-check-in-xc_dom_alloc_segment.patch
-Patch135:	CVE-2013-2211
-Patch136:	CVE-2013-1432
+Patch10:	%{name}-qemu.patch
+Patch11:	%{name}-ulong.patch
+Patch12:	%{name}-doc.patch
+Patch13:	%{name}-paths.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
 %ifarch %{ix86} %{x8664}
 BuildRequires:	acpica
 BuildRequires:	bcc
+BuildRequires:	bin86
 %endif
 %{?with_bluetooth:BuildRequires:	bluez-libs-devel}
 %{?with_brlapi:BuildRequires:	brlapi-devel}
@@ -153,15 +118,19 @@ BuildRequires:	ceph-devel
 BuildRequires:	curl-devel
 BuildRequires:	cyrus-sasl-devel >= 2
 BuildRequires:	e2fsprogs-devel
-BuildRequires:	gcc >= 5:3.4
+BuildRequires:	gcc >= 6:4.1
 BuildRequires:	gettext-devel
 BuildRequires:	glib2-devel >= 1:2.12
+BuildRequires:	glusterfs-devel >= 3.4
 BuildRequires:	gnutls-devel
 BuildRequires:	latex2html >= 2008
 BuildRequires:	libaio-devel
+BuildRequires:	libcap-devel
+BuildRequires:	libcap-ng-devel
 BuildRequires:	libiscsi-devel
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
+BuildRequires:	libseccomp-devel >= 1.0.0
 BuildRequires:	libuuid-devel
 BuildRequires:	lzo-devel >= 2
 BuildRequires:	ncurses-devel
@@ -173,17 +142,20 @@ BuildRequires:	nss-devel >= 3.12.8
 BuildRequires:	openssl-devel
 BuildRequires:	pciutils-devel
 BuildRequires:	perl-base
+BuildRequires:	perl-tools-pod
+BuildRequires:	pixman-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
-BuildRequires:	spice-protocol >= 0.6.0
-BuildRequires:	spice-server-devel >= 0.6.0
+BuildRequires:	spice-protocol >= 0.12.2
+BuildRequires:	spice-server-devel >= 0.12.0
 BuildRequires:	texi2html
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	texlive-xetex
-BuildRequires:	usbredir-devel
+BuildRequires:	transfig
+BuildRequires:	usbredir-devel >= 0.5.3
 BuildRequires:	vde2-devel
 BuildRequires:	which
 # for xfsctl (<xfs/xfs.h>)
@@ -219,11 +191,11 @@ Requires:	which
 Requires:	%{name}-guest = %{version}-%{release}
 Obsoletes:	xen-doc
 Obsoletes:	xen-udev
-ExclusiveArch:	%{ix86} %{x8664}
+ExclusiveArch:	%{ix86} %{x8664} arm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # some PPC/SPARC boot images in ELF format
-%define         _noautostrip    .*%{_datadir}/\\(xen/qemu\\|qemu-xen\\)/\\(openbios-.*\\|palcode-clipper\\)
+%define         _noautostrip    .*%{_datadir}/\\(xen\\|qemu-xen\\)/qemu/\\(openbios-.*\\|palcode-clipper\\)
 
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run
@@ -424,47 +396,6 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-# CVE
-%patch100 -p1
-%patch101 -p1
-%patch102 -p1
-%patch103 -p1
-%patch104 -p1
-%patch105 -p1
-%patch106 -p1
-%patch107 -p1
-%patch108 -p1
-%patch109 -p1
-%patch110 -p1
-%patch111 -p1
-%patch112 -p1
-%patch113 -p1
-%patch114 -p1
-%patch115 -p1
-%patch116 -p1
-%patch117 -p1
-%patch118 -p1
-%patch119 -p1
-%patch120 -p1
-%patch121 -p1
-%patch122 -p1
-%patch123 -p1
-%patch124 -p1
-%patch125 -p1
-%patch126 -p1
-%patch127 -p1
-%patch128 -p1
-%patch129 -p1
-%patch130 -p1
-%patch131 -p1
-%patch132 -p1
-%patch133 -p1
-%patch134 -p1
-%patch135 -p1
-%patch136 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -487,16 +418,13 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 #   openssl is used instead of gcrypt; that's OK, openssl is obligatory
 #   anyway (see configure), gcrypt is optional
 # - prevent libiconv from being detected (not needed with glibc)
-cd tools
 %configure \
 	CPPFLAGS="%{rpmcppflags} -I/usr/include/ncurses" \
 	ac_cv_lib_iconv_libiconv_open=no \
 	--disable-debug
-cd ..
 
 %{__make} dist-xen dist-tools dist-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
-	prefix=%{_prefix} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
 	V=1
@@ -504,21 +432,25 @@ cd ..
 unset CFLAGS
 unset CXXFLAGS
 
+%if %{with stubdom}
 %{__make} -j1 dist-stubdom \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
 	V=1
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d,logrotate.d} \
-	$RPM_BUILD_ROOT{%{systemdtmpfilesdir},%{systemdunitdir},/var/log/xen/console} \
-	$RPM_BUILD_ROOT/etc/efi-boot/update.d
+	$RPM_BUILD_ROOT{%{systemdtmpfilesdir},%{systemdunitdir},/var/log/xen/console}
 
-%{__make} -j1 install-xen install-tools install-stubdom install-docs \
+%if %{with efi}
+install -d $RPM_BUILD_ROOT/etc/efi-boot/update.d
+%endif
+
+%{__make} -j1 install-xen install-tools %{?with_stubdom:install-stubdom} install-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
-	prefix=%{_prefix} \
 	DESTDIR=$RPM_BUILD_ROOT \
 	HOTPLUGS=install-udev
 
@@ -576,17 +508,15 @@ cp -al tools/qemu-xen/docs _doc/qemu-xen
 
 %py_postclean
 
-%{__rm} $RPM_BUILD_ROOT%{_mandir}/man1/qemu.1
-mv $RPM_BUILD_ROOT%{_mandir}/man1/qemu-img{,-xen}.1
-mv $RPM_BUILD_ROOT%{_mandir}/man8/qemu-nbd{,-xen}.8
 # seems not needed, the path is wrong anyway
 %{__rm} $RPM_BUILD_ROOT%{_prefix}/etc/qemu/target-x86_64.conf
 
 # remove unneeded files
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.2.gz
+%if %{with hypervisor}
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.3.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
+%endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
-%{__rm} -r $RPM_BUILD_ROOT%{_docdir}/qemu
 %{__rm} $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
 
 %clean
@@ -644,13 +574,12 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc COPYING README* docs/misc/*
-%doc docs/html/*
-%doc tools/qemu-xen-dir/*.html
-%doc _doc/*
+%doc COPYING README* docs/misc/* docs/html/* _doc/*
+%if %{with hypervisor}
 /boot/%{name}-syms-%{version}
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
+%endif
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenconsoled
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenstored
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xendomains
@@ -682,6 +611,7 @@ fi
 %attr(755,root,root) %{_bindir}/qemu-nbd-xen
 %attr(755,root,root) %{_bindir}/remus
 %attr(755,root,root) %{_bindir}/xencons
+%attr(755,root,root) %{_bindir}/xencov_split
 %attr(755,root,root) %{_bindir}/xentrace*
 %attr(755,root,root) %{_sbindir}/blktapctrl
 %attr(755,root,root) %{_sbindir}/flask-*
@@ -699,6 +629,7 @@ fi
 %attr(755,root,root) %{_sbindir}/xen-*
 %attr(755,root,root) %{_sbindir}/xenbaked
 %attr(755,root,root) %{_sbindir}/xenconsoled
+%attr(755,root,root) %{_sbindir}/xencov
 %attr(755,root,root) %{_sbindir}/xenlockprof
 %attr(755,root,root) %{_sbindir}/xenmon.py
 %attr(755,root,root) %{_sbindir}/xenperf
@@ -719,15 +650,20 @@ fi
 %attr(755,root,root) %{_prefix}/lib/%{name}/bin/*
 %endif
 %dir %{_prefix}/lib/%{name}/boot
+%if %{with stubdom}
 %{_prefix}/lib/%{name}/boot/ioemu-stubdom.gz
+%ifarch %{ix86} %{x8664}
 %{_prefix}/lib/%{name}/boot/pv-grub-x86_32.gz
+%endif
 %ifarch %{x8664}
 %{_prefix}/lib/%{name}/boot/pv-grub-x86_64.gz
 %endif
+%{_prefix}/lib/%{name}/boot/vtpm-stubdom.gz
+%{_prefix}/lib/%{name}/boot/vtpmmgr-stubdom.gz
 %{_prefix}/lib/%{name}/boot/xenstore-stubdom.gz
+%endif
 %attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
 %{_datadir}/xen
-%{_mandir}/man1/qemu-img-xen.1*
 %{_mandir}/man1/xentop.1*
 %{_mandir}/man1/xentrace_format.1*
 %{_mandir}/man1/xl.1*
@@ -737,7 +673,6 @@ fi
 %{_mandir}/man5/xl.conf.5*
 %{_mandir}/man5/xlcpupool.cfg.5*
 %{_mandir}/man5/xmdomain.cfg.5*
-%{_mandir}/man8/qemu-nbd-xen.8*
 %{_mandir}/man8/xentrace.8*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored
@@ -764,17 +699,17 @@ fi
 %attr(755,root,root) %{_libdir}/libvhd.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libvhd.so.1.0
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.2
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.3
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.2
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.3
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.2.0
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.3
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenstat.so.0
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.1.0
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.1.0
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.3
 %dir %{_libdir}/fs
 %dir %{_libdir}/fs/ext2fs-lib
 %dir %{_libdir}/fs/fat

@@ -29,12 +29,12 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.2.2
-Release:	4
+Version:	4.2.3
+Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	f7362b19401a47826f2d8fd603a1782a
+# Source0-md5:	81ff8d849d97a74ae005dba68be53568
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -98,46 +98,6 @@ Patch13:	%{name}-close_lockfd_after_lock_attempt.patch
 Patch14:	%{name}-librt.patch
 Patch15:	%{name}-ulong.patch
 Patch16:	%{name}-doc.patch
-Patch100:	CVE-2013-1918-1
-Patch101:	CVE-2013-1918-2
-Patch102:	CVE-2013-1918-3
-Patch103:	CVE-2013-1918-4
-Patch104:	CVE-2013-1918-5
-Patch105:	CVE-2013-1918-6
-Patch106:	CVE-2013-1918-7
-Patch107:	CVE-2013-1952
-Patch108:	CVE-2013-2072
-Patch109:	CVE-2013-2076
-Patch110:	CVE-2013-2077
-Patch111:	CVE-2013-2078
-#CVE-2013-2194 XEN XSA-55 integer overflows
-#CVE-2013-2195 XEN XSA-55 pointer dereferences
-#CVE-2013-2196 XEN XSA-55 other problems
-Patch112:	0001-libelf-abolish-libelf-relocate.c.patch
-Patch113:	0002-libxc-introduce-xc_dom_seg_to_ptr_pages.patch
-Patch114:	0003-libxc-Fix-range-checking-in-xc_dom_pfn_to_ptr-etc.patch
-Patch115:	0004-libelf-add-struct-elf_binary-parameter-to-elf_load_i.patch
-Patch116:	0005-libelf-abolish-elf_sval-and-elf_access_signed.patch
-Patch117:	0006-libelf-move-include-of-asm-guest_access.h-to-top-of-.patch
-Patch118:	0007-libelf-xc_dom_load_elf_symtab-Do-not-use-syms-uninit.patch
-Patch119:	0008-libelf-introduce-macros-for-memory-access-and-pointe.patch
-Patch120:	0009-tools-xcutils-readnotes-adjust-print_l1_mfn_valid_no.patch
-Patch121:	0010-libelf-check-nul-terminated-strings-properly.patch
-Patch122:	0011-libelf-check-all-pointer-accesses.patch
-Patch123:	0012-libelf-Check-pointer-references-in-elf_is_elfbinary.patch
-Patch124:	0013-libelf-Make-all-callers-call-elf_check_broken.patch
-Patch125:	0014-libelf-use-C99-bool-for-booleans.patch
-Patch126:	0015-libelf-use-only-unsigned-integers.patch
-Patch127:	0016-libelf-check-loops-for-running-away.patch
-Patch128:	0017-libelf-abolish-obsolete-macros.patch
-Patch129:	0018-libxc-Add-range-checking-to-xc_dom_binloader.patch
-Patch130:	0019-libxc-check-failure-of-xc_dom_-_to_ptr-xc_map_foreig.patch
-Patch131:	0020-libxc-check-return-values-from-malloc.patch
-Patch132:	0021-libxc-range-checks-in-xc_dom_p2m_host-and-_guest.patch
-Patch133:	0022-libxc-check-blob-size-before-proceeding-in-xc_dom_ch.patch
-Patch134:	0023-libxc-Better-range-check-in-xc_dom_alloc_segment.patch
-Patch135:	CVE-2013-2211
-Patch136:	CVE-2013-1432
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -427,44 +387,6 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
-# CVE
-%patch100 -p1
-%patch101 -p1
-%patch102 -p1
-%patch103 -p1
-%patch104 -p1
-%patch105 -p1
-%patch106 -p1
-%patch107 -p1
-%patch108 -p1
-%patch109 -p1
-%patch110 -p1
-%patch111 -p1
-%patch112 -p1
-%patch113 -p1
-%patch114 -p1
-%patch115 -p1
-%patch116 -p1
-%patch117 -p1
-%patch118 -p1
-%patch119 -p1
-%patch120 -p1
-%patch121 -p1
-%patch122 -p1
-%patch123 -p1
-%patch124 -p1
-%patch125 -p1
-%patch126 -p1
-%patch127 -p1
-%patch128 -p1
-%patch129 -p1
-%patch130 -p1
-%patch131 -p1
-%patch132 -p1
-%patch133 -p1
-%patch134 -p1
-%patch135 -p1
-%patch136 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

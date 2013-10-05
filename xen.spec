@@ -32,6 +32,11 @@
 # from Config.mk:
 %define	seabios_version		1.6.3.2
 
+# from ./stubdom/configure.ac
+%define	polarssl_version	1.1.4
+%define tpm_emulator_version	0.7.4
+%define gmp_version		4.3.2
+
 %define	xen_extfiles_url	http://xenbits.xensource.com/xen-extfiles
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
@@ -59,6 +64,12 @@ Source15:	http://xenbits.xen.org/xen-extfiles/ipxe-git-9a93db3f0947484e30e753bbd
 # git archive --prefix=tools/firmware/seabios/ --format=tar rel-%{seabios_version} | xz > seabios-%{seabios_version}.tar.xz
 Source16:	seabios-%{seabios_version}.tar.xz
 # Source16-md5:	145e07ff5618a3999f94f2e830d06b05
+Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
+# Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
+Source18:	http://xenbits.xen.org/xen-extfiles/tpm_emulator-%{tpm_emulator_version}.tar.gz
+# Source18-md5:	e26becb8a6a2b6695f6b3e8097593db8
+Source19:	ftp://ftp.gmplib.org/pub/gmp-%{gmp_version}/gmp-%{gmp_version}.tar.bz2
+# Source19-md5:	dd60683d7057917e34630b4a787932e8
 Source30:	proc-xen.mount
 Source31:	var-lib-xenstored.mount
 Source32:	blktapctrl.service
@@ -402,6 +413,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
+ln -s %{SOURCE17} %{SOURCE18} %{SOURCE19} stubdom
 ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 
 # do not allow fetching anything via git

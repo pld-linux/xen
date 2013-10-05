@@ -15,6 +15,7 @@ PIDFile=/var/run/xenstored.pid
 ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
 ExecStartPre=-/bin/rm -f "$XENSTORED_ROOTDIR"/tdb*
 ExecStart=/usr/sbin/xenstored --pid-file /var/run/xenstored.pid $XENSTORED_ARGS
+ExecStartPost=/usr/bin/xenstore-write "/local/domain/0/name" "Domain-0"
 
 [Install]
 WantedBy=multi-user.target

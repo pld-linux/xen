@@ -102,11 +102,13 @@ Patch10:	%{name}-qemu.patch
 Patch11:	%{name}-ulong.patch
 Patch12:	%{name}-doc.patch
 Patch13:	%{name}-paths.patch
+Patch14:	%{name}-no_fetcher.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
 %ifarch %{ix86} %{x8664}
 BuildRequires:	acpica
+BuildRequires:	autoconf
 BuildRequires:	bcc
 BuildRequires:	bin86
 %endif
@@ -396,6 +398,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
+%patch14 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -405,6 +408,17 @@ ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 echo GIT=/bin/false >> Config.mk
 
 %build
+# based on the 'autoconf.sh' from the sources
+%{__autoconf}
+cd tools
+%{__autoconf}
+%{__autoheader}
+cd ../stubdom
+%{__autoconf}
+cd ../docs
+%{__autoconf}
+cd ..
+
 # if gold is used then bioses and grub doesn't build
 install -d our-ld
 ln -s /usr/bin/ld.bfd our-ld/ld
@@ -423,7 +437,7 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 	ac_cv_lib_iconv_libiconv_open=no \
 	--disable-debug
 
-%{__make} -j1 dist-xen dist-tools dist-docs \
+%{__make} dist-xen dist-tools dist-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \

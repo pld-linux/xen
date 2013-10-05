@@ -475,6 +475,7 @@ install %{SOURCE43} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xendomains.sh
 install %{SOURCE44} $RPM_BUILD_ROOT%{systemdunitdir}/xendomains.service
 # sysvinit scripts
 %{__rm} $RPM_BUILD_ROOT/etc/rc.d/init.d/*
+%{__rm} $RPM_BUILD_ROOT/etc/sysconfig/xencommons
 install %{SOURCE50} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
 install %{SOURCE51} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenconsoled
 install %{SOURCE52} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenstored
@@ -583,7 +584,6 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenconsoled
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenstored
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xendomains
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xencommons
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/logrotate.d/xen
 %attr(754,root,root) /etc/rc.d/init.d/xen-watchdog
 %attr(754,root,root) /etc/rc.d/init.d/xenconsoled

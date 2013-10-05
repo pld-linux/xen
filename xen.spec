@@ -423,7 +423,7 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 	ac_cv_lib_iconv_libiconv_open=no \
 	--disable-debug
 
-%{__make} dist-xen dist-tools dist-docs \
+%{__make} -j1 dist-xen dist-tools dist-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \

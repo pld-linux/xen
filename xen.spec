@@ -114,6 +114,7 @@ Patch11:	%{name}-ulong.patch
 Patch12:	%{name}-doc.patch
 Patch13:	%{name}-paths.patch
 Patch14:	%{name}-no_fetcher.patch
+Patch15:	%{name}-xattr.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -410,6 +411,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

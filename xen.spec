@@ -41,12 +41,12 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.3.2
-Release:	1
+Version:	4.4.0
+Release:	0.1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	83e0e13678383e4fbcaa69ce6064b187
+# Source0-md5:	fd9031d499af38c5d04108681734027e
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -108,13 +108,11 @@ Patch6:		%{name}-dumpdir.patch
 # Warning: this disables ingress filtering implemented in xen scripts!
 Patch7:		%{name}-net-disable-iptables-on-bridge.patch
 Patch8:		%{name}-configure-xend.patch
-Patch9:		%{name}-initscript.patch
 Patch10:	%{name}-qemu.patch
 Patch11:	%{name}-ulong.patch
 Patch12:	%{name}-doc.patch
 Patch13:	%{name}-paths.patch
 Patch14:	%{name}-no_fetcher.patch
-Patch15:	%{name}-xattr.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -137,6 +135,7 @@ BuildRequires:	gettext-devel
 BuildRequires:	glib2-devel >= 1:2.12
 BuildRequires:	glusterfs-devel >= 3.4
 BuildRequires:	gnutls-devel
+BuildRequires:  keyutils-devel
 BuildRequires:	latex2html >= 2008
 BuildRequires:	libaio-devel
 BuildRequires:	libcap-devel
@@ -405,13 +404,11 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
-%patch9 -p1
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
-%patch15 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -435,7 +432,7 @@ cd ..
 
 # if gold is used then bioses and grub doesn't build
 install -d our-ld
-ln -s /usr/bin/ld.bfd our-ld/ld
+ln -f -s /usr/bin/ld.bfd our-ld/ld
 export PATH=$(pwd)/our-ld:$PATH
 
 export CFLAGS="%{rpmcflags} -I/usr/include/ncurses"

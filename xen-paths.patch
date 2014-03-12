@@ -1,9 +1,9 @@
---- xen-4.3.0/tools/Makefile.orig	2013-08-24 06:55:14.928431689 +0200
-+++ xen-4.3.0/tools/Makefile	2013-08-24 09:11:37.931421617 +0200
+--- xen-4.4.0/tools/Makefile~	2014-03-12 14:39:28.000000000 +0000
++++ xen-4.4.0/tools/Makefile	2014-03-12 14:41:53.427783318 +0000
 @@ -188,7 +188,7 @@
- 	fi; \
  	cd qemu-xen-dir; \
  	$$source/configure --enable-xen --target-list=i386-softmmu \
+ 		$(QEMU_XEN_ENABLE_DEBUG) \
 -		--prefix=$(PREFIX) \
 +		--prefix=$(PREFIX) --libexecdir=$(LIBEXEC) \
  		--source-path=$$source \

@@ -1,14 +1,3 @@
---- xen-4.2.2/tools/qemu-xen/qemu-options.hx~	2013-04-06 01:39:54.000000000 +0200
-+++ xen-4.2.2/tools/qemu-xen/qemu-options.hx	2013-07-22 14:17:13.970296816 +0200
-@@ -1799,7 +1799,7 @@
- devices.
- 
- Syntax for specifying a sheepdog device
--@table @list
-+@table @code
- ``sheepdog:<vdiname>''
- 
- ``sheepdog:<vdiname>:<snapid>''
 --- xen-4.2.2/tools/qemu-xen/scripts/texi2pod.pl~	2013-04-06 01:39:54.000000000 +0200
 +++ xen-4.2.2/tools/qemu-xen/scripts/texi2pod.pl	2013-07-22 14:27:37.959914694 +0200
 @@ -339,6 +339,8 @@

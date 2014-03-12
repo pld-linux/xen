@@ -23,12 +23,12 @@ qemu-xen/configure: use -O2 for tests to eliminate fortify warnings (-Werror is 
              aa="no"
              `$sdl_config --static-libs 2>/dev/null | grep \\\-laa > /dev/null` && aa="yes"
              sdl_static_libs=`$sdl_config --static-libs 2>/dev/null`
---- xen-4.3.0/tools/qemu-xen/configure.orig	2013-08-22 20:01:19.903704095 +0200
-+++ xen-4.3.0/tools/qemu-xen/configure	2013-08-22 20:35:51.880283814 +0200
-@@ -270,10 +270,6 @@
+--- xen-4.4.0/tools/qemu-xen/configure~	2014-02-05 16:59:14.000000000 +0000
++++ xen-4.4.0/tools/qemu-xen/configure	2014-03-12 13:53:34.947877721 +0000
+@@ -342,10 +342,6 @@
  QEMU_CFLAGS="-Wstrict-prototypes -Wredundant-decls $QEMU_CFLAGS"
  QEMU_CFLAGS="-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE $QEMU_CFLAGS"
- QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/fpu"
+ QEMU_INCLUDES="-I. -I\$(SRC_PATH) -I\$(SRC_PATH)/include"
 -if test "$debug_info" = "yes"; then
 -    CFLAGS="-g $CFLAGS"
 -    LDFLAGS="-g $LDFLAGS"
@@ -36,12 +36,12 @@ qemu-xen/configure: use -O2 for tests to eliminate fortify warnings (-Werror is 
  
  # make source path absolute
  source_path=`cd "$source_path"; pwd`
-@@ -3067,7 +3063,7 @@
- # After here, no more $cc or $ld runs
- 
- if test "$debug" = "no" ; then
+@@ -3450,7 +3446,7 @@
+   CFLAGS="-fprofile-arcs -ftest-coverage -g $CFLAGS"
+   LDFLAGS="-fprofile-arcs -ftest-coverage $LDFLAGS"
+ elif test "$debug" = "no" ; then
 -  CFLAGS="-O2 -D_FORTIFY_SOURCE=2 $CFLAGS"
 +  CFLAGS="-O2 $CFLAGS"
  fi
  
- # Disable zero malloc errors for official releases unless explicitly told to
+ 

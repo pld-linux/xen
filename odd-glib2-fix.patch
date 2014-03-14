@@ -1,0 +1,19 @@
+--- xen-4.4.0/tools/qemu-xen/ui/vnc-enc-tight.c.orig	2014-03-14 11:53:18.512514455 +0000
++++ xen-4.4.0/tools/qemu-xen/ui/vnc-enc-tight.c	2014-03-14 15:03:52.245475390 +0000
+@@ -31,7 +31,6 @@
+ /* This needs to be before jpeglib.h line because of conflict with
+    INT32 definitions between jmorecfg.h (included by jpeglib.h) and
+    Win32 basetsd.h (included by windows.h). */
+-#include "qemu-common.h"
+ 
+ #ifdef CONFIG_VNC_PNG
+ /* The following define is needed by pngconf.h. Otherwise it won't compile,
+@@ -44,6 +43,8 @@
+ #include <jpeglib.h>
+ #endif
+ 
++#include "qemu-common.h"
++
+ #include "qemu/bswap.h"
+ #include "qapi/qmp/qint.h"
+ #include "vnc.h"

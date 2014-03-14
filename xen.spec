@@ -113,6 +113,7 @@ Patch11:	%{name}-ulong.patch
 Patch12:	%{name}-doc.patch
 Patch13:	%{name}-paths.patch
 Patch14:	%{name}-no_fetcher.patch
+Patch15:    odd-glib2-fix.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
@@ -208,7 +209,7 @@ ExclusiveArch:	%{ix86} %{x8664} arm
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # some PPC/SPARC boot images in ELF format
-%define         _noautostrip    .*%{_datadir}/\\(xen\\|qemu-xen\\)/qemu/\\(openbios-.*\\|palcode-clipper\\)
+%define         _noautostrip    .*%{_datadir}/\\(xen\\|qemu-xen\\)/qemu/\\(openbios-.*\\|palcode-clipper\\|s390-ccw.img\\)
 
 %description
 This package contains the Xen hypervisor and Xen tools, needed to run
@@ -409,6 +410,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -518,7 +520,7 @@ sed -e's;@libdir@;%{_libdir};g' -e's;@target_cpu@;%{_target_cpu};g' \
 			%{SOURCE58} > $RPM_BUILD_ROOT/etc/efi-boot/update.d/xen.conf
 %endif
 
-mv $RPM_BUILD_ROOT/etc/xen/{x{m,l}example*,examples}
+mv $RPM_BUILD_ROOT/etc/xen/{xlexample*,examples}
 
 install %{SOURCE59} $RPM_BUILD_ROOT%{_sysconfdir}/xen/scripts/vif-openvswitch
 
@@ -539,7 +541,7 @@ cp -al tools/qemu-xen/docs _doc/qemu-xen
 
 # remove unneeded files
 %if %{with hypervisor}
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.3.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.4.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen

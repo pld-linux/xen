@@ -137,6 +137,9 @@ BuildRequires:	bin86
 BuildRequires:	bzip2-devel
 BuildRequires:	curl-devel
 BuildRequires:	cyrus-sasl-devel >= 2
+%if %{with xsm}
+BuildRequires:	checkpolicy
+%endif
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 6:4.1
 BuildRequires:	gettext-devel
@@ -639,6 +642,9 @@ fi
 /boot/%{name}-syms-%{version}
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
+%endif
+%if %{with xsm}
+/boot/xenpolicy.24
 %endif
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenconsoled
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/xenstored

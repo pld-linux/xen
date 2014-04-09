@@ -6,8 +6,6 @@
 #    Xen Makefiles)
 #  - fix %doc - some files are installed in docdir both by make install and %d,
 #    other are installed once
-#  - now the build dependencies are insane (because of what qemu can use)
-#    we should make them optional or get rid of them all properly
 #
 # Conditional build:
 %bcond_without  qemu_traditional # without qemu-xen-traditional

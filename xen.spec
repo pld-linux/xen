@@ -10,6 +10,7 @@
 #    we should make them optional or get rid of them all properly
 #
 # Conditional build:
+%bcond_without  qemu_traditional # without qemu-xen-traditional
 %bcond_without	opengl		# OpenGL support in Xen qemu
 %bcond_without	sdl		# SDL support in Xen qemu
 %bcond_without	bluetooth	# bluetooth support in Xen qemu
@@ -18,6 +19,9 @@
 %bcond_without	efi		# EFI hypervisor
 %bcond_without	hypervisor	# Xen hypervisor build
 %bcond_without	stubdom		# stubdom build
+%bcond_without	xsm		# XSM security module (by default, Flask)
+%bcond_without	blktap1		# blktap1 support
+%bcond_without	xend		# include the obsolete xend & xm
 
 %ifnarch %{x8664} arm
 %undefine	with_hypervisor
@@ -115,19 +119,22 @@ Patch13:	%{name}-paths.patch
 Patch14:	%{name}-no_fetcher.patch
 Patch15:    odd-glib2-fix.patch
 URL:		http://www.xen.org/products/xenhyp.html
+%if %{with qemu_traditional}
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
+%endif
 %ifarch %{ix86} %{x8664}
 BuildRequires:	acpica
 BuildRequires:	autoconf
 BuildRequires:	bcc
 BuildRequires:	bin86
 %endif
+%if %{with qemu_traditional}
 %{?with_bluetooth:BuildRequires:	bluez-libs-devel}
 %{?with_brlapi:BuildRequires:	brlapi-devel}
+%endif
 %{?with_efi:BuildRequires:	binutils >= 3:2.23.51.0.3-2}
 BuildRequires:	bzip2-devel
-BuildRequires:	ceph-devel
 BuildRequires:	curl-devel
 BuildRequires:	cyrus-sasl-devel >= 2
 BuildRequires:	e2fsprogs-devel
@@ -162,8 +169,6 @@ BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
-BuildRequires:	spice-protocol >= 0.12.2
-BuildRequires:	spice-server-devel >= 0.12.0
 BuildRequires:	texi2html
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
@@ -174,17 +179,21 @@ BuildRequires:	vde2-devel
 BuildRequires:	which
 # for xfsctl (<xfs/xfs.h>)
 BuildRequires:	xfsprogs-devel
+%if %{with qemu_traditional}
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
+%endif
 BuildRequires:	xz-devel
 BuildRequires:	yajl-devel
 BuildRequires:	zlib-devel
+%if %{with qemu_traditional}
 # FIXME: see qemu configure comments on top of spec
 %{!?with_opengl:BuildConflicts:	OpenGL-devel}
 %{!?with_sdl:BuildConflicts:	SDL-devel}
 %{!?with_sdl:BuildConflicts:	SDL-devel}
 %{!?with_bluetooth:BuildConflicts:	bluez-libs-devel}
 %{!?with_brlapi:BuildConflicts:	brlapi-devel}
+%endif
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name}-libs = %{version}-%{release}
@@ -206,6 +215,10 @@ Requires:	%{name}-guest = %{version}-%{release}
 Obsoletes:	xen-doc
 Obsoletes:	xen-udev
 ExclusiveArch:	%{ix86} %{x8664} arm
+%ifarch %{ix86} %{x8664}
+# for HVM
+Suggests:	qemu-system-x86
+%endif
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # some PPC/SPARC boot images in ELF format
@@ -448,10 +461,19 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 %configure \
 	CPPFLAGS="%{rpmcppflags} -I/usr/include/ncurses" \
 	ac_cv_lib_iconv_libiconv_open=no \
+	%{__enable_disable qemu_traditional qemu-traditional} \
+	%{__enable_disable blktap1 blktap1} \
+	%{__enable_disable xend xend} \
+%ifarch %{x8664}
+	--with-system-qemu=/usr/bin/qemu-system-x86_64 \
+%else
+	--with-system-qemu=/usr/bin/qemu-system-i386 \
+%endif
 	--disable-debug
 
 %{__make} -j1 dist-xen dist-tools dist-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
+	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
 	V=1
@@ -462,6 +484,7 @@ unset CXXFLAGS
 %if %{with stubdom}
 %{__make} -j1 dist-stubdom \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
+	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
 	V=1
@@ -478,24 +501,31 @@ install -d $RPM_BUILD_ROOT/etc/efi-boot/update.d
 
 %{__make} -j1 install-xen install-tools %{?with_stubdom:install-stubdom} install-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
+	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	DESTDIR=$RPM_BUILD_ROOT \
 	HOTPLUGS=install-udev
 
+%if %{with qemu_traditional}
 %if "%{_lib}" == "lib64"
 ln -s %{_prefix}/lib/%{name}/bin/qemu-dm $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/qemu-dm
+%endif
 %endif
 
 install %{SOURCE30} $RPM_BUILD_ROOT%{systemdunitdir}/proc-xen.mount
 install %{SOURCE31} $RPM_BUILD_ROOT%{systemdunitdir}/var-lib-xenstored.mount
+%if %{with blktap1}
 install %{SOURCE32} $RPM_BUILD_ROOT%{systemdunitdir}/blktapctrl.service
 install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl
+%endif
 install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
 install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
 install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
 install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored
 install %{SOURCE38} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xenstored.conf
+%if %{with xend}
 install %{SOURCE39} $RPM_BUILD_ROOT%{systemdunitdir}/xend.service
 install %{SOURCE40} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xend.conf
+%endif
 install %{SOURCE41} $RPM_BUILD_ROOT%{systemdunitdir}/xen-watchdog.service
 install %{SOURCE42} $RPM_BUILD_ROOT/etc/modules-load.d/xen-dom0.conf
 install %{SOURCE43} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xendomains.sh
@@ -503,7 +533,9 @@ install %{SOURCE44} $RPM_BUILD_ROOT%{systemdunitdir}/xendomains.service
 # sysvinit scripts
 %{__rm} $RPM_BUILD_ROOT/etc/rc.d/init.d/*
 %{__rm} $RPM_BUILD_ROOT/etc/sysconfig/xencommons
+%if %{with xend}
 install %{SOURCE50} $RPM_BUILD_ROOT/etc/rc.d/init.d/xend
+%endif
 install %{SOURCE51} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenconsoled
 install %{SOURCE52} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenstored
 install %{SOURCE53} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-watchdog
@@ -529,15 +561,11 @@ install -d _doc
 for tool in blktap blktap2 pygrub xenmon ; do
 	cp -p tools/$tool/README _doc/README.$tool
 done
-cp -al tools/qemu-xen/docs _doc/qemu-xen
 
 %py_comp $RPM_BUILD_ROOT%{py_sitedir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
 
 %py_postclean
-
-# seems not needed, the path is wrong anyway
-%{__rm} $RPM_BUILD_ROOT%{_prefix}/etc/qemu/target-x86_64.conf
 
 # remove unneeded files
 %if %{with hypervisor}
@@ -546,6 +574,10 @@ cp -al tools/qemu-xen/docs _doc/qemu-xen
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
 %{__rm} $RPM_BUILD_ROOT%{_includedir}/%{name}/COPYING
+
+%if %{without xend}
+%{__rm} -r $RPM_BUILD_ROOT/var/run/xend
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -634,14 +666,20 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xl.conf
 %config(noreplace) %verify(not md5 mtime size) /etc/udev/rules.d/xen-backend.rules
 %attr(755,root,root) %{_bindir}/pygrub
+%if %{with qemu_traditional}
 %attr(755,root,root) %{_bindir}/qemu-img-xen
 %attr(755,root,root) %{_bindir}/qemu-nbd-xen
+%endif
 %attr(755,root,root) %{_bindir}/remus
 %attr(755,root,root) %{_bindir}/xencons
 %attr(755,root,root) %{_bindir}/xencov_split
 %attr(755,root,root) %{_bindir}/xentrace*
+%if %{with blktap1}
 %attr(755,root,root) %{_sbindir}/blktapctrl
+%endif
+%if %{with xsm}
 %attr(755,root,root) %{_sbindir}/flask-*
+%endif
 %attr(755,root,root) %{_sbindir}/gdbsx
 %attr(755,root,root) %{_sbindir}/gtrace*
 %attr(755,root,root) %{_sbindir}/img2qcow
@@ -667,7 +705,6 @@ fi
 %attr(755,root,root) %{_sbindir}/xentrace_setmask
 %attr(755,root,root) %{_sbindir}/xenwatchdogd
 %attr(755,root,root) %{_sbindir}/xl
-%attr(755,root,root) %{_sbindir}/xsview
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
@@ -678,7 +715,9 @@ fi
 %endif
 %dir %{_prefix}/lib/%{name}/boot
 %if %{with stubdom}
+%if %{with qemu_traditional}
 %{_prefix}/lib/%{name}/boot/ioemu-stubdom.gz
+%endif
 %ifarch %{ix86} %{x8664}
 %{_prefix}/lib/%{name}/boot/pv-grub-x86_32.gz
 %endif
@@ -690,12 +729,16 @@ fi
 %{_prefix}/lib/%{name}/boot/xenstore-stubdom.gz
 %endif
 %attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
-%{_datadir}/xen
+%{_mandir}/man1/xenstore-chmod.1*
+%{_mandir}/man1/xenstore-ls.1*
+%{_mandir}/man1/xenstore.1*
 %{_mandir}/man1/xentop.1*
 %{_mandir}/man1/xentrace_format.1*
 %{_mandir}/man1/xl.1*
+%if %{with xend}
 %{_mandir}/man1/xm.1*
 %{_mandir}/man5/xend-config.sxp.5*
+%endif
 %{_mandir}/man5/xl.cfg.5*
 %{_mandir}/man5/xl.conf.5*
 %{_mandir}/man5/xlcpupool.cfg.5*
@@ -708,7 +751,9 @@ fi
 %{systemdtmpfilesdir}/xen.conf
 %dir %attr(0700,root,root) /var/log/xen
 %dir %attr(0700,root,root) /var/log/xen/console
-%{_datadir}/qemu-xen
+%if %{with qemu_traditional}
+%{_datadir}/xen
+%endif
 
 %files guest
 %defattr(644,root,root,755)
@@ -726,11 +771,11 @@ fi
 %attr(755,root,root) %{_libdir}/libvhd.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libvhd.so.1.0
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.3
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.4
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.3
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.4
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.3
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.4
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenstat.so.0
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
@@ -790,10 +835,13 @@ fi
 %{_libdir}/libxenstore.a
 %{_libdir}/libxlutil.a
 
+%if %{with xend}
 %files xend
 %defattr(644,root,root,755)
+%if %{with blktap1}
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/blktapctrl
 %{systemdunitdir}/blktapctrl.service
+%endif
 %{systemdunitdir}/xend.service
 %attr(754,root,root) %{_sysconfdir}/rc.d/init.d/xend
 %config(noreplace) %verify(not md5 mtime size) /etc/udev/rules.d/xend.rules
@@ -803,6 +851,7 @@ fi
 %attr(755,root,root) %{_sbindir}/xm
 %dir %attr(700,root,root) /var/run/xend
 %{systemdtmpfilesdir}/xend.conf
+%endif
 
 %if %{with ocaml}
 %files -n ocaml-xen
@@ -820,6 +869,8 @@ fi
 %attr(755,root,root) %{_libdir}/ocaml/site-lib/xenlight/dllxenlight_stubs.so
 %dir %{_libdir}/ocaml/site-lib/xenmmap
 %attr(755,root,root) %{_libdir}/ocaml/site-lib/xenmmap/dllxenmmap_stubs.so
+%dir %{_libdir}/ocaml/site-lib/xentoollog
+%attr(755,root,root) %{_libdir}/ocaml/site-lib/xentoollog/dllxentoollog_stubs.so
 
 %files -n ocaml-xen-devel
 %defattr(644,root,root,755)
@@ -847,6 +898,10 @@ fi
 %{_libdir}/ocaml/site-lib/xenstore/META
 %{_libdir}/ocaml/site-lib/xenstore/xenstore.a
 %{_libdir}/ocaml/site-lib/xenstore/*.cm[aixo]*
+%{_libdir}/ocaml/site-lib/xentoollog/META
+%{_libdir}/ocaml/site-lib/xentoollog/libxentoollog_stubs.a
+%{_libdir}/ocaml/site-lib/xentoollog/xentoollog.a
+%{_libdir}/ocaml/site-lib/xentoollog/*.cm[aixo]*
 %endif
 
 %files -n python-xen
@@ -858,13 +913,13 @@ fi
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/netlink.so
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/ptsname.so
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/xc.so
+%if %{with xend}
 %{py_sitedir}/xen/remus
-%{py_sitedir}/xen/sv
 %{py_sitedir}/xen/util
 %{py_sitedir}/xen/web
 %{py_sitedir}/xen/xend
 %{py_sitedir}/xen/xm
-%{py_sitedir}/xen/xsview
+%endif
 %if "%{py_ver}" > "2.4"
 %{py_sitedir}/pygrub-0.3-py*.egg-info
 %{py_sitedir}/xen-3.0-py*.egg-info

@@ -766,8 +766,10 @@ fi
 
 %files libs
 %defattr(644,root,root,755)
+%if %{with blktap1}
 %attr(755,root,root) %{_libdir}/libblktap.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libblktap.so.3.0
+%endif
 %attr(755,root,root) %{_libdir}/libblktapctl.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libblktapctl.so.1.0
 %attr(755,root,root) %{_libdir}/libfsimage.so.*.*.*
@@ -803,7 +805,9 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
+%if %{with blktap1}
 %attr(755,root,root) %{_libdir}/libblktap.so
+%endif
 %attr(755,root,root) %{_libdir}/libblktapctl.so
 %attr(755,root,root) %{_libdir}/libfsimage.so
 %attr(755,root,root) %{_libdir}/libvhd.so
@@ -817,7 +821,9 @@ fi
 %{_includedir}/_libxl_list.h
 %{_includedir}/_libxl_types.h
 %{_includedir}/_libxl_types_json.h
+%if %{with blktap1}
 %{_includedir}/blktaplib.h
+%endif
 %{_includedir}/fsimage*.h
 %{_includedir}/libxenvchan.h
 %{_includedir}/libxl*.h
@@ -828,7 +834,9 @@ fi
 
 %files static
 %defattr(644,root,root,755)
+%if %{with blktap1}
 %{_libdir}/libblktap.a
+%endif
 %{_libdir}/libblktapctl.a
 %{_libdir}/libvhd.a
 %{_libdir}/libxenctrl.a

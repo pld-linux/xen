@@ -115,7 +115,7 @@ Patch11:	%{name}-ulong.patch
 Patch12:	%{name}-doc.patch
 Patch13:	%{name}-paths.patch
 Patch14:	%{name}-no_fetcher.patch
-Patch15:    odd-glib2-fix.patch
+Patch15:	odd-glib2-fix.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %if %{with qemu_traditional}
 %{?with_opengl:BuildRequires:	OpenGL-devel}
@@ -142,17 +142,13 @@ BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 6:4.1
 BuildRequires:	gettext-devel
 BuildRequires:	glib2-devel >= 1:2.12
-BuildRequires:	glusterfs-devel >= 3.4
 BuildRequires:	gnutls-devel
 BuildRequires:  keyutils-devel
 BuildRequires:	latex2html >= 2008
 BuildRequires:	libaio-devel
 BuildRequires:	libcap-devel
-BuildRequires:	libcap-ng-devel
-BuildRequires:	libiscsi-devel
 BuildRequires:	libjpeg-devel
 BuildRequires:	libpng-devel
-BuildRequires:	libseccomp-devel >= 1.0.0
 BuildRequires:	libuuid-devel
 BuildRequires:	lzo-devel >= 2
 BuildRequires:	ncurses-devel
@@ -165,7 +161,6 @@ BuildRequires:	openssl-devel
 BuildRequires:	pciutils-devel
 BuildRequires:	perl-base
 BuildRequires:	perl-tools-pod
-BuildRequires:	pixman-devel
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
@@ -175,8 +170,7 @@ BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	texlive-xetex
 BuildRequires:	transfig
-BuildRequires:	usbredir-devel >= 0.5.3
-BuildRequires:	vde2-devel
+%{?with_qemu_traditional:BuildRequires:	vde2-devel}
 BuildRequires:	which
 # for xfsctl (<xfs/xfs.h>)
 BuildRequires:	xfsprogs-devel

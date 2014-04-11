@@ -117,6 +117,7 @@ Patch13:	%{name}-paths.patch
 Patch14:	%{name}-no_fetcher.patch
 Patch15:	odd-glib2-fix.patch
 Patch16:	CVE-2014-2599.patch
+Patch17:	%{name}-pvh_fixes.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %if %{with qemu_traditional}
 %{?with_opengl:BuildRequires:	OpenGL-devel}
@@ -421,6 +422,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
+%patch17 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

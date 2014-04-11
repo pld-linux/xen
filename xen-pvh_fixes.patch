@@ -1,0 +1,165 @@
+commit 3a148e0a7ee0ae56a498be5ba973314ec50cd999
+Author: Mukesh Rathor <mukesh.rathor@oracle.com>
+Date:   Fri Apr 4 10:36:29 2014 +0200
+
+    x86: call pit_init for pvh also
+    
+    During halt of a pvh guest, the guest may do speaker shutdown. This
+    results in call to handle_speaker_io in xen. It will hang on the vpit
+    spin lock because it has not been initialized.
+    Since, pit_init is also called for both pv and hvm, the call is
+    moved to a more generic place.
+    
+    Signed-off-by: Mukesh Rathor <mukesh.rathor@oracle.com>
+    Reviewed-by: Jan Beulich <jbeulich@suse.com>
+    master commit: c30c544b199f70eada597c7352cdcb44648f6dcd
+    master date: 2014-03-11 13:56:50 +0100
+
+diff --git a/xen/arch/x86/domain.c b/xen/arch/x86/domain.c
+index 6618ae6..bc073e5 100644
+--- a/xen/arch/x86/domain.c
++++ b/xen/arch/x86/domain.c
+@@ -422,10 +422,6 @@ int vcpu_initialise(struct vcpu *v)
+ 
+         /* PV guests by default have a 100Hz ticker. */
+         v->periodic_period = MILLISECS(10);
+-
+-        /* PV guests get an emulated PIT too for video BIOSes to use. */
+-        if ( v->vcpu_id == 0 )
+-            pit_init(v, cpu_khz);
+     }
+ 
+     v->arch.schedule_tail = continue_nonidle_domain;
+@@ -579,6 +575,9 @@ int arch_domain_create(struct domain *d, unsigned int domcr_flags)
+     tsc_set_info(d, TSC_MODE_DEFAULT, 0UL, 0, 0);
+     spin_lock_init(&d->arch.vtsc_lock);
+ 
++    /* PV/PVH guests get an emulated PIT too for video BIOSes to use. */
++    pit_init(d, cpu_khz);
++
+     return 0;
+ 
+  fail:
+@@ -1980,6 +1979,8 @@ int domain_relinquish_resources(struct domain *d)
+         BUG();
+     }
+ 
++    pit_deinit(d);
++
+     if ( has_hvm_container_domain(d) )
+         hvm_domain_relinquish_resources(d);
+ 
+diff --git a/xen/arch/x86/hvm/hvm.c b/xen/arch/x86/hvm/hvm.c
+index 6150899..a666471 100644
+--- a/xen/arch/x86/hvm/hvm.c
++++ b/xen/arch/x86/hvm/hvm.c
+@@ -643,7 +643,6 @@ void hvm_domain_relinquish_resources(struct domain *d)
+     rtc_deinit(d);
+     if ( d->vcpu != NULL && d->vcpu[0] != NULL )
+     {
+-        pit_deinit(d);
+         pmtimer_deinit(d);
+         hpet_deinit(d);
+     }
+@@ -1217,7 +1216,6 @@ int hvm_vcpu_initialise(struct vcpu *v)
+     if ( v->vcpu_id == 0 )
+     {
+         /* NB. All these really belong in hvm_domain_initialise(). */
+-        pit_init(v, cpu_khz);
+         pmtimer_init(v);
+         hpet_init(v);
+  
+diff --git a/xen/arch/x86/hvm/i8254.c b/xen/arch/x86/hvm/i8254.c
+index c0d6bc2..f7493b8 100644
+--- a/xen/arch/x86/hvm/i8254.c
++++ b/xen/arch/x86/hvm/i8254.c
+@@ -447,9 +447,8 @@ void pit_reset(struct domain *d)
+     spin_unlock(&pit->lock);
+ }
+ 
+-void pit_init(struct vcpu *v, unsigned long cpu_khz)
++void pit_init(struct domain *d, unsigned long cpu_khz)
+ {
+-    struct domain *d = v->domain;
+     PITState *pit = domain_vpit(d);
+ 
+     spin_lock_init(&pit->lock);
+diff --git a/xen/include/asm-x86/hvm/vpt.h b/xen/include/asm-x86/hvm/vpt.h
+index 87c3a66..9f3ec8d 100644
+--- a/xen/include/asm-x86/hvm/vpt.h
++++ b/xen/include/asm-x86/hvm/vpt.h
+@@ -175,7 +175,7 @@ void destroy_periodic_time(struct periodic_time *pt);
+ int pv_pit_handler(int port, int data, int write);
+ void pit_reset(struct domain *d);
+ 
+-void pit_init(struct vcpu *v, unsigned long cpu_khz);
++void pit_init(struct domain *d, unsigned long cpu_khz);
+ void pit_stop_channel0_irq(PITState * pit);
+ void pit_deinit(struct domain *d);
+ void rtc_init(struct domain *d);
+
+commit b44b5d2fe0ae1546a14d0800e094535aa3359334
+Author: Mukesh Rathor <mukesh.rathor@oracle.com>
+Date:   Fri Apr 4 10:37:57 2014 +0200
+
+    x86: fix pirq path for pvh
+    
+    Just like hvm, pirq eoi shared page is not there for pvh. pvh should
+    not touch any pv_domain fields.
+    
+    Signed-off-by: Mukesh Rathor <mukesh.rathor@oracle.com>
+    master commit: bea8ee1a5ff2bbe04fcc6297db45fac178a5abc9
+    master date: 2014-03-13 14:24:19 +0100
+
+diff --git a/xen/arch/x86/irq.c b/xen/arch/x86/irq.c
+index db70077..88444be 100644
+--- a/xen/arch/x86/irq.c
++++ b/xen/arch/x86/irq.c
+@@ -1068,13 +1068,13 @@ bool_t cpu_has_pending_apic_eoi(void)
+ 
+ static inline void set_pirq_eoi(struct domain *d, unsigned int irq)
+ {
+-    if ( !is_hvm_domain(d) && d->arch.pv_domain.pirq_eoi_map )
++    if ( is_pv_domain(d) && d->arch.pv_domain.pirq_eoi_map )
+         set_bit(irq, d->arch.pv_domain.pirq_eoi_map);
+ }
+ 
+ static inline void clear_pirq_eoi(struct domain *d, unsigned int irq)
+ {
+-    if ( !is_hvm_domain(d) && d->arch.pv_domain.pirq_eoi_map )
++    if ( is_pv_domain(d) && d->arch.pv_domain.pirq_eoi_map )
+         clear_bit(irq, d->arch.pv_domain.pirq_eoi_map);
+ }
+ 
+
+commit 1e83fa5ee8064cc81e25f2a04cd47aeb5104413c
+Author: Mukesh Rathor <mukesh.rathor@oracle.com>
+Date:   Fri Apr 4 10:38:52 2014 +0200
+
+    x86/pvh: disallow PHYSDEVOP_pirq_eoi_gmfn_v2/v1
+    
+    A call to do_physdev_op with PHYSDEVOP_pirq_eoi_gmfn_v2/v1 will corrupt
+    struct hvm_domain when it writes to domain->arch.pv_domain.pirq_eoi_map.
+    Disallow that. Currently, such a path exists for linux dom0 pvh.
+    
+    Signed-off-by: Mukesh Rathor <mukesh.rathor@oracle.com>
+    master commit: a7ca5c402e8cf61c5e8dd6e6797a627863f5a243
+    master date: 2014-03-24 09:47:59 +0100
+
+diff --git a/xen/arch/x86/hvm/hvm.c b/xen/arch/x86/hvm/hvm.c
+index a666471..4228cf4 100644
+--- a/xen/arch/x86/hvm/hvm.c
++++ b/xen/arch/x86/hvm/hvm.c
+@@ -3292,6 +3292,12 @@ static long hvm_physdev_op(int cmd, XEN_GUEST_HANDLE_PARAM(void) arg)
+     case PHYSDEVOP_irq_status_query:
+     case PHYSDEVOP_get_free_pirq:
+         return do_physdev_op(cmd, arg);
++
++    /* pvh fixme: coming soon */
++    case PHYSDEVOP_pirq_eoi_gmfn_v1:
++    case PHYSDEVOP_pirq_eoi_gmfn_v2:
++        return -ENOSYS;
++
+     }
+ }
+ 

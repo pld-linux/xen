@@ -31,9 +31,6 @@
 %undefine	with_stubdom
 %endif
 
-# from Config.mk:
-%define	seabios_version		1.6.3.2
-
 # from ./stubdom/configure.ac
 %define	polarssl_version	1.1.4
 %define tpm_emulator_version	0.7.4
@@ -44,7 +41,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.4.0
-Release:	0.1
+Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
@@ -62,10 +59,6 @@ Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
 Source15:	http://xenbits.xen.org/xen-extfiles/ipxe-git-9a93db3f0947484e30e753bbd61a10b17336e20e.tar.gz
 # Source15-md5:	7496268cebf47d5c9ccb0696e3b26065
-# http://xenbits.xen.org/git-http/seabios.git/
-# git archive --prefix=tools/firmware/seabios/ --format=tar rel-%{seabios_version} | xz > seabios-%{seabios_version}.tar.xz
-Source16:	seabios-%{seabios_version}.tar.xz
-# Source16-md5:	145e07ff5618a3999f94f2e830d06b05
 Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
 # Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
 Source18:	http://xenbits.xen.org/xen-extfiles/tpm_emulator-%{tpm_emulator_version}.tar.gz
@@ -167,6 +160,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	python-devel
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
+BuildRequires:	seabios
 BuildRequires:	texi2html
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
@@ -405,7 +399,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 (U)EFI, bez potrzeby oddzielnego bootloadera.
 
 %prep
-%setup -q -a 16
+%setup -q
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -463,6 +457,7 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 	%{__enable_disable qemu_traditional qemu-traditional} \
 	%{__enable_disable blktap1 blktap1} \
 	%{__enable_disable xend xend} \
+	--with-system-seabios=/usr/share/seabios/bios.bin \
 %ifarch %{x8664}
 	--with-system-qemu=/usr/bin/qemu-system-x86_64 \
 %else

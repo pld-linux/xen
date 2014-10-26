@@ -1,0 +1,11 @@
+--- xen-4.4.1/tools/flask/policy/Makefile.orig	2014-10-22 22:35:07.033124118 +0200
++++ xen-4.4.1/tools/flask/policy/Makefile	2014-10-22 22:42:54.523104517 +0200
+@@ -86,7 +86,7 @@
+ MODENABLED := on
+ 
+ # extract settings from modules.conf
+-ENABLED_MODS := $(foreach mod,$(shell awk '/^[[:blank:]]*[[:alpha:]]/{ if ($$3 == "$(MODENABLED)") print $$1 }' $(MOD_CONF) 2> /dev/null),$(subst ./,,$(shell find -iname $(mod).te)))
++ENABLED_MODS := $(foreach mod,$(shell gawk '/^[[:blank:]]*[[:alpha:]]/{ if ($$3 == "$(MODENABLED)") print $$1 }' $(MOD_CONF) 2> /dev/null),$(subst ./,,$(shell find -iname $(mod).te)))
+ 
+ ALL_MODULES := $(filter $(ENABLED_MODS),$(DETECTED_MODS))
+ 

@@ -6,6 +6,7 @@
 #    Xen Makefiles)
 #  - fix %doc - some files are installed in docdir both by make install and %d,
 #    other are installed once
+#  - mini-os objects are relinked on install (because of .PHONY rules used to make them)
 #
 # Conditional build:
 %bcond_without  qemu_traditional # without qemu-xen-traditional
@@ -103,6 +104,7 @@ Patch6:		%{name}-dumpdir.patch
 # Warning: this disables ingress filtering implemented in xen scripts!
 Patch7:		%{name}-net-disable-iptables-on-bridge.patch
 Patch8:		%{name}-configure-xend.patch
+Patch9:		%{name}-gawk.patch
 Patch10:	%{name}-qemu.patch
 Patch11:	%{name}-ulong.patch
 Patch12:	%{name}-doc.patch
@@ -112,6 +114,7 @@ Patch15:	odd-glib2-fix.patch
 Patch16:	%{name}-gmp-abi.patch
 # based on: http://xenbits.xen.org/xsa/xsa99.patch
 Patch17:	xsa99.patch
+Patch18:	%{name}-make.patch
 URL:		http://www.xen.org/products/xenhyp.html
 %if %{with qemu_traditional}
 %{?with_opengl:BuildRequires:	OpenGL-devel}
@@ -410,6 +413,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
@@ -418,6 +422,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

@@ -34,3 +34,13 @@ diff -dur -x '*~' xen-4.1.2.orig/xen/arch/x86/boot/build32.mk xen-4.1.2/xen/arch
  
  # NB. awk invocation is a portable alternative to 'head -n -1'
  %.S: %.bin
+--- xen-4.4.1/tools/blktap/drivers/Makefile~	2014-09-02 08:20:19.000000000 +0200
++++ xen-4.4.1/tools/blktap/drivers/Makefile	2014-12-13 19:19:17.070688454 +0100
+@@ -4,7 +4,6 @@
+ IBIN         = blktapctrl tapdisk
+ QCOW_UTIL    = img2qcow qcow2raw qcow-create
+ 
+-CFLAGS   += -Werror
+ CFLAGS   += -Wno-unused
+ CFLAGS   += -I../lib
+ CFLAGS   += $(CFLAGS_libxenctrl)

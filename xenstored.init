@@ -51,6 +51,7 @@ start () {
 	show "Setting domain 0 name"
 	busy
 	xenstore-write "/local/domain/0/name" "Domain-0"
+	xenstore-write "/local/domain/0/domid" "0"
 	ok
 	touch /var/lock/subsys/xenstored
 }

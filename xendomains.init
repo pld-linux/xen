@@ -31,7 +31,7 @@ shopt -s nullglob
 
 check_config_name()
 {
-	/usr/lib/xen/bin/xen-toolstack create --quiet --dryrun --defconfig "$1" | sed -n 's/^.*\("name":"\([^"]*\)",.*\)\|(name \(.*\))$/\2\3/p'
+	/usr/lib/xen/bin/xen-toolstack create --quiet --dryrun --defconfig "$1" | sed -n 's/^.*(name \(.*\))$/\1/p;s/^.*"name": "\(.*\)",$/\1/p'
 }
 
 check_running()

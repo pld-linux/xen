@@ -140,7 +140,7 @@ BuildRequires:	checkpolicy
 %endif
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 6:4.1
-BuildRequires:	gettext-devel
+BuildRequires:	gettext-tools
 BuildRequires:	glib2-devel >= 1:2.12
 BuildRequires:	gnutls-devel
 BuildRequires:  keyutils-devel

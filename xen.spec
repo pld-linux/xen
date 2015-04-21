@@ -142,6 +142,9 @@ BuildRequires:	checkpolicy
 %endif
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	gcc >= 6:4.1
+%ifarch %{x8664}
+BuildRequires:	gcc-multilib-32 >= 6:4.1
+%endif
 BuildRequires:	gettext-tools
 BuildRequires:	glib2-devel >= 1:2.12
 BuildRequires:	gnutls-devel

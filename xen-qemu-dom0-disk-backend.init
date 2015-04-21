@@ -1,0 +1,66 @@
+#!/bin/sh
+#
+# xenstored	Script to start and stop qemu for xen dom0 disk backend
+#
+# chkconfig:	2345 70 10
+# description:	Starts and stops qemu for xen dom0 disk backend
+#
+
+# Source function library
+. /etc/rc.d/init.d/functions
+
+
+start () {
+	[ -d /proc/xen ] || exit 0
+	grep -qs "control_d" /proc/xen/capabilities || exit 0
+	[ -x /usr/bin/qemu-system-i386 ] || exit 0
+
+	if [ -f /var/lock/subsys/xen-qemu-dom0-disk-backend ]; then
+		msg_already_running "qemu for xen dom0 disk backend"
+		return
+	fi
+
+	msg_starting "qemu for xen dom0 disk backend"
+	daemon /usr/bin/qemu-system-i386 -xen-domid 0 \
+		-xen-attach -name dom0 -nographic -M xenpv -daemonize \
+		-monitor /dev/null -serial /dev/null -parallel /dev/null \
+		-pidfile /var/run/qemu-dom0.pid
+
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/xen-qemu-dom0-disk-backend
+}
+
+stop() {
+	if [ ! -f /var/lock/subsys/xen-qemu-dom0-disk-backend ]; then
+		msg_not_running "qemu for xen dom0 disk backend"
+		return
+	fi
+	msg_stopping "qemu for xen dom0 disk backend"
+	killproc --pidfile /var/run/qemu-dom0.pid qemu-system-i386
+	RETVAL=$?
+	rm -f /var/run/qemu-dom0.pid >/dev/null 2>&1
+	rm -f /var/lock/subsys/xen-qemu-dom0-disk-backend >/dev/null 2>&1
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  status)
+	status --pidfile /var/run/qemu-dom0.pid xen-qemu-dom0-disk-backend qemu-system-i386
+	;;
+  stop)
+	stop
+	;;
+  force-reload|restart)
+        stop
+	start
+	;;
+  *)
+	msg_usage "$0 {start|stop|status|restart|force-reload}"
+	exit 3
+esac
+
+exit $RETVAL

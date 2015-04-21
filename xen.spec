@@ -81,6 +81,8 @@ Source41:	xen-watchdog.service
 Source42:	xen-dom0-modules-load.conf
 Source43:	xendomains.sh
 Source44:	xendomains.service
+Source45:	xen-qemu-dom0-disk-backend.service
+Source46:	xen-qemu-dom0-disk-backend.init
 # sysvinit scripts
 Source50:	xend.init
 Source51:	xenconsoled.init
@@ -532,6 +534,7 @@ install %{SOURCE41} $RPM_BUILD_ROOT%{systemdunitdir}/xen-watchdog.service
 install %{SOURCE42} $RPM_BUILD_ROOT/etc/modules-load.d/xen-dom0.conf
 install %{SOURCE43} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xendomains.sh
 install %{SOURCE44} $RPM_BUILD_ROOT%{systemdunitdir}/xendomains.service
+install %{SOURCE45} $RPM_BUILD_ROOT%{systemdunitdir}/xen-qemu-dom0-disk-backend.service
 # sysvinit scripts
 %{__rm} $RPM_BUILD_ROOT/etc/rc.d/init.d/*
 %{__rm} $RPM_BUILD_ROOT/etc/sysconfig/xencommons
@@ -542,6 +545,7 @@ install %{SOURCE51} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenconsoled
 install %{SOURCE52} $RPM_BUILD_ROOT/etc/rc.d/init.d/xenstored
 install %{SOURCE53} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-watchdog
 install %{SOURCE54} $RPM_BUILD_ROOT/etc/rc.d/init.d/xendomains
+install %{SOURCE46} $RPM_BUILD_ROOT/etc/rc.d/init.d/xen-qemu-dom0-disk-backend
 install %{SOURCE55} $RPM_BUILD_ROOT/etc/logrotate.d/xen
 install %{SOURCE56} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xen.conf
 
@@ -589,8 +593,9 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add xenconsoled
 /sbin/chkconfig --add xenstored
 /sbin/chkconfig --add xendomains
+/sbin/chkconfig --add xen-qemu-dom0-disk-backend
 NORESTART=1
-%systemd_post xen-watchdog.service xenconsoled.service xenstored.service xendomains.service
+%systemd_post xen-watchdog.service xenconsoled.service xenstored.service xendomains.service xen-qemu-dom0-disk-backend.service
 
 %preun
 if [ "$1" = "0" ]; then
@@ -605,8 +610,11 @@ if [ "$1" = "0" ]; then
 
 	%service xen-watchdog stop
 	/sbin/chkconfig --del xen-watchdog
+
+	%service xen-qemu-dom0-disk-backend stop
+	/sbin/chkconfig --del xen-qemu-dom0-disk-backend
 fi
-%systemd_preun xen-watchdog.service xenconsoled.service xenstored.service xendomains.service
+%systemd_preun xen-watchdog.service xenconsoled.service xenstored.service xendomains.service xen-qemu-dom0-disk-backend.service
 
 %postun
 %systemd_reload
@@ -653,6 +661,7 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/xenconsoled
 %attr(754,root,root) /etc/rc.d/init.d/xenstored
 %attr(754,root,root) /etc/rc.d/init.d/xendomains
+%attr(754,root,root) /etc/rc.d/init.d/xen-qemu-dom0-disk-backend
 %config(noreplace) %verify(not md5 mtime size) /etc/modules-load.d/xen-dom0.conf
 %{systemdunitdir}/proc-xen.mount
 %{systemdunitdir}/var-lib-xenstored.mount
@@ -660,6 +669,7 @@ fi
 %{systemdunitdir}/xenconsoled.service
 %{systemdunitdir}/xenstored.service
 %{systemdunitdir}/xendomains.service
+%{systemdunitdir}/xen-qemu-dom0-disk-backend.service
 %dir %{_sysconfdir}/xen
 %dir %{_sysconfdir}/xen/auto
 %dir %{_sysconfdir}/xen/examples

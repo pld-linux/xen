@@ -10,23 +10,40 @@ diff -up xen-3.4.0/tools/Makefile.dump xen-3.4.0/tools/Makefile
  	$(INSTALL_DIR) $(DESTDIR)/var/log/xen
  	$(INSTALL_DIR) $(DESTDIR)/var/lib/xen
  	$(INSTALL_DIR) $(DESTDIR)/var/lock/subsys
---- xen-4.0.0/tools/python/xen/xend/XendDomainInfo.py.orig	2010-02-02 20:43:01.000000000 +0000
-+++ xen-4.0.0/tools/python/xen/xend/XendDomainInfo.py	2010-02-02 21:36:57.000000000 +0000
-@@ -2287,7 +2287,7 @@
-             # To prohibit directory traversal
-             based_name = os.path.basename(self.info['name_label'])
-             
--            coredir = "/var/xen/dump/%s" % (based_name)
-+            coredir = "/var/lib/xen/dump/%s" % (based_name)
-             if not os.path.exists(coredir):
-                 try:
-                     mkdir.parents(coredir, stat.S_IRWXU)
-@@ -2296,7 +2296,7 @@
+--- xen-4.5.1/tools/libxl/xl_cmdimpl.c.orig	2015-06-22 15:41:35.000000000 +0200
++++ xen-4.5.1/tools/libxl/xl_cmdimpl.c	2015-10-01 17:45:14.267331067 +0200
+@@ -2092,7 +2092,7 @@
+         char *corefile;
+         int rc;
  
-             if not os.path.isdir(coredir):
-                 # Use former directory to dump core
--                coredir = '/var/xen/dump'
-+                coredir = '/var/lib/xen/dump'
+-        if (asprintf(&corefile, "/var/xen/dump/%s", d_config->c_info.name) < 0) {
++        if (asprintf(&corefile, "/var/lib/xen/dump/%s", d_config->c_info.name) < 0) {
+             LOG("failed to construct core dump path");
+         } else {
+             LOG("dumping core to %s", corefile);
+--- xen-4.5.1/docs/man/xl.cfg.pod.5.orig	2015-06-22 15:41:35.000000000 +0200
++++ xen-4.5.1/docs/man/xl.cfg.pod.5	2015-10-01 17:46:38.750661228 +0200
+@@ -298,12 +298,12 @@
  
-             this_time = time.strftime("%Y-%m%d-%H%M.%S", time.localtime())
-             corefile = "%s/%s-%s.%s.core" % (coredir, this_time,
+ =item B<coredump-destroy>
+ 
+-write a "coredump" of the domain to F</var/xen/dump/NAME> and then
++write a "coredump" of the domain to F</var/lib/xen/dump/NAME> and then
+ destroy the domain.
+ 
+ =item B<coredump-restart>
+ 
+-write a "coredump" of the domain to F</var/xen/dump/NAME> and then
++write a "coredump" of the domain to F</var/lib/xen/dump/NAME> and then
+ restart the domain.
+ 
+ =back
+@@ -1605,7 +1605,7 @@
+ =head1 FILES
+ 
+ F</etc/xen/NAME.cfg>
+-F</var/xen/dump/NAME>
++F</var/lib/xen/dump/NAME>
+ 
+ =head1 BUGS
+ 

@@ -1,13 +1,10 @@
-diff -dur -x '*.orig' -x '*.rej' -x '*~' xen-4.2.0.orig/tools/hotplug/Linux/vif-bridge xen-4.2.0/tools/hotplug/Linux/vif-bridge
---- xen-4.2.0.orig/tools/hotplug/Linux/vif-bridge	2012-09-17 12:21:18.000000000 +0200
-+++ xen-4.2.0/tools/hotplug/Linux/vif-bridge	2012-10-22 13:05:43.000000000 +0200
-@@ -101,10 +101,6 @@
+--- xen-4.5.1/tools/hotplug/Linux/vif-bridge.orig	2015-10-01 17:51:47.613981230 +0200
++++ xen-4.5.1/tools/hotplug/Linux/vif-bridge	2015-10-01 17:51:51.330647734 +0200
+@@ -93,8 +93,6 @@
          ;;
  esac
  
--if [ "$type_if" = vif ]; then
--    handle_iptable
--fi
+-handle_iptable
 -
  call_hooks vif post
  

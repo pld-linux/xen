@@ -7,33 +7,6 @@ diff -dur xen-4.2.0.orig/tools/misc/xenpvnetboot xen-4.2.0/tools/misc/xenpvnetbo
  #
  # Copyright (C) 2010 Oracle. All rights reserved.
  #
-diff -dur xen-4.2.0.orig/tools/python/xen/remus/save.py xen-4.2.0/tools/python/xen/remus/save.py
---- xen-4.2.0.orig/tools/python/xen/remus/save.py	2012-09-17 12:21:18.000000000 +0200
-+++ xen-4.2.0/tools/python/xen/remus/save.py	2012-10-22 10:46:30.000000000 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python
- 
- import os, select, socket, threading, time, signal, xmlrpclib
- 
-diff -dur xen-4.2.0.orig/tools/python/xen/remus/vm.py xen-4.2.0/tools/python/xen/remus/vm.py
---- xen-4.2.0.orig/tools/python/xen/remus/vm.py	2012-09-17 12:21:18.000000000 +0200
-+++ xen-4.2.0/tools/python/xen/remus/vm.py	2012-10-22 10:46:30.000000000 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python
- 
- import xmlrpclib
- 
-diff -dur xen-4.2.0.orig/tools/python/xen/xend/XendSXPDev.py xen-4.2.0/tools/python/xen/xend/XendSXPDev.py
---- xen-4.2.0.orig/tools/python/xen/xend/XendSXPDev.py	2012-09-17 12:21:19.000000000 +0200
-+++ xen-4.2.0/tools/python/xen/xend/XendSXPDev.py	2012-10-22 10:46:30.000000000 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python
- #
- # Helper functions for dealing with the sxp representation of devices
- 
 diff -dur xen-4.2.0.orig/tools/qemu-xen/scripts/analyse-9p-simpletrace.py xen-4.2.0/tools/qemu-xen/scripts/analyse-9p-simpletrace.py
 --- xen-4.2.0.orig/tools/qemu-xen/scripts/analyse-9p-simpletrace.py	2012-09-10 20:10:52.000000000 +0200
 +++ xen-4.2.0/tools/qemu-xen/scripts/analyse-9p-simpletrace.py	2012-10-22 10:46:30.000000000 +0200
@@ -52,12 +25,3 @@ diff -dur xen-4.2.0.orig/tools/qemu-xen/scripts/simpletrace.py xen-4.2.0/tools/q
  #
  # Pretty-printer for simple trace backend binary trace files
  #
-diff -dur xen-4.2.0.orig/tools/remus/remus xen-4.2.0/tools/remus/remus
---- xen-4.2.0.orig/tools/remus/remus	2012-09-17 12:21:19.000000000 +0200
-+++ xen-4.2.0/tools/remus/remus	2012-10-22 10:46:30.000000000 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python
- #
- # This is a save process which also buffers outgoing I/O between
- # rounds, so that external viewers never see anything that hasn't

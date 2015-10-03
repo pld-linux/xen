@@ -9,14 +9,3 @@
  $(LIBS_DEPENDS):subdirs-all
  
  vhd-util: vhd-util.o $(LIBS_DEPENDS)
---- xen-4.4.1/tools/python/Makefile.orig	2014-09-02 08:20:19.000000000 +0200
-+++ xen-4.4.1/tools/python/Makefile	2014-10-25 23:17:56.515472047 +0200
-@@ -21,7 +21,7 @@
- .PHONY: install
- install: install-dtd
- 	CC="$(CC)" CFLAGS="$(CFLAGS)" $(PYTHON) setup.py install \
--		$(PYTHON_PREFIX_ARG) --root="$(DESTDIR)" --force --xend=$(CONFIG_XEND)
-+		$(PYTHON_PREFIX_ARG) --skip-build --root="$(DESTDIR)" --force --xend=$(CONFIG_XEND)
- 
- 	$(INSTALL_DIR) $(DESTDIR)$(SBINDIR)
- ifeq ($(CONFIG_XEND),y)

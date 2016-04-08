@@ -21,7 +21,6 @@
 %bcond_without	hypervisor		# Xen hypervisor build
 %bcond_without	stubdom			# stubdom build
 %bcond_without	xsm			# XSM security module (by default, Flask)
-%bcond_without	blktap1			# blktap1 support
 
 %ifnarch %{x8664} arm
 %undefine	with_hypervisor
@@ -69,8 +68,6 @@ Source19:	ftp://ftp.gmplib.org/pub/gmp-%{gmp_version}/gmp-%{gmp_version}.tar.bz2
 # Source19-md5:	dd60683d7057917e34630b4a787932e8
 #Source30:	proc-xen.mount
 #Source31:	var-lib-xenstored.mount
-Source32:	blktapctrl.service
-Source33:	blktapctrl.sysconfig
 #Source34:	xenconsoled.service
 # XXX: upstream xenconsoled expects xencommons
 Source35:	xenconsoled.sysconfig
@@ -114,6 +111,7 @@ Patch19:	%{name}-no_Werror.patch
 # http://git.alpinelinux.org/cgit/aports/plain/main/xen/gnutls-3.4.0.patch
 Patch20:	%{name}-gnutls-3.4.patch
 Patch21:	%{name}-grep-typo.patch
+Patch22:	%{name}-stubdom-build.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -410,6 +408,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch19 -p1
 %patch20 -p1
 %patch21 -p1
+%patch22 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -446,7 +445,6 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 	CPPFLAGS="%{rpmcppflags} -I/usr/include/ncurses" \
 	ac_cv_lib_gcrypt_gcry_md_hash_buffer=no \
 	ac_cv_lib_iconv_libiconv_open=no \
-	%{__enable_disable blktap1 blktap1} \
 	--disable-debug \
 	%{__enable_disable qemu_traditional qemu-traditional} \
 	--with-system-seabios=/usr/share/seabios/bios.bin \
@@ -491,25 +489,15 @@ install -d $RPM_BUILD_ROOT/etc/efi-boot/update.d
 	DESTDIR=$RPM_BUILD_ROOT \
 	HOTPLUGS=install-udev
 
-%if %{with qemu_traditional}
-%if "%{_lib}" == "lib64"
-ln -s %{_prefix}/lib/%{name}/bin/qemu-dm $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/qemu-dm
-%endif
-%endif
-
 #install %{SOURCE30} $RPM_BUILD_ROOT%{systemdunitdir}/proc-xen.mount
 #install %{SOURCE31} $RPM_BUILD_ROOT%{systemdunitdir}/var-lib-xenstored.mount
-%if %{with blktap1}
-install %{SOURCE32} $RPM_BUILD_ROOT%{systemdunitdir}/blktapctrl.service
-install %{SOURCE33} $RPM_BUILD_ROOT/etc/sysconfig/blktapctrl
-%endif
 #install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
 install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
 #install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
 install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored
 #install %{SOURCE41} $RPM_BUILD_ROOT%{systemdunitdir}/xen-watchdog.service
 #install %{SOURCE42} $RPM_BUILD_ROOT/etc/modules-load.d/xen-dom0.conf
-install %{SOURCE43} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xendomains.sh
+install %{SOURCE43} $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/xendomains.sh
 #install %{SOURCE44} $RPM_BUILD_ROOT%{systemdunitdir}/xendomains.service
 #install %{SOURCE45} $RPM_BUILD_ROOT%{systemdunitdir}/xen-qemu-dom0-disk-backend.service
 # sysvinit scripts
@@ -525,8 +513,8 @@ install %{SOURCE56} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xen.conf
 install -d $RPM_BUILD_ROOT/var/run/xenstored
 install %{SOURCE38} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xenstored.conf
 
-install %{SOURCE60} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xen-init-list
-install %{SOURCE61} $RPM_BUILD_ROOT%{_prefix}/lib/%{name}/bin/xen-toolstack
+install %{SOURCE60} $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/xen-init-list
+install %{SOURCE61} $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/xen-toolstack
 
 %if %{with efi}
 install %{SOURCE57} $RPM_BUILD_ROOT/etc/efi-boot/xen.cfg
@@ -540,9 +528,11 @@ install %{SOURCE59} $RPM_BUILD_ROOT%{_sysconfdir}/xen/scripts/vif-openvswitch
 
 # for %%doc
 install -d _doc
-for tool in blktap blktap2 pygrub xenmon ; do
+for tool in blktap2 pygrub ; do
 	cp -p tools/$tool/README _doc/README.$tool
 done
+
+cp -p xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
 
 %py_comp $RPM_BUILD_ROOT%{py_sitedir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
@@ -551,7 +541,7 @@ done
 
 # remove unneeded files
 %if %{with hypervisor}
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.4.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.6.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
@@ -631,10 +621,6 @@ fi
 %{systemdunitdir}/xenstored_ro.socket
 %{systemdunitdir}/xendomains.service
 %{systemdunitdir}/xen-qemu-dom0-disk-backend.service
-%if %{with blktap1}
-%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/blktapctrl
-%{systemdunitdir}/blktapctrl.service
-%endif
 %dir %{_sysconfdir}/xen
 %dir %{_sysconfdir}/xen/auto
 %dir %{_sysconfdir}/xen/examples
@@ -644,18 +630,15 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/README*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/cpupool
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xl.conf
-%config(noreplace) %verify(not md5 mtime size) /etc/udev/rules.d/xen-backend.rules
 %attr(755,root,root) %{_bindir}/pygrub
 %if %{with qemu_traditional}
 %attr(755,root,root) %{_bindir}/qemu-img-xen
 %attr(755,root,root) %{_bindir}/qemu-nbd-xen
 %endif
+%attr(755,root,root) %{_bindir}/xenalyze
 %attr(755,root,root) %{_bindir}/xencons
 %attr(755,root,root) %{_bindir}/xencov_split
-%attr(755,root,root) %{_bindir}/xentrace*
-%if %{with blktap1}
-%attr(755,root,root) %{_sbindir}/blktapctrl
-%endif
+%attr(755,root,root) %{_bindir}/xentrace_format
 %if %{with xsm}
 %attr(755,root,root) %{_sbindir}/flask-*
 %endif
@@ -681,33 +664,30 @@ fi
 %attr(755,root,root) %{_sbindir}/xenpmd
 %attr(755,root,root) %{_sbindir}/xenstored
 %attr(755,root,root) %{_sbindir}/xentop
+%attr(755,root,root) %{_sbindir}/xentrace
 %attr(755,root,root) %{_sbindir}/xentrace_setmask
+%attr(755,root,root) %{_sbindir}/xentrace_setsize
 %attr(755,root,root) %{_sbindir}/xenwatchdogd
 %attr(755,root,root) %{_sbindir}/xl
 %dir %{_libdir}/%{name}
 %dir %{_libdir}/%{name}/bin
 %attr(744,root,root) %{_libdir}/%{name}/bin/*
-%if "%{_lib}" != "lib"
-%dir %{_prefix}/lib/%{name}
-%dir %{_prefix}/lib/%{name}/bin
-%attr(755,root,root) %{_prefix}/lib/%{name}/bin/*
-%endif
-%dir %{_prefix}/lib/%{name}/boot
+%dir %{_libdir}/%{name}/boot
 %if %{with stubdom}
 %if %{with qemu_traditional}
-%{_prefix}/lib/%{name}/boot/ioemu-stubdom.gz
+%{_libdir}/%{name}/boot/ioemu-stubdom.gz
 %endif
 %ifarch %{ix86} %{x8664}
-%{_prefix}/lib/%{name}/boot/pv-grub-x86_32.gz
+%{_libdir}/%{name}/boot/pv-grub-x86_32.gz
 %endif
 %ifarch %{x8664}
-%{_prefix}/lib/%{name}/boot/pv-grub-x86_64.gz
+%{_libdir}/%{name}/boot/pv-grub-x86_64.gz
 %endif
-%{_prefix}/lib/%{name}/boot/vtpm-stubdom.gz
-%{_prefix}/lib/%{name}/boot/vtpmmgr-stubdom.gz
-%{_prefix}/lib/%{name}/boot/xenstore-stubdom.gz
+%{_libdir}/%{name}/boot/vtpm-stubdom.gz
+%{_libdir}/%{name}/boot/vtpmmgr-stubdom.gz
+%{_libdir}/%{name}/boot/xenstore-stubdom.gz
 %endif
-%attr(744,root,root) %{_prefix}/lib/%{name}/boot/hvmloader
+%attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
 %{_mandir}/man1/xenstore-chmod.1*
 %{_mandir}/man1/xenstore-ls.1*
 %{_mandir}/man1/xenstore.1*
@@ -736,10 +716,6 @@ fi
 
 %files libs
 %defattr(644,root,root,755)
-%if %{with blktap1}
-%attr(755,root,root) %{_libdir}/libblktap.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libblktap.so.3.0
-%endif
 %attr(755,root,root) %{_libdir}/libblktapctl.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libblktapctl.so.1.0
 %attr(755,root,root) %{_libdir}/libfsimage.so.*.*.*
@@ -747,17 +723,17 @@ fi
 %attr(755,root,root) %{_libdir}/libvhd.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libvhd.so.1.0
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.5
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.6
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.5
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.6
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.5
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.6
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenstat.so.0
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.1.0
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.3
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.6
 %dir %{_libdir}/fs
 %dir %{_libdir}/fs/ext2fs-lib
 %dir %{_libdir}/fs/fat
@@ -775,9 +751,6 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
-%if %{with blktap1}
-%attr(755,root,root) %{_libdir}/libblktap.so
-%endif
 %attr(755,root,root) %{_libdir}/libblktapctl.so
 %attr(755,root,root) %{_libdir}/libfsimage.so
 %attr(755,root,root) %{_libdir}/libvhd.so
@@ -791,9 +764,6 @@ fi
 %{_includedir}/_libxl_list.h
 %{_includedir}/_libxl_types.h
 %{_includedir}/_libxl_types_json.h
-%if %{with blktap1}
-%{_includedir}/blktaplib.h
-%endif
 %{_includedir}/fsimage*.h
 %{_includedir}/libxenvchan.h
 %{_includedir}/libxl*.h
@@ -801,12 +771,11 @@ fi
 %{_includedir}/xs*.h
 %{_includedir}/xen
 %{_includedir}/xenstore-compat
+%{_npkgconfigdir}/xenlight.pc
+%{_npkgconfigdir}/xlutil.pc
 
 %files static
 %defattr(644,root,root,755)
-%if %{with blktap1}
-%{_libdir}/libblktap.a
-%endif
 %{_libdir}/libblktapctl.a
 %{_libdir}/libvhd.a
 %{_libdir}/libxenctrl.a
@@ -873,6 +842,7 @@ fi
 %attr(755,root,root) %{py_sitedir}/fsimage.so
 %dir %{py_sitedir}/xen/lowlevel
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/xc.so
+%{py_sitedir}/xen/migration
 %{py_sitedir}/grub
 %if "%{py_ver}" > "2.4"
 %{py_sitedir}/pygrub-0.3-py*.egg-info

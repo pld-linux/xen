@@ -112,6 +112,7 @@ Patch19:	%{name}-no_Werror.patch
 Patch20:	%{name}-gnutls-3.4.patch
 Patch21:	%{name}-grep-typo.patch
 Patch22:	%{name}-stubdom-build.patch
+Patch23:	link.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -409,6 +410,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
+%patch23 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

@@ -67,7 +67,6 @@ Source19:	ftp://ftp.gmplib.org/pub/gmp-%{gmp_version}/gmp-%{gmp_version}.tar.bz2
 Source35:	xenconsoled.sysconfig
 Source37:	xenstored.sysconfig
 Source38:	xenstored.tmpfiles
-Source43:	xendomains.sh
 # sysvinit scripts
 Source46:	xen-qemu-dom0-disk-backend.init
 Source51:	xenconsoled.init
@@ -483,7 +482,7 @@ install -d $RPM_BUILD_ROOT/etc/efi-boot/update.d
 
 install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
 install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored
-install %{SOURCE43} $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/xendomains.sh
+
 # sysvinit scripts
 %{__rm} $RPM_BUILD_ROOT/etc/rc.d/init.d/*
 %{__rm} $RPM_BUILD_ROOT/etc/sysconfig/xencommons
@@ -506,7 +505,7 @@ sed -e's;@libdir@;%{_libdir};g' -e's;@target_cpu@;%{_target_cpu};g' \
 			%{SOURCE58} > $RPM_BUILD_ROOT/etc/efi-boot/update.d/xen.conf
 %endif
 
-mv $RPM_BUILD_ROOT/etc/xen/{xlexample*,examples}
+%{__mv} $RPM_BUILD_ROOT/etc/xen/{xlexample*,examples}
 
 install %{SOURCE59} $RPM_BUILD_ROOT%{_sysconfdir}/xen/scripts/vif-openvswitch
 
@@ -672,9 +671,6 @@ fi
 %{_libdir}/%{name}/boot/xenstore-stubdom.gz
 %endif
 %attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
-%{_mandir}/man1/xenstore-chmod.1*
-%{_mandir}/man1/xenstore-ls.1*
-%{_mandir}/man1/xenstore.1*
 %{_mandir}/man1/xentop.1*
 %{_mandir}/man1/xentrace_format.1*
 %{_mandir}/man1/xl.1*
@@ -696,7 +692,19 @@ fi
 %files guest
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/xen-detect
-%attr(755,root,root) %{_bindir}/xenstore*
+%attr(755,root,root) %{_bindir}/xenstore
+%attr(755,root,root) %{_bindir}/xenstore-chmod
+%attr(755,root,root) %{_bindir}/xenstore-control
+%attr(755,root,root) %{_bindir}/xenstore-exists
+%attr(755,root,root) %{_bindir}/xenstore-list
+%attr(755,root,root) %{_bindir}/xenstore-ls
+%attr(755,root,root) %{_bindir}/xenstore-read
+%attr(755,root,root) %{_bindir}/xenstore-rm
+%attr(755,root,root) %{_bindir}/xenstore-watch
+%attr(755,root,root) %{_bindir}/xenstore-write
+%{_mandir}/man1/xenstore.1*
+%{_mandir}/man1/xenstore-chmod.1*
+%{_mandir}/man1/xenstore-ls.1*
 
 %files libs
 %defattr(644,root,root,755)
@@ -824,6 +832,7 @@ fi
 %files -n python-xen
 %defattr(644,root,root,755)
 %attr(755,root,root) %{py_sitedir}/fsimage.so
+%dir %{py_sitedir}/xen
 %dir %{py_sitedir}/xen/lowlevel
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/xc.so
 %{py_sitedir}/xen/migration

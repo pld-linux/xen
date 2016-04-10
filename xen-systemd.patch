@@ -1,0 +1,30 @@
+--- xen-4.6.1/tools/hotplug/Linux/systemd/xenconsoled.service.in.orig	2016-04-10 22:41:41.095161609 +0900
++++ xen-4.6.1/tools/hotplug/Linux/systemd/xenconsoled.service.in	2016-04-10 22:42:13.745756123 +0900
+@@ -7,13 +7,13 @@
+ [Service]
+ Type=simple
+ Environment=XENCONSOLED_ARGS=
+-Environment=XENCONSOLED_TRACE=none
++Environment=XENCONSOLED_LOG=none
+ Environment=XENCONSOLED_LOG_DIR=@XEN_LOG_DIR@/console
+-EnvironmentFile=@CONFIG_DIR@/@CONFIG_LEAF_DIR@/xencommons
++EnvironmentFile=-@CONFIG_DIR@/@CONFIG_LEAF_DIR@/xenconsoled
+ PIDFile=@XEN_RUN_DIR@/xenconsoled.pid
+ ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
+ ExecStartPre=/bin/mkdir -p ${XENCONSOLED_LOG_DIR}
+-ExecStart=@sbindir@/xenconsoled --pid-file @XEN_RUN_DIR@/xenconsoled.pid --log=${XENCONSOLED_TRACE} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
++ExecStart=@sbindir@/xenconsoled --pid-file @XEN_RUN_DIR@/xenconsoled.pid --log=${XENCONSOLED_LOG} --log-dir=${XENCONSOLED_LOG_DIR} $XENCONSOLED_ARGS
+ 
+ [Install]
+ WantedBy=multi-user.target
+--- xen-4.6.1/tools/hotplug/Linux/systemd/xenstored.service.in.orig	2016-04-10 22:43:44.334072370 +0900
++++ xen-4.6.1/tools/hotplug/Linux/systemd/xenstored.service.in	2016-04-10 22:44:19.164706660 +0900
+@@ -11,7 +11,7 @@
+ KillMode=none
+ Environment=XENSTORED_ARGS=
+ Environment=XENSTORED=@XENSTORED@
+-EnvironmentFile=-@CONFIG_DIR@/@CONFIG_LEAF_DIR@/xencommons
++EnvironmentFile=-@CONFIG_DIR@/@CONFIG_LEAF_DIR@/xenstored
+ ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
+ ExecStartPre=-/bin/rm -f @XEN_LIB_STORED@/tdb*
+ ExecStartPre=/bin/mkdir -p @XEN_RUN_DIR@

@@ -1,7 +1,5 @@
 #
 # TODO:
-#  - verify upstream systemd .services vs SOURCES
-#    at least patch to use PLD-specific 
 #  - check if other tools/libs are not usable in domU, move them to -guest
 #    packages if so
 #  - pass bconds to qemu configure script (tricky, as the script is called from
@@ -66,11 +64,7 @@ Source18:	http://xenbits.xen.org/xen-extfiles/tpm_emulator-%{tpm_emulator_versio
 # Source18-md5:	e26becb8a6a2b6695f6b3e8097593db8
 Source19:	ftp://ftp.gmplib.org/pub/gmp-%{gmp_version}/gmp-%{gmp_version}.tar.bz2
 # Source19-md5:	dd60683d7057917e34630b4a787932e8
-#Source34:	xenconsoled.service
-# XXX: upstream xenconsoled expects xencommons
 Source35:	xenconsoled.sysconfig
-#Source36:	xenstored.service
-# XXX: upstream xenstored expects xencommons
 Source37:	xenstored.sysconfig
 Source38:	xenstored.tmpfiles
 Source43:	xendomains.sh
@@ -107,6 +101,7 @@ Patch20:	%{name}-gnutls-3.4.patch
 Patch21:	%{name}-grep-typo.patch
 Patch22:	%{name}-stubdom-build.patch
 Patch23:	link.patch
+Patch24:	%{name}-systemd.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -405,6 +400,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch24 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -485,9 +481,7 @@ install -d $RPM_BUILD_ROOT/etc/efi-boot/update.d
 	DESTDIR=$RPM_BUILD_ROOT \
 	HOTPLUGS=install-udev
 
-#install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
 install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
-#install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
 install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored
 install %{SOURCE43} $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/xendomains.sh
 # sysvinit scripts

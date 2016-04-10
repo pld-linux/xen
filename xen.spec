@@ -66,8 +66,6 @@ Source18:	http://xenbits.xen.org/xen-extfiles/tpm_emulator-%{tpm_emulator_versio
 # Source18-md5:	e26becb8a6a2b6695f6b3e8097593db8
 Source19:	ftp://ftp.gmplib.org/pub/gmp-%{gmp_version}/gmp-%{gmp_version}.tar.bz2
 # Source19-md5:	dd60683d7057917e34630b4a787932e8
-#Source30:	proc-xen.mount
-#Source31:	var-lib-xenstored.mount
 #Source34:	xenconsoled.service
 # XXX: upstream xenconsoled expects xencommons
 Source35:	xenconsoled.sysconfig
@@ -75,13 +73,9 @@ Source35:	xenconsoled.sysconfig
 # XXX: upstream xenstored expects xencommons
 Source37:	xenstored.sysconfig
 Source38:	xenstored.tmpfiles
-#Source41:	xen-watchdog.service
-#Source42:	xen-dom0-modules-load.conf
 Source43:	xendomains.sh
-#Source44:	xendomains.service
-#Source45:	xen-qemu-dom0-disk-backend.service
-Source46:	xen-qemu-dom0-disk-backend.init
 # sysvinit scripts
+Source46:	xen-qemu-dom0-disk-backend.init
 Source51:	xenconsoled.init
 Source52:	xenstored.init
 Source53:	xen-watchdog.init
@@ -491,17 +485,11 @@ install -d $RPM_BUILD_ROOT/etc/efi-boot/update.d
 	DESTDIR=$RPM_BUILD_ROOT \
 	HOTPLUGS=install-udev
 
-#install %{SOURCE30} $RPM_BUILD_ROOT%{systemdunitdir}/proc-xen.mount
-#install %{SOURCE31} $RPM_BUILD_ROOT%{systemdunitdir}/var-lib-xenstored.mount
 #install %{SOURCE34} $RPM_BUILD_ROOT%{systemdunitdir}/xenconsoled.service
 install %{SOURCE35} $RPM_BUILD_ROOT/etc/sysconfig/xenconsoled
 #install %{SOURCE36} $RPM_BUILD_ROOT%{systemdunitdir}/xenstored.service
 install %{SOURCE37} $RPM_BUILD_ROOT/etc/sysconfig/xenstored
-#install %{SOURCE41} $RPM_BUILD_ROOT%{systemdunitdir}/xen-watchdog.service
-#install %{SOURCE42} $RPM_BUILD_ROOT/etc/modules-load.d/xen-dom0.conf
 install %{SOURCE43} $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/xendomains.sh
-#install %{SOURCE44} $RPM_BUILD_ROOT%{systemdunitdir}/xendomains.service
-#install %{SOURCE45} $RPM_BUILD_ROOT%{systemdunitdir}/xen-qemu-dom0-disk-backend.service
 # sysvinit scripts
 %{__rm} $RPM_BUILD_ROOT/etc/rc.d/init.d/*
 %{__rm} $RPM_BUILD_ROOT/etc/sysconfig/xencommons

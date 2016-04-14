@@ -515,8 +515,6 @@ for tool in blktap2 pygrub ; do
 	cp -p tools/$tool/README _doc/README.$tool
 done
 
-cp -p xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
-
 %py_comp $RPM_BUILD_ROOT%{py_sitedir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
 
@@ -524,6 +522,7 @@ cp -p xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
 
 # remove unneeded files
 %if %{with hypervisor}
+%{__mv} xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.6.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif

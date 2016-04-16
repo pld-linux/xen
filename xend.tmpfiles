@@ -1,2 +1,0 @@
-d /var/run/xend 0700 root root -
-d /var/run/xend/boot 0700 root root -

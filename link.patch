@@ -1,0 +1,10 @@
+--- xen-4.6.1/tools/xenstat/libxenstat/Makefile~	2016-02-09 23:44:19.000000000 +0900
++++ xen-4.6.1/tools/xenstat/libxenstat/Makefile	2016-04-08 23:28:51.182021927 +0900
+@@ -24,6 +24,7 @@
+ LIB=src/libxenstat.a
+ SHLIB=src/libxenstat.so.$(MAJOR).$(MINOR)
+ SHLIB_LINKS=src/libxenstat.so.$(MAJOR) src/libxenstat.so
++SHLIB_LDFLAGS += -lyajl
+ OBJECTS-y=src/xenstat.o src/xenstat_qmp.o
+ OBJECTS-$(CONFIG_Linux) += src/xenstat_linux.o
+ OBJECTS-$(CONFIG_SunOS) += src/xenstat_solaris.o

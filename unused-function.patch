@@ -1,0 +1,20 @@
+--- xen-4.6.5/tools/xentrace/xenalyze.c~	2017-04-14 13:49:33.000000000 +0200
++++ xen-4.6.5/tools/xentrace/xenalyze.c	2017-04-14 13:53:51.117184985 +0200
+@@ -4128,7 +4128,7 @@
+     struct cr3_value_struct *p;
+     struct cr3_value_struct **qsort_array;
+     int i, N=0;
+-
++#if 0
+     int cr3_compare_total(const void *_a, const void *_b) {
+         struct cr3_value_struct *a=*(typeof(&a))_a;
+         struct cr3_value_struct *b=*(typeof(&a))_b;
+@@ -4145,7 +4145,7 @@
+         } else
+             return -1;
+     }
+-
++#endif
+     int cr3_compare_start(const void *_a, const void *_b) {
+         struct cr3_value_struct *a=*(typeof(&a))_a;
+         struct cr3_value_struct *b=*(typeof(&a))_b;

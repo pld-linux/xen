@@ -1,0 +1,150 @@
+From ebdba150bff1d914805d60efa576337bbef0c305 Mon Sep 17 00:00:00 2001
+From: Ian Campbell <ian.campbell@citrix.com>
+Date: Fri, 22 Jan 2016 14:27:28 +0000
+Subject: [PATCH] xenalyze: fix misleading indentation.
+
+gcc-6 adds -Wmisleading-indentation which found these issues.
+
+xenalyze.c: In function 'weighted_percentile':
+xenalyze.c:2136:18: error: statement is indented as if it were guarded by... [-Werror=misleading-indentation]
+             L=I; L_weight = I_weight;
+                  ^~~~~~~~
+
+xenalyze.c:2135:9: note: ...this 'if' clause, but it is not
+         if(J_weight<K_weight)
+         ^~
+
+xenalyze.c:2138:18: error: statement is indented as if it were guarded by... [-Werror=misleading-indentation]
+             R=J; R_weight = J_weight;
+                  ^~~~~~~~
+
+xenalyze.c:2137:9: note: ...this 'if' clause, but it is not
+         if(K_weight<I_weight)
+         ^~
+
+xenalyze.c: In function 'self_weighted_percentile':
+xenalyze.c:2215:18: error: statement is indented as if it were guarded by... [-Werror=misleading-indentation]
+             L=I; L_weight = I_weight;
+                  ^~~~~~~~
+
+xenalyze.c:2214:9: note: ...this 'if' clause, but it is not
+         if(J_weight<K_weight)
+         ^~
+
+xenalyze.c:2217:18: error: statement is indented as if it were guarded by... [-Werror=misleading-indentation]
+             R=J; R_weight = J_weight;
+                  ^~~~~~~~
+
+xenalyze.c:2216:9: note: ...this 'if' clause, but it is not
+         if(K_weight<I_weight)
+         ^~
+
+I've modified according to what I think the intention is, i.e. added braces
+rather than moving the line in question out a level.
+
+I have only build tested the result.
+
+Signed-off-by: Ian Campbell <ian.campbell@citrix.com>
+Reviewed-by: George Dunlap <george.dunlap@citrix.com>
+---
+ tools/xentrace/xenalyze.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
+
+diff --git a/tools/xentrace/xenalyze.c b/tools/xentrace/xenalyze.c
+index 5a2735c..4bcaf83 100644
+--- a/tools/xentrace/xenalyze.c
++++ b/tools/xentrace/xenalyze.c
+@@ -2132,10 +2132,14 @@ float weighted_percentile(float * A, /* values */
+         } while (I <= J); /* Keep going until our pointers meet or pass */
+ 
+         /* Re-adjust L and R, based on which element we're looking for */
+-        if(J_weight<K_weight)
+-            L=I; L_weight = I_weight;
+-        if(K_weight<I_weight)
+-            R=J; R_weight = J_weight;
++        if(J_weight<K_weight) {
++            L=I;
++            L_weight = I_weight;
++        }
++        if(K_weight<I_weight) {
++            R=J;
++            R_weight = J_weight;
++        }
+     }
+ 
+     return A[L];
+@@ -2211,10 +2215,14 @@ long long self_weighted_percentile(long long * A,
+         } while (I <= J); /* Keep going until our pointers meet or pass */
+ 
+         /* Re-adjust L and R, based on which element we're looking for */
+-        if(J_weight<K_weight)
+-            L=I; L_weight = I_weight;
+-        if(K_weight<I_weight)
+-            R=J; R_weight = J_weight;
++        if(J_weight<K_weight) {
++            L=I;
++            L_weight = I_weight;
++        }
++        if(K_weight<I_weight) {
++            R=J;
++            R_weight = J_weight;
++        }
+     }
+ 
+     return A[L];
+-- 
+2.1.4
+
+From 9fdffbbab3ada427bac07076f042f0265e5ae05f Mon Sep 17 00:00:00 2001
+From: =?utf8?q?C=C3=A9dric=20Bosdonnat?= <cbosdonnat@suse.com>
+Date: Thu, 10 Nov 2016 10:23:31 +0100
+Subject: [PATCH] Fix misleading indentation warnings
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf8
+Content-Transfer-Encoding: 8bit
+
+Gcc6 build reports misleading indentation as warnings. Fix a few
+warnings in stubdom.
+
+Signed-off-by: CÃ©dric Bosdonnat <cbosdonnat@suse.com>
+Acked-by: Daniel De Graaf <dgdegra@tycho.nsa.gov>
+Acked-by: Quan Xu <xuquan8@huawei.com>
+Release-acked-by: Wei Liu <wei.liu2@citrix.com>
+---
+ stubdom/vtpmmgr/disk_read.c | 8 ++++----
+ stubdom/vtpmmgr/log.c       | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/stubdom/vtpmmgr/disk_read.c b/stubdom/vtpmmgr/disk_read.c
+index 944d3ff..48cfbfe 100644
+--- a/stubdom/vtpmmgr/disk_read.c
++++ b/stubdom/vtpmmgr/disk_read.c
+@@ -123,10 +123,10 @@ static int parse_root_key(struct mem_tpm_mgr *dst, struct disk_seal_entry *src)
+ 	struct disk_root_sealed_data sealed;
+ 
+     /*TPM 2.0 unbind | TPM 1.x unseal*/
+-    if (hw_is_tpm2())
+-        rc = TPM2_disk_unbind(&sealed, &olen, src);
+-    else
+-        rc = TPM_disk_unseal(&sealed, sizeof(sealed), src);
++	if (hw_is_tpm2())
++		rc = TPM2_disk_unbind(&sealed, &olen, src);
++	else
++		rc = TPM_disk_unseal(&sealed, sizeof(sealed), src);
+ 
+ 	if (rc)
+ 		return rc;
+diff --git a/stubdom/vtpmmgr/log.c b/stubdom/vtpmmgr/log.c
+index a82c913..c1bc8f3 100644
+--- a/stubdom/vtpmmgr/log.c
++++ b/stubdom/vtpmmgr/log.c
+@@ -147,5 +147,5 @@ const char* tpm_get_error_name (TPM_RESULT code) {
+     if (code == error_msgs[i].code)
+       return error_msgs[i].code_name;
+ 
+-    return("Unknown Error Code");
++  return("Unknown Error Code");
+ }
+-- 
+2.1.4
+

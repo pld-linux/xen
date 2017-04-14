@@ -39,12 +39,12 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.6.1
+Version:	4.6.5
 Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	df2d854c3c90ffeefaf71e7f868fb326
+# Source0-md5:	63c80317ee662fb237d709d6c4e161c8
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -95,12 +95,14 @@ Patch15:	odd-glib2-fix.patch
 Patch16:	%{name}-gmp-abi.patch
 Patch18:	%{name}-make.patch
 Patch19:	%{name}-no_Werror.patch
-# http://git.alpinelinux.org/cgit/aports/plain/main/xen/gnutls-3.4.0.patch
-Patch20:	%{name}-gnutls-3.4.patch
-Patch21:	%{name}-grep-typo.patch
 Patch22:	%{name}-stubdom-build.patch
 Patch23:	link.patch
 Patch24:	%{name}-systemd.patch
+Patch25:	fix-misleading-indentation.patch
+Patch26:	deprecated-readdir_r.patch
+Patch27:	ipxe-build.patch
+Patch28:	sysmacros.patch
+Patch29:	unused-function.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -395,11 +397,14 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch16 -p1
 %patch18 -p1
 %patch19 -p1
-%patch20 -p1
-%patch21 -p1
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+%patch28 -p1
+%patch29 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

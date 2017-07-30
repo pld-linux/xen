@@ -20,7 +20,7 @@
 %bcond_without	stubdom			# stubdom build
 %bcond_without	xsm			# XSM security module (by default, Flask)
 
-%ifnarch %{x8664} arm
+%ifnarch %{x8664} %{arm}
 %undefine	with_hypervisor
 %endif
 %ifnarch %{x8664}
@@ -39,12 +39,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.6.5
-Release:	2
+Version:	4.6.6
+Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
-Source0:	http://bits.xensource.com/oss-xen/release/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	63c80317ee662fb237d709d6c4e161c8
+# for available versions see https://www.xenproject.org/developers/teams/hypervisor.html
+Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
+# Source0-md5:	698328dcac775c8ccef0da3167020b19
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -115,22 +116,24 @@ BuildRequires:	bzip2-devel
 %if %{with xsm}
 BuildRequires:	checkpolicy
 %endif
+# tpm_emulator uses cmake
+BuildRequires:	cmake >= 2.4
 BuildRequires:	curl-devel
 BuildRequires:	cyrus-sasl-devel >= 2
 BuildRequires:	e2fsprogs-devel
+BuildRequires:	fig2dev
 BuildRequires:	gcc >= 6:4.1
 %ifarch %{x8664}
 BuildRequires:	gcc-multilib-32 >= 6:4.1
 %endif
 BuildRequires:	gettext-tools
-BuildRequires:	glib2-devel >= 1:2.12
 BuildRequires:	gnutls-devel
 BuildRequires:	keyutils-devel
 BuildRequires:	latex2html >= 2008
 BuildRequires:	libaio-devel
 BuildRequires:	libcap-devel
-%ifarch arm aarch64
-BuildRequires:	libfdt-devel
+%ifarch %{arm} aarch64
+BuildRequires:	libfdt-devel >= 1.4.0
 %endif
 BuildRequires:	libjpeg-devel
 BuildRequires:	libnl-devel >= 3.2.8
@@ -148,7 +151,7 @@ BuildRequires:	pciutils-devel
 BuildRequires:	perl-base
 BuildRequires:	perl-tools-pod
 BuildRequires:	pkgconfig
-BuildRequires:	python-devel
+BuildRequires:	python-devel >= 2
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	seabios
@@ -156,10 +159,7 @@ BuildRequires:	texi2html
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	texlive-xetex
-BuildRequires:	transfig
 BuildRequires:	which
-# for xfsctl (<xfs/xfs.h>)
-BuildRequires:	xfsprogs-devel
 BuildRequires:	xz-devel
 BuildRequires:	yajl-devel
 BuildRequires:	zlib-devel
@@ -168,7 +168,11 @@ BuildRequires:	zlib-devel
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
 %{?with_bluetooth:BuildRequires:	bluez-libs-devel}
 %{?with_brlapi:BuildRequires:	brlapi-devel}
+BuildRequires:	glib2-devel >= 1:2.12
+BuildRequires:	pixman-devel >= 0.21.8
 BuildRequires:	vde2-devel
+# for xfsctl (<xfs/xfs.h>)
+BuildRequires:	xfsprogs-devel
 BuildRequires:	xorg-lib-libX11-devel
 BuildRequires:	xorg-lib-libXext-devel
 %endif
@@ -198,14 +202,14 @@ Requires:	systemd-units >= 38
 Requires:	util-linux
 Requires:	which
 Requires:	%{name}-guest = %{version}-%{release}
-Obsoletes:	xen-doc
-Obsoletes:	xen-udev
-Obsoletes:	xen-xend
-ExclusiveArch:	%{ix86} %{x8664} arm
 %ifarch %{ix86} %{x8664}
 # for HVM
 Suggests:	qemu-system-x86
 %endif
+Obsoletes:	xen-doc
+Obsoletes:	xen-udev
+Obsoletes:	xen-xend
+ExclusiveArch:	%{ix86} %{x8664} %{arm} aarch64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 # some PPC/SPARC boot images in ELF format
@@ -254,6 +258,7 @@ Summary:	Xen libraries
 Summary(pl.UTF-8):	Biblioteki Xena
 Group:		Libraries
 Requires:	%{name}-libs-guest = %{version}-%{release}
+Requires:	libnl >= 3.2.8
 
 %description libs
 Xen libraries.

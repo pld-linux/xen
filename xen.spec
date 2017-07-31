@@ -39,13 +39,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.6.6
-Release:	1
+Version:	4.9.0
+Release:	0.1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://www.xenproject.org/developers/teams/hypervisor.html
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	698328dcac775c8ccef0da3167020b19
+# Source0-md5:	f0a753637630f982dfbdb64121fd71e1
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -57,8 +57,8 @@ Source13:	%{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
 # Source13-md5:	cec05e7785497c5e19da2f114b934ffd
 Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
-Source15:	http://xenbits.xen.org/xen-extfiles/ipxe-git-9a93db3f0947484e30e753bbd61a10b17336e20e.tar.gz
-# Source15-md5:	7496268cebf47d5c9ccb0696e3b26065
+Source15:	http://xenbits.xen.org/xen-extfiles/ipxe-git-827dd1bfee67daa683935ce65316f7e0f057fe1c.tar.gz
+# Source15-md5:	71c69b5e1db9e01d5f246226eca03c22
 Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
 # Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
 Source18:	http://xenbits.xen.org/xen-extfiles/tpm_emulator-%{tpm_emulator_version}.tar.gz
@@ -83,27 +83,22 @@ Source60:	xen-init-list
 Source61:	xen-toolstack
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
-Patch2:		%{name}-curses.patch
+Patch2:		%{name}-link.patch
 Patch3:		pygrubfix.patch
+Patch4:		%{name}-pkgconfigdir.patch
 # Warning: this disables ingress filtering implemented in xen scripts!
 Patch7:		%{name}-net-disable-iptables-on-bridge.patch
-Patch9:		%{name}-gawk.patch
 Patch10:	%{name}-qemu.patch
 Patch12:	%{name}-doc.patch
 Patch13:	%{name}-paths.patch
 Patch14:	%{name}-no_fetcher.patch
 Patch15:	odd-glib2-fix.patch
-Patch16:	%{name}-gmp-abi.patch
 Patch18:	%{name}-make.patch
 Patch19:	%{name}-no_Werror.patch
 Patch22:	%{name}-stubdom-build.patch
 Patch23:	link.patch
 Patch24:	%{name}-systemd.patch
-Patch25:	fix-misleading-indentation.patch
-Patch26:	deprecated-readdir_r.patch
-Patch27:	ipxe-build.patch
 Patch28:	sysmacros.patch
-Patch29:	unused-function.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -147,11 +142,13 @@ BuildRequires:	ocaml-findlib
 %endif
 BuildRequires:	nss-devel >= 3.12.8
 BuildRequires:	openssl-devel
+BuildRequires:	pandoc
 BuildRequires:	pciutils-devel
 BuildRequires:	perl-base
 BuildRequires:	perl-tools-pod
 BuildRequires:	pkgconfig
 BuildRequires:	python-devel >= 2
+BuildRequires:	python-markdown
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	seabios
@@ -392,24 +389,19 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 %patch7 -p1
-%patch9 -p1
 %patch10 -p1
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
-%patch16 -p1
 %patch18 -p1
 %patch19 -p1
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
-%patch25 -p1
-%patch26 -p1
-%patch27 -p1
 %patch28 -p1
-%patch29 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -609,8 +601,7 @@ fi
 %{systemdunitdir}/xen-watchdog.service
 %{systemdunitdir}/xenconsoled.service
 %{systemdunitdir}/xenstored.service
-%{systemdunitdir}/xenstored.socket
-%{systemdunitdir}/xenstored_ro.socket
+%{systemdunitdir}/xendriverdomain.service
 %{systemdunitdir}/xendomains.service
 %{systemdunitdir}/xen-qemu-dom0-disk-backend.service
 %dir %{_sysconfdir}/xen
@@ -627,6 +618,7 @@ fi
 %attr(755,root,root) %{_bindir}/qemu-img-xen
 %attr(755,root,root) %{_bindir}/qemu-nbd-xen
 %endif
+%attr(755,root,root) %{_bindir}/xen-cpuid
 %attr(755,root,root) %{_bindir}/xenalyze
 %attr(755,root,root) %{_bindir}/xencons
 %attr(755,root,root) %{_bindir}/xencov_split
@@ -635,7 +627,6 @@ fi
 %attr(755,root,root) %{_sbindir}/flask-*
 %endif
 %attr(755,root,root) %{_sbindir}/gdbsx
-%attr(755,root,root) %{_sbindir}/gtrace*
 %attr(755,root,root) %{_sbindir}/img2qcow
 %attr(755,root,root) %{_sbindir}/kdd
 %attr(755,root,root) %{_sbindir}/lock-util
@@ -685,7 +676,16 @@ fi
 %{_mandir}/man1/xl.1*
 %{_mandir}/man5/xl.cfg.5*
 %{_mandir}/man5/xl.conf.5*
+%{_mandir}/man5/xl-disk-configuration.5*
+%{_mandir}/man5/xl-network-configuration.5*
 %{_mandir}/man5/xlcpupool.cfg.5*
+%{_mandir}/man7/xen-pci-device-reservations.7*
+%{_mandir}/man7/xen-pv-channel.7*
+%{_mandir}/man7/xen-tscmode.7*
+%{_mandir}/man7/xen-vbd-interface.7*
+%{_mandir}/man7/xen-vtpm.7*
+%{_mandir}/man7/xen-vtpmmgr.7*
+%{_mandir}/man7/xl-numa-placement.7*
 %{_mandir}/man8/xentrace.8*
 %{_sharedstatedir}/xen
 %{_sharedstatedir}/xenstored
@@ -723,18 +723,30 @@ fi
 %attr(755,root,root) %ghost %{_libdir}/libfsimage.so.1.0
 %attr(755,root,root) %{_libdir}/libvhd.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libvhd.so.1.0
+%attr(755,root,root) %{_libdir}/libxencall.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxencall.so.1
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.6
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.9
+%attr(755,root,root) %{_libdir}/libxendevicemodel.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxendevicemodel.so.1
+%attr(755,root,root) %{_libdir}/libxenevtchn.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenevtchn.so.1
+%attr(755,root,root) %{_libdir}/libxenforeignmemory.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenforeignmemory.so.1
+%attr(755,root,root) %{_libdir}/libxengnttab.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxengnttab.so.1
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.6
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.9
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.6
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.9
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenstat.so.0
+%attr(755,root,root) %{_libdir}/libxentoollog.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxentoollog.so.1
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.1.0
+%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.9
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.6
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.9
 %dir %{_libdir}/fs
 %dir %{_libdir}/fs/ext2fs-lib
 %dir %{_libdir}/fs/fat
@@ -755,11 +767,17 @@ fi
 %attr(755,root,root) %{_libdir}/libblktapctl.so
 %attr(755,root,root) %{_libdir}/libfsimage.so
 %attr(755,root,root) %{_libdir}/libvhd.so
+%attr(755,root,root) %{_libdir}/libxencall.so
 %attr(755,root,root) %{_libdir}/libxenctrl.so
+%attr(755,root,root) %{_libdir}/libxendevicemodel.so
+%attr(755,root,root) %{_libdir}/libxenevtchn.so
+%attr(755,root,root) %{_libdir}/libxenforeignmemory.so
+%attr(755,root,root) %{_libdir}/libxengnttab.so
 %attr(755,root,root) %{_libdir}/libxenguest.so
 %attr(755,root,root) %{_libdir}/libxenlight.so
 %attr(755,root,root) %{_libdir}/libxenstat.so
 %attr(755,root,root) %{_libdir}/libxenstore.so
+%attr(755,root,root) %{_libdir}/libxentoollog.so
 %attr(755,root,root) %{_libdir}/libxenvchan.so
 %attr(755,root,root) %{_libdir}/libxlutil.so
 %{_includedir}/_libxl_list.h
@@ -772,19 +790,37 @@ fi
 %{_includedir}/xs*.h
 %{_includedir}/xen
 %{_includedir}/xenstore-compat
-%{_npkgconfigdir}/xenlight.pc
-%{_npkgconfigdir}/xlutil.pc
+%{_pkgconfigdir}/xenblktapctl.pc
+%{_pkgconfigdir}/xencall.pc
+%{_pkgconfigdir}/xencontrol.pc
+%{_pkgconfigdir}/xendevicemodel.pc
+%{_pkgconfigdir}/xenevtchn.pc
+%{_pkgconfigdir}/xenforeignmemory.pc
+%{_pkgconfigdir}/xengnttab.pc
+%{_pkgconfigdir}/xenguest.pc
+%{_pkgconfigdir}/xenlight.pc
+%{_pkgconfigdir}/xenstat.pc
+%{_pkgconfigdir}/xenstore.pc
+%{_pkgconfigdir}/xentoollog.pc
+%{_pkgconfigdir}/xenvchan.pc
+%{_pkgconfigdir}/xlutil.pc
 
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libblktapctl.a
 %{_libdir}/libvhd.a
+%{_libdir}/libxencall.a
 %{_libdir}/libxenctrl.a
+%{_libdir}/libxendevicemodel.a
+%{_libdir}/libxenevtchn.a
+%{_libdir}/libxenforeignmemory.a
+%{_libdir}/libxengnttab.a
 %{_libdir}/libxenguest.a
 %{_libdir}/libxenlight.a
 %{_libdir}/libxenvchan.a
 %{_libdir}/libxenstat.a
 %{_libdir}/libxenstore.a
+%{_libdir}/libxentoollog.a
 %{_libdir}/libxlutil.a
 
 %if %{with ocaml}

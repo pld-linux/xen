@@ -1,24 +1,10 @@
---- xen-4.6.1/extras/mini-os/Makefile~	2016-04-07 22:37:10.000000000 +0900
-+++ xen-4.6.1/extras/mini-os/Makefile	2016-04-07 22:41:43.295354712 +0900
-@@ -7,9 +7,9 @@
- OBJ_DIR=$(CURDIR)
- TOPLEVEL_DIR=$(CURDIR)
- 
--ifeq ($(MINIOS_CONFIG),)
- include Config.mk
--else
-+
-+ifneq ($(MINIOS_CONFIG),)
- EXTRA_DEPS += $(MINIOS_CONFIG)
- include $(MINIOS_CONFIG)
- endif
---- xen-4.6.1/stubdom/Makefile.orig	2016-04-07 23:04:54.871970996 +0900
-+++ xen-4.6.1/stubdom/Makefile	2016-04-07 23:06:06.096784272 +0900
-@@ -171,6 +171,7 @@
+--- xen-4.9.0/stubdom/Makefile.orig	2017-07-30 20:44:13.036244212 +0200
++++ xen-4.9.0/stubdom/Makefile	2017-07-30 21:04:31.269563636 +0200
+@@ -178,6 +178,7 @@
  	rm $@ -rf || :
  	mv gmp-$(GMP_VERSION) $@
  	#patch -d $@ -p0 < gmp.patch
 +	sed -i.bak 's/\(\s*\)\(fprintf (f,\)\(.*\)/\1\2\3\n\1clearerr(f);/' $@/configure
- 	cd $@; CPPFLAGS="-isystem $(CROSS_PREFIX)/$(GNU_TARGET_ARCH)-xen-elf/include $(TARGET_CPPFLAGS)" CFLAGS="$(TARGET_CFLAGS)" CC=$(CC) $(GMPEXT) ./configure --disable-shared --enable-static --disable-fft --without-readline --prefix=$(CROSS_PREFIX)/$(GNU_TARGET_ARCH)-xen-elf --build=$(GNU_TARGET_ARCH)
+ 	cd $@; CPPFLAGS="-isystem $(CROSS_PREFIX)/$(GNU_TARGET_ARCH)-xen-elf/include $(TARGET_CPPFLAGS)" CFLAGS="$(TARGET_CFLAGS)" CC=$(CC) $(GMPEXT) ./configure --disable-shared --enable-static --disable-fft --without-readline --prefix=$(CROSS_PREFIX)/$(GNU_TARGET_ARCH)-xen-elf --libdir=$(CROSS_PREFIX)/$(GNU_TARGET_ARCH)-xen-elf/lib --build=`gcc -dumpmachine` --host=$(GNU_TARGET_ARCH)-xen-elf
  	sed -i 's/#define HAVE_OBSTACK_VPRINTF 1/\/\/#define HAVE_OBSTACK_VPRINTF 1/' $@/config.h
  	touch $@

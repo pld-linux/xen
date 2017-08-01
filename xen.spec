@@ -39,6 +39,7 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
+# NOTE: 4.9.0 being prepared on DEVEL branch
 Version:	4.6.6
 Release:	1
 License:	GPL v2, interface parts on BSD-like

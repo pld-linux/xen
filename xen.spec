@@ -41,7 +41,7 @@ Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 # NOTE: 4.9.0 being prepared on DEVEL branch
 Version:	4.6.6
-Release:	1
+Release:	2
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://www.xenproject.org/developers/teams/hypervisor.html
@@ -105,6 +105,7 @@ Patch26:	deprecated-readdir_r.patch
 Patch27:	ipxe-build.patch
 Patch28:	sysmacros.patch
 Patch29:	unused-function.patch
+Patch30:	gcc9.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -411,6 +412,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch27 -p1
 %patch28 -p1
 %patch29 -p1
+%patch30 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

@@ -72,3 +72,14 @@ index cc294fc38473..d1ef81407b71 100644
  
  	for (i = 0; i < num_var_ranges; ++i) {
  		if (mtrr_state.var_ranges[i].mask & MTRR_PHYSMASK_VALID)
+--- xen-4.6.6/xen/arch/x86/mm.c~	2017-07-06 09:04:28.000000000 +0200
++++ xen-4.6.6/xen/arch/x86/mm.c	2019-10-27 14:02:41.582770616 +0100
+@@ -517,7 +517,7 @@
+     make_cr3(v, cr3_mfn);
+ }
+ 
+-static const char __section(".bss.page_aligned") zero_page[PAGE_SIZE];
++static const char __section(".bss.page_aligned.const") zero_page[PAGE_SIZE];
+ 
+ static void invalidate_shadow_ldt(struct vcpu *v, int flush)
+ {

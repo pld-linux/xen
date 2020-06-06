@@ -35,11 +35,11 @@
 %define tpm_emulator_version	0.7.4
 %define gmp_version		4.3.2
 
-%define	xen_extfiles_url	http://xenbits.xensource.com/xen-extfiles
+%define	xen_extfiles_url	https://xenbits.xensource.com/xen-extfiles
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.9.0
+Version:	4.13.1
 Release:	0.1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
@@ -57,11 +57,11 @@ Source13:	%{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
 # Source13-md5:	cec05e7785497c5e19da2f114b934ffd
 Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
-Source15:	http://xenbits.xen.org/xen-extfiles/ipxe-git-827dd1bfee67daa683935ce65316f7e0f057fe1c.tar.gz
+Source15:	%{xen_extfiles_url}/ipxe-git-1dd56dbd11082fb622c2ed21cfaced4f47d798a6.tar.gz
 # Source15-md5:	71c69b5e1db9e01d5f246226eca03c22
 Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
 # Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
-Source18:	http://xenbits.xen.org/xen-extfiles/tpm_emulator-%{tpm_emulator_version}.tar.gz
+Source18:	%{xen_extfiles_url}/tpm_emulator-%{tpm_emulator_version}.tar.gz
 # Source18-md5:	e26becb8a6a2b6695f6b3e8097593db8
 Source19:	ftp://ftp.gmplib.org/pub/gmp-%{gmp_version}/gmp-%{gmp_version}.tar.bz2
 # Source19-md5:	dd60683d7057917e34630b4a787932e8

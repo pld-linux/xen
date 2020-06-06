@@ -45,7 +45,7 @@ License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://www.xenproject.org/developers/teams/hypervisor.html
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	f0a753637630f982dfbdb64121fd71e1
+# Source0-md5:	e26fe8f9ce39463734e6ede45c6e11b8
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -58,7 +58,7 @@ Source13:	%{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
 Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
 Source15:	%{xen_extfiles_url}/ipxe-git-1dd56dbd11082fb622c2ed21cfaced4f47d798a6.tar.gz
-# Source15-md5:	71c69b5e1db9e01d5f246226eca03c22
+# Source15-md5:	b3ab0488a989a089207302111d12e1a0
 Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
 # Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
 Source18:	%{xen_extfiles_url}/tpm_emulator-%{tpm_emulator_version}.tar.gz

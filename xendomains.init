@@ -12,7 +12,7 @@ if ! [ -e /proc/xen/privcmd ]; then
 	exit 0
 fi
 
-TOOLSTACK=$(/usr/lib/xen/bin/xen-toolstack toolstack 2>/dev/null)
+TOOLSTACK=$(/usr/libexec/xen/bin/xen-toolstack toolstack 2>/dev/null)
 if [ $? -ne 0 ]; then
 	echo "No usable Xen toolstack selected"
 	exit 0
@@ -21,7 +21,7 @@ if [ "$(basename "$TOOLSTACK")" != xl ] && [ "$(basename "$TOOLSTACK")" != xm ];
 	exit 0
 fi
 
-if ! /usr/lib/xen/bin/xen-toolstack list >/dev/null 2>&1 ; then
+if ! /usr/libexec/xen/bin/xen-toolstack list >/dev/null 2>&1 ; then
 	exit 0;
 fi
 
@@ -31,12 +31,12 @@ shopt -s nullglob
 
 check_config_name()
 {
-	/usr/lib/xen/bin/xen-toolstack create --quiet --dryrun --defconfig "$1" | sed -n 's/^.*(name \(.*\))$/\1/p;s/^.*"name": "\(.*\)",$/\1/p'
+	/usr/libexec/xen/bin/xen-toolstack create --quiet --dryrun --defconfig "$1" | sed -n 's/^.*(name \(.*\))$/\1/p;s/^.*"name": "\(.*\)",$/\1/p'
 }
 
 check_running()
 {
-	/usr/lib/xen/bin/xen-toolstack domid "$1" >/dev/null 2>&1
+	/usr/libexec/xen/bin/xen-toolstack domid "$1" >/dev/null 2>&1
 	return $?
 }
 
@@ -92,7 +92,7 @@ do_start_restore()
 			show "Restoring Xen domain $name (from $file)"
 			busy
 
-			out=$(/usr/lib/xen/bin/xen-toolstack restore "$file" >/dev/null 2>&1)
+			out=$(/usr/libexec/xen/bin/xen-toolstack restore "$file" >/dev/null 2>&1)
 			case "$?" in
 				0)
 					rm "$file"
@@ -128,7 +128,7 @@ do_start_auto()
 			if [ "${domains[$name]}" = failed ]; then
 				fail
 			else
-				out=$(/usr/lib/xen/bin/xen-toolstack create --quiet --defconfig "$file" >/dev/null 2>&1)
+				out=$(/usr/libexec/xen/bin/xen-toolstack create --quiet --defconfig "$file" >/dev/null 2>&1)
 				case "$?" in
 					0)
 						ok
@@ -165,8 +165,8 @@ do_stop_migrate()
 	while read id name rest; do
 		show "Migrating Xen domain $name ($id)"
 		busy
-		(timeout_coproc "$XENDOMAINS_STOP_MAXWAIT" /usr/lib/xen/bin/xen-toolstack migrate $id $XENDOMAINS_MIGRATE)
-	done < <(/usr/lib/xen/bin/xen-init-list)
+		(timeout_coproc "$XENDOMAINS_STOP_MAXWAIT" /usr/libexec/xen/bin/xen-toolstack migrate $id $XENDOMAINS_MIGRATE)
+	done < <(/usr/libexec/xen/bin/xen-init-list)
 }
 
 do_stop_save()
@@ -177,8 +177,8 @@ do_stop_save()
 	while read id name rest; do
 		show "Saving Xen domain $name ($id)"
 		busy
-		(timeout_coproc "$XENDOMAINS_STOP_MAXWAIT" /usr/lib/xen/bin/xen-toolstack save $id $XENDOMAINS_SAVE/$name)
-	done < <(/usr/lib/xen/bin/xen-init-list)
+		(timeout_coproc "$XENDOMAINS_STOP_MAXWAIT" /usr/libexec/xen/bin/xen-toolstack save $id $XENDOMAINS_SAVE/$name)
+	done < <(/usr/libexec/xen/bin/xen-init-list)
 }
 
 do_stop_shutdown()
@@ -186,13 +186,13 @@ do_stop_shutdown()
 	while read id name rest; do
 		show "Shutting down Xen domain $name ($id)"
 		busy
-		/usr/lib/xen/bin/xen-toolstack shutdown $id >/dev/null 2>&1
+		/usr/libexec/xen/bin/xen-toolstack shutdown $id >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
 			ok
 		else
 			fail
 		fi
-	done < <(/usr/lib/xen/bin/xen-init-list)
+	done < <(/usr/libexec/xen/bin/xen-init-list)
 	while read id name rest; do
 		show "Waiting for Xen domain $name ($id) to shut down"
 		busy
@@ -202,7 +202,7 @@ do_stop_shutdown()
 		else
 			fail
 		fi
-	done < <(/usr/lib/xen/bin/xen-init-list)
+	done < <(/usr/libexec/xen/bin/xen-init-list)
 }
 
 do_stop()
@@ -236,7 +236,7 @@ case "$1" in
 		;;
 	status)
 		if [ -f /var/lock/subsys/xendomains ]; then
-			/usr/lib/xen/bin/xen-toolstack list -v
+			/usr/libexec/xen/bin/xen-toolstack list -v
 		fi
 		;;
 	*)

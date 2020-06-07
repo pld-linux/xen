@@ -1,22 +1,11 @@
-diff -dur -x '*~' xen-4.1.2.orig/Config.mk xen-4.1.2/Config.mk
---- xen-4.1.2.orig/Config.mk	2011-10-20 19:06:04.000000000 +0200
-+++ xen-4.1.2/Config.mk	2012-09-20 08:44:53.000000000 +0200
-@@ -14,7 +14,7 @@
+--- xen-4.9.0/Config.mk.orig	2017-07-30 20:40:20.116246872 +0200
++++ xen-4.9.0/Config.mk	2017-07-30 20:43:13.782911554 +0200
+@@ -29,7 +29,7 @@
+ SHELL     ?= /bin/sh
  
  # Tools to run on system hosting the build
- HOSTCC      = gcc
 -HOSTCFLAGS  = -Wall -Werror -Wstrict-prototypes -O2 -fomit-frame-pointer
 +HOSTCFLAGS  = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
  HOSTCFLAGS += -fno-strict-aliasing
  
  DISTDIR     ?= $(XEN_ROOT)/dist
---- xen-4.4.1/tools/blktap2/drivers/Makefile~	2014-09-02 08:20:19.000000000 +0200
-+++ xen-4.4.1/tools/blktap2/drivers/Makefile	2014-12-13 19:19:17.070688454 +0100
-@@ -4,7 +4,6 @@
- LOCK_UTIL  = lock-util
- INST_DIR   = $(sbindir)
- 
--CFLAGS    += -Werror
- CFLAGS    += -Wno-unused
- CFLAGS    += -fno-strict-aliasing
- CFLAGS    += -I$(BLKTAP_ROOT)/include -I$(BLKTAP_ROOT)/drivers

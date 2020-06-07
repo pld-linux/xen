@@ -7,6 +7,6 @@ diff -dur xen-4.2.0.orig/tools/libfsimage/common/Makefile xen-4.2.0/tools/libfsi
  LDFLAGS-$(CONFIG_SunOS) = -Wl,-M -Wl,mapfile-SunOS
 -LDFLAGS-$(CONFIG_Linux) = -Wl,mapfile-GNU
 +LDFLAGS-$(CONFIG_Linux) = -Wl,mapfile-GNU -ldl
- LDFLAGS = $(LDFLAGS-y)
+ LDFLAGS += $(LDFLAGS-y)
  
  CFLAGS += $(PTHREAD_CFLAGS)

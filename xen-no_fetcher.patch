@@ -1,9 +1,10 @@
 diff -dur xen-4.3.0.orig/m4/fetcher.m4 xen-4.3.0/m4/fetcher.m4
 --- xen-4.3.0.orig/m4/fetcher.m4	2013-07-09 12:46:56.000000000 +0200
 +++ xen-4.3.0/m4/fetcher.m4	2013-10-05 18:39:42.948294115 +0200
-@@ -1,14 +1,4 @@
+@@ -1,16 +1,4 @@
  AC_DEFUN([AX_CHECK_FETCHER], [
 -AC_PATH_PROG([WGET],[wget], [no])
+-AC_PATH_PROG([FALSE],[false], [/bin/false])
 -AS_IF([test x"$WGET" != x"no"], [
 -    FETCHER="$WGET -c -O"
 -], [
@@ -11,7 +12,8 @@ diff -dur xen-4.3.0.orig/m4/fetcher.m4 xen-4.3.0/m4/fetcher.m4
 -    AS_IF([test x"$FTP" != x"no"], [
 -        FETCHER="$FTP -o"
 -    ], [
--        AC_MSG_ERROR([cannot find wget or ftp])
+-        FETCHER="$FALSE"
+-        AC_MSG_WARN([cannot find wget or ftp])
 -    ])
 -])
 +FETCHER="/bin/false Refusing to download"

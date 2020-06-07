@@ -449,6 +449,12 @@ export EXTRA_CFLAGS_QEMU_TRADITIONAL="%{rpmcflags} -I/usr/include/ncurses"
 export EXTRA_CFLAGS_QEMU_XEN="%{rpmcflags} -I/usr/include/ncurses"
 
 %{__make} dist-xen dist-tools dist-docs \
+%ifarch %{ix86}
+	XEN_COMPILE_ARCH=x86_32 \
+%endif
+%ifarch %{x8664}
+	XEN_COMPILE_ARCH=x86_64 \
+%endif
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	CC="%{__cc}" \
@@ -457,6 +463,12 @@ export EXTRA_CFLAGS_QEMU_XEN="%{rpmcflags} -I/usr/include/ncurses"
 
 %if %{with stubdom}
 %{__make} dist-stubdom \
+%ifarch %{ix86}
+	XEN_COMPILE_ARCH=x86_32 \
+%endif
+%ifarch %{x8664}
+	XEN_COMPILE_ARCH=x86_64 \
+%endif
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	CC="%{__cc}" \
@@ -474,6 +486,12 @@ install -d $RPM_BUILD_ROOT/etc/efi-boot/update.d
 %endif
 
 %{__make} install-xen install-tools %{?with_stubdom:install-stubdom} install-docs \
+%ifarch %{ix86}
+	XEN_COMPILE_ARCH=x86_32 \
+%endif
+%ifarch %{x8664}
+	XEN_COMPILE_ARCH=x86_64 \
+%endif
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -661,7 +679,9 @@ fi
 %{_libexecdir}/%{name}/boot/xenstore-stubdom.gz
 %endif
 %{_libexecdir}/%{name}/boot/ipxe.bin
+%ifarch %{x8664}
 %{_libexecdir}/%{name}/boot/xen-shim
+%endif
 %attr(744,root,root) %{_libexecdir}/%{name}/boot/hvmloader
 %{_mandir}/man1/xentop.1*
 %{_mandir}/man1/xentrace_format.1*

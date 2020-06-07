@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 from __future__ import print_function
 
@@ -68,7 +68,7 @@ class DataSXP(Data):
 
 
 if __name__ == '__main__':
-    p = subprocess.check_output(('/usr/lib/xen/bin/xen-toolstack', 'list', '-l'))
+    p = subprocess.check_output(('/usr/libexec/xen/bin/xen-toolstack', 'list', '-l'))
     if p[0] == '(':
         d = DataSXP(p)
     else:

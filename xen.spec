@@ -495,8 +495,11 @@ install %{SOURCE56} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xen.conf
 install -d $RPM_BUILD_ROOT/var/run/xenstored
 install %{SOURCE38} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/xenstored.conf
 
-install %{SOURCE60} $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/xen-init-list
-install %{SOURCE61} $RPM_BUILD_ROOT%{_libdir}/%{name}/bin/xen-toolstack
+install %{SOURCE60} $RPM_BUILD_ROOT%{_libexecdir}/%{name}/bin/xen-init-list
+install %{SOURCE61} $RPM_BUILD_ROOT%{_libexecdir}/%{name}/bin/xen-toolstack
+
+%{__sed} -E -i -e '1s,#!\s*/usr/bin/python(\s|$),#!%{__python}\1,' \
+	$RPM_BUILD_ROOT%{_libexecdir}/%{name}/bin/pygrub
 
 %if %{with efi}
 install %{SOURCE57} $RPM_BUILD_ROOT/etc/efi-boot/xen.cfg
@@ -510,9 +513,7 @@ install %{SOURCE59} $RPM_BUILD_ROOT%{_sysconfdir}/xen/scripts/vif-openvswitch
 
 # for %%doc
 install -d _doc
-for tool in blktap2 pygrub ; do
-	cp -p tools/$tool/README _doc/README.$tool
-done
+cp -p tools/pygrub/README _doc/README.pygrub
 
 %py_comp $RPM_BUILD_ROOT%{py_sitedir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
@@ -522,7 +523,7 @@ done
 # remove unneeded files
 %if %{with hypervisor}
 %{__mv} xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.6.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.13.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
@@ -576,6 +577,7 @@ fi
 %doc COPYING README* docs/misc/* docs/html/* _doc/*
 %if %{with hypervisor}
 /boot/%{name}-syms-%{version}
+/boot/%{name}-%{version}.config
 /boot/%{name}-%{version}.gz
 /boot/%{name}.gz
 %endif
@@ -624,21 +626,12 @@ fi
 %attr(755,root,root) %{_sbindir}/flask-*
 %endif
 %attr(755,root,root) %{_sbindir}/gdbsx
-%attr(755,root,root) %{_sbindir}/img2qcow
-%attr(755,root,root) %{_sbindir}/kdd
-%attr(755,root,root) %{_sbindir}/lock-util
-%attr(755,root,root) %{_sbindir}/qcow-create
-%attr(755,root,root) %{_sbindir}/qcow2raw
-%attr(755,root,root) %{_sbindir}/tap-ctl
-%attr(755,root,root) %{_sbindir}/tapdisk*
-%attr(755,root,root) %{_sbindir}/td-util
-%attr(755,root,root) %{_sbindir}/vhd-*
 %attr(755,root,root) %{_sbindir}/xen-*
 %attr(755,root,root) %{_sbindir}/xenbaked
 %attr(755,root,root) %{_sbindir}/xenconsoled
 %attr(755,root,root) %{_sbindir}/xencov
 %attr(755,root,root) %{_sbindir}/xenlockprof
-%attr(755,root,root) %{_sbindir}/xenmon.py
+%attr(755,root,root) %{_sbindir}/xenmon
 %attr(755,root,root) %{_sbindir}/xenperf
 %attr(755,root,root) %{_sbindir}/xenpm
 %attr(755,root,root) %{_sbindir}/xenpmd
@@ -649,25 +642,27 @@ fi
 %attr(755,root,root) %{_sbindir}/xentrace_setsize
 %attr(755,root,root) %{_sbindir}/xenwatchdogd
 %attr(755,root,root) %{_sbindir}/xl
-%dir %{_libdir}/%{name}
-%dir %{_libdir}/%{name}/bin
-%attr(744,root,root) %{_libdir}/%{name}/bin/*
-%dir %{_libdir}/%{name}/boot
+%dir %{_libexecdir}/%{name}
+%dir %{_libexecdir}/%{name}/bin
+%attr(744,root,root) %{_libexecdir}/%{name}/bin/*
+%dir %{_libexecdir}/%{name}/boot
 %if %{with stubdom}
 %if %{with qemu_traditional}
-%{_libdir}/%{name}/boot/ioemu-stubdom.gz
+%{_libexecdir}/%{name}/boot/ioemu-stubdom.gz
 %endif
 %ifarch %{ix86} %{x8664}
-%{_libdir}/%{name}/boot/pv-grub-x86_32.gz
+%{_libexecdir}/%{name}/boot/pv-grub-x86_32.gz
 %endif
 %ifarch %{x8664}
-%{_libdir}/%{name}/boot/pv-grub-x86_64.gz
+%{_libexecdir}/%{name}/boot/pv-grub-x86_64.gz
 %endif
-%{_libdir}/%{name}/boot/vtpm-stubdom.gz
-%{_libdir}/%{name}/boot/vtpmmgr-stubdom.gz
-%{_libdir}/%{name}/boot/xenstore-stubdom.gz
+%{_libexecdir}/%{name}/boot/vtpm-stubdom.gz
+%{_libexecdir}/%{name}/boot/vtpmmgr-stubdom.gz
+%{_libexecdir}/%{name}/boot/xenstore-stubdom.gz
 %endif
-%attr(744,root,root) %{_libdir}/%{name}/boot/hvmloader
+%{_libexecdir}/%{name}/boot/ipxe.bin
+%{_libexecdir}/%{name}/boot/xen-shim
+%attr(744,root,root) %{_libexecdir}/%{name}/boot/hvmloader
 %{_mandir}/man1/xentop.1*
 %{_mandir}/man1/xentrace_format.1*
 %{_mandir}/man1/xl.1*
@@ -711,19 +706,17 @@ fi
 %{_mandir}/man1/xenstore.1*
 %{_mandir}/man1/xenstore-chmod.1*
 %{_mandir}/man1/xenstore-ls.1*
+%{_mandir}/man1/xenstore-read.1*
+%{_mandir}/man1/xenstore-write.1*
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libblktapctl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libblktapctl.so.1.0
-%attr(755,root,root) %{_libdir}/libfsimage.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libfsimage.so.1.0
-%attr(755,root,root) %{_libdir}/libvhd.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libvhd.so.1.0
+%attr(755,root,root) %{_libdir}/libxenfsimage.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.13
 %attr(755,root,root) %{_libdir}/libxencall.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxencall.so.1
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.9
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.13
 %attr(755,root,root) %{_libdir}/libxendevicemodel.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxendevicemodel.so.1
 %attr(755,root,root) %{_libdir}/libxenevtchn.so.*.*
@@ -733,26 +726,28 @@ fi
 %attr(755,root,root) %{_libdir}/libxengnttab.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxengnttab.so.1
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.9
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.13
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.9
-%attr(755,root,root) %{_libdir}/libxenstat.so.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.0
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.13
+%attr(755,root,root) %{_libdir}/libxenstat.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.13
+%attr(755,root,root) %{_libdir}/libxentoolcore.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxentoolcore.so.1
 %attr(755,root,root) %{_libdir}/libxentoollog.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoollog.so.1
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.9
+%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.13
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.9
-%dir %{_libdir}/fs
-%dir %{_libdir}/fs/ext2fs-lib
-%dir %{_libdir}/fs/fat
-%dir %{_libdir}/fs/iso9660
-%dir %{_libdir}/fs/reiserfs
-%dir %{_libdir}/fs/ufs
-%dir %{_libdir}/fs/xfs
-%dir %{_libdir}/fs/zfs
-%attr(755,root,root) %{_libdir}/fs/*/fsimage.so
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.13
+%dir %{_libdir}/xenfsimage
+%dir %{_libdir}/xenfsimage/ext2fs-lib
+%dir %{_libdir}/xenfsimage/fat
+%dir %{_libdir}/xenfsimage/iso9660
+%dir %{_libdir}/xenfsimage/reiserfs
+%dir %{_libdir}/xenfsimage/ufs
+%dir %{_libdir}/xenfsimage/xfs
+%dir %{_libdir}/xenfsimage/zfs
+%attr(755,root,root) %{_libdir}/xenfsimage/*/fsimage.so
 
 %files libs-guest
 %defattr(644,root,root,755)
@@ -761,9 +756,7 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libblktapctl.so
-%attr(755,root,root) %{_libdir}/libfsimage.so
-%attr(755,root,root) %{_libdir}/libvhd.so
+%attr(755,root,root) %{_libdir}/libxenfsimage.so
 %attr(755,root,root) %{_libdir}/libxencall.so
 %attr(755,root,root) %{_libdir}/libxenctrl.so
 %attr(755,root,root) %{_libdir}/libxendevicemodel.so
@@ -774,20 +767,19 @@ fi
 %attr(755,root,root) %{_libdir}/libxenlight.so
 %attr(755,root,root) %{_libdir}/libxenstat.so
 %attr(755,root,root) %{_libdir}/libxenstore.so
+%attr(755,root,root) %{_libdir}/libxentoolcore.so
 %attr(755,root,root) %{_libdir}/libxentoollog.so
 %attr(755,root,root) %{_libdir}/libxenvchan.so
 %attr(755,root,root) %{_libdir}/libxlutil.so
 %{_includedir}/_libxl_list.h
 %{_includedir}/_libxl_types.h
 %{_includedir}/_libxl_types_json.h
-%{_includedir}/fsimage*.h
 %{_includedir}/libxenvchan.h
 %{_includedir}/libxl*.h
 %{_includedir}/xen*.h
 %{_includedir}/xs*.h
 %{_includedir}/xen
 %{_includedir}/xenstore-compat
-%{_pkgconfigdir}/xenblktapctl.pc
 %{_pkgconfigdir}/xencall.pc
 %{_pkgconfigdir}/xencontrol.pc
 %{_pkgconfigdir}/xendevicemodel.pc
@@ -798,14 +790,13 @@ fi
 %{_pkgconfigdir}/xenlight.pc
 %{_pkgconfigdir}/xenstat.pc
 %{_pkgconfigdir}/xenstore.pc
+%{_pkgconfigdir}/xentoolcore.pc
 %{_pkgconfigdir}/xentoollog.pc
 %{_pkgconfigdir}/xenvchan.pc
 %{_pkgconfigdir}/xlutil.pc
 
 %files static
 %defattr(644,root,root,755)
-%{_libdir}/libblktapctl.a
-%{_libdir}/libvhd.a
 %{_libdir}/libxencall.a
 %{_libdir}/libxenctrl.a
 %{_libdir}/libxendevicemodel.a
@@ -817,6 +808,7 @@ fi
 %{_libdir}/libxenvchan.a
 %{_libdir}/libxenstat.a
 %{_libdir}/libxenstore.a
+%{_libdir}/libxentoolcore.a
 %{_libdir}/libxentoollog.a
 %{_libdir}/libxlutil.a
 
@@ -873,16 +865,14 @@ fi
 
 %files -n python-xen
 %defattr(644,root,root,755)
-%attr(755,root,root) %{py_sitedir}/fsimage.so
+%attr(755,root,root) %{py_sitedir}/xenfsimage.so
 %dir %{py_sitedir}/xen
 %dir %{py_sitedir}/xen/lowlevel
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/xc.so
 %{py_sitedir}/xen/migration
 %{py_sitedir}/grub
-%if "%{py_ver}" > "2.4"
-%{py_sitedir}/pygrub-0.3-py*.egg-info
-%{py_sitedir}/xen-3.0-py*.egg-info
-%endif
+%{py_sitedir}/pygrub-*.egg-info
+%{py_sitedir}/xen-*.egg-info
 
 %files -n python-xen-guest
 %defattr(644,root,root,755)

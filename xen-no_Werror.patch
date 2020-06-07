@@ -9,13 +9,3 @@
  HOSTCFLAGS += -fno-strict-aliasing
  
  DISTDIR     ?= $(XEN_ROOT)/dist
---- xen-4.4.1/tools/blktap2/drivers/Makefile~	2014-09-02 08:20:19.000000000 +0200
-+++ xen-4.4.1/tools/blktap2/drivers/Makefile	2014-12-13 19:19:17.070688454 +0100
-@@ -4,7 +4,6 @@
- LOCK_UTIL  = lock-util
- INST_DIR   = $(sbindir)
- 
--CFLAGS    += -Werror
- CFLAGS    += -Wno-unused
- CFLAGS    += -fno-strict-aliasing
- CFLAGS    += -I$(BLKTAP_ROOT)/include -I$(BLKTAP_ROOT)/drivers

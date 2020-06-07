@@ -1,9 +1,0 @@
-pkg-config files are arch-dependent (due to libdir usage), so use arch-dependent location.
---- xen-4.9.0/config/Paths.mk.in.orig	2017-06-27 20:13:19.000000000 +0200
-+++ xen-4.9.0/config/Paths.mk.in	2017-07-31 20:59:29.558580546 +0200
-@@ -57,4 +57,4 @@
- XEN_CONFIG_DIR           := @XEN_CONFIG_DIR@
- XEN_SCRIPT_DIR           := @XEN_SCRIPT_DIR@
- 
--PKG_INSTALLDIR           := ${SHAREDIR}/pkgconfig
-+PKG_INSTALLDIR           := ${libdir}/pkgconfig

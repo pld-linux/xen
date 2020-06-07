@@ -85,20 +85,19 @@ Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-link.patch
 Patch3:		pygrubfix.patch
-Patch4:		%{name}-pkgconfigdir.patch
 # Warning: this disables ingress filtering implemented in xen scripts!
-Patch7:		%{name}-net-disable-iptables-on-bridge.patch
-Patch10:	%{name}-qemu.patch
-Patch12:	%{name}-doc.patch
-Patch13:	%{name}-paths.patch
-Patch14:	%{name}-no_fetcher.patch
-Patch15:	odd-glib2-fix.patch
-Patch18:	%{name}-make.patch
-Patch19:	%{name}-no_Werror.patch
-Patch22:	%{name}-stubdom-build.patch
-Patch23:	link.patch
-Patch24:	%{name}-systemd.patch
-Patch28:	sysmacros.patch
+Patch4:		%{name}-net-disable-iptables-on-bridge.patch
+Patch5:		%{name}-qemu.patch
+Patch6:		%{name}-doc.patch
+Patch7:		%{name}-paths.patch
+Patch8:		%{name}-no_fetcher.patch
+Patch9:		%{name}-no_Werror.patch
+Patch10:	%{name}-stubdom-build.patch
+Patch11:	link.patch
+Patch12:	%{name}-systemd.patch
+Patch13:	sysmacros.patch
+Patch14:	gcc9.patch
+Patch15:	gcc10.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -390,18 +389,17 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
+%patch6 -p1
 %patch7 -p1
+%patch8 -p1
+%patch9 -p1
 %patch10 -p1
+%patch11 -p1
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
 %patch15 -p1
-%patch18 -p1
-%patch19 -p1
-%patch22 -p1
-%patch23 -p1
-%patch24 -p1
-%patch28 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -428,12 +426,10 @@ install -d our-ld
 ln -f -s /usr/bin/ld.bfd our-ld/ld
 export PATH=$(pwd)/our-ld:$PATH
 
-export CFLAGS="%{rpmcflags} -I/usr/include/ncurses"
-export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
-
 # NOTE on ac_cv_*:
 # - use openssl (libcrypto) instead of libgcrypt as openssl is obligatory anyway
 # - prevent libiconv from being detected (not needed with glibc)
+
 %configure \
 	CPPFLAGS="%{rpmcppflags} -I/usr/include/ncurses" \
 	ac_cv_lib_gcrypt_gcry_md_hash_buffer=no \
@@ -448,18 +444,19 @@ export CXXFLAGS="%{rpmcflags} -I/usr/include/ncurses"
 %endif
 	--with-systemd=%{systemdunitdir}
 
-%{__make} -j1 dist-xen dist-tools dist-docs \
+export EXTRA_CFLAGS_XEN_TOOLS="%{rpmcflags} -I/usr/include/ncurses"
+export EXTRA_CFLAGS_QEMU_TRADITIONAL="%{rpmcflags} -I/usr/include/ncurses"
+export EXTRA_CFLAGS_QEMU_XEN="%{rpmcflags} -I/usr/include/ncurses"
+
+%{__make} dist-xen dist-tools dist-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	CC="%{__cc}" \
 	CXX="%{__cxx}" \
 	V=1
 
-unset CFLAGS
-unset CXXFLAGS
-
 %if %{with stubdom}
-%{__make} -j1 dist-stubdom \
+%{__make} dist-stubdom \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	CC="%{__cc}" \
@@ -476,7 +473,7 @@ install -d $RPM_BUILD_ROOT/etc/{xen/examples,modules-load.d,logrotate.d} \
 install -d $RPM_BUILD_ROOT/etc/efi-boot/update.d
 %endif
 
-%{__make} -j1 install-xen install-tools %{?with_stubdom:install-stubdom} install-docs \
+%{__make} install-xen install-tools %{?with_stubdom:install-stubdom} install-docs \
 	%{!?with_ocaml:OCAML_TOOLS=n} \
 	XSM_ENABLE=%{?with_xsm:y}%{!?with_xsm:n} \
 	DESTDIR=$RPM_BUILD_ROOT \

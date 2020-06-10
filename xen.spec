@@ -1,5 +1,6 @@
 #
 # TODO:
+#  - system ovmf, ipxe? (like system seabios)
 #  - check if other tools/libs are not usable in domU, move them to -guest
 #    packages if so
 #  - pass bconds to qemu configure script (tricky, as the script is called from
@@ -112,8 +113,6 @@ BuildRequires:	checkpolicy
 %endif
 # tpm_emulator uses cmake
 BuildRequires:	cmake >= 2.4
-BuildRequires:	curl-devel
-BuildRequires:	cyrus-sasl-devel >= 2
 BuildRequires:	e2fsprogs-devel
 BuildRequires:	fig2dev
 BuildRequires:	gcc >= 6:4.1
@@ -121,37 +120,27 @@ BuildRequires:	gcc >= 6:4.1
 BuildRequires:	gcc-multilib-32 >= 6:4.1
 %endif
 BuildRequires:	gettext-tools
-BuildRequires:	gnutls-devel
-BuildRequires:	keyutils-devel
-BuildRequires:	latex2html >= 2008
 BuildRequires:	libaio-devel
-BuildRequires:	libcap-devel
 %ifarch %{arm} aarch64
 BuildRequires:	libfdt-devel >= 1.4.0
 %endif
-BuildRequires:	libjpeg-devel
 BuildRequires:	libnl-devel >= 3.2.8
-BuildRequires:	libpng-devel
 BuildRequires:	libuuid-devel
 BuildRequires:	lzo-devel >= 2
 BuildRequires:	ncurses-devel
 %if %{with ocaml}
-BuildRequires:	ocaml >= 3.11.0
+BuildRequires:	ocaml >= 4.02.0
 BuildRequires:	ocaml-findlib
 %endif
-BuildRequires:	nss-devel >= 3.12.8
-BuildRequires:	openssl-devel
 BuildRequires:	pandoc
-BuildRequires:	pciutils-devel
 BuildRequires:	perl-base
 BuildRequires:	perl-tools-pod
 BuildRequires:	pkgconfig
-BuildRequires:	python-devel >= 2
+BuildRequires:	python-devel >= 1:2.6
 BuildRequires:	python-markdown
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	seabios
-BuildRequires:	texi2html
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	texlive-xetex
@@ -164,7 +153,8 @@ BuildRequires:	zlib-devel
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}
 %{?with_bluetooth:BuildRequires:	bluez-libs-devel}
 %{?with_brlapi:BuildRequires:	brlapi-devel}
-BuildRequires:	glib2-devel >= 1:2.12
+BuildRequires:	gnutls-devel
+BuildRequires:	pciutils-devel
 BuildRequires:	pixman-devel >= 0.21.8
 BuildRequires:	vde2-devel
 # for xfsctl (<xfs/xfs.h>)
@@ -399,7 +389,10 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%if %(echo %{cc_version} | cut -d. -f1) >= 10
+# -Wno-error=enum-conversion requires gcc 10
 %patch15 -p1
+%endif
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

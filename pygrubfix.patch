@@ -1,7 +1,7 @@
-diff -dur xen-4.2.0.orig/tools/pygrub/src/pygrub xen-4.2.0/tools/pygrub/src/pygrub
---- xen-4.2.0.orig/tools/pygrub/src/pygrub	2012-09-17 12:21:18.000000000 +0200
-+++ xen-4.2.0/tools/pygrub/src/pygrub	2012-10-22 10:57:09.000000000 +0200
-@@ -119,6 +119,7 @@
+diff -urNp -x '*.orig' xen-4.13.1.org/tools/pygrub/src/pygrub xen-4.13.1/tools/pygrub/src/pygrub
+--- xen-4.13.1.org/tools/pygrub/src/pygrub	2021-03-25 22:42:14.797689878 +0100
++++ xen-4.13.1/tools/pygrub/src/pygrub	2021-03-25 22:42:15.517685792 +0100
+@@ -129,6 +129,7 @@ def get_partition_offsets(file):
      fd = os.open(file, os.O_RDONLY)
      buf = os.read(fd, 512)
      os.close(fd)
@@ -9,7 +9,7 @@ diff -dur xen-4.2.0.orig/tools/pygrub/src/pygrub xen-4.2.0/tools/pygrub/src/pygr
      for poff in (446, 462, 478, 494): # partition offsets
  
          # MBR contains a 16 byte descriptor per partition
-@@ -128,6 +129,7 @@
+@@ -138,6 +139,7 @@ def get_partition_offsets(file):
          
          # offset == 0 implies this partition is not enabled
          if offset == 0:
@@ -17,9 +17,9 @@ diff -dur xen-4.2.0.orig/tools/pygrub/src/pygrub xen-4.2.0/tools/pygrub/src/pygr
              continue
  
          if type == FDISK_PART_SOLARIS or type == FDISK_PART_SOLARIS_OLD:
-@@ -148,6 +150,9 @@
-         else:
-             part_offs.append(offset)
+@@ -163,6 +165,9 @@ def get_partition_offsets(file):
+     # (e.g. grubs) may contain the same signature.
+     if not part_offs: part_offs = [0]
  
 +    if offzerocount == 4:
 +        # Might be a grub boot sector pretending to be an MBR

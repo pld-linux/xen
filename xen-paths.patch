@@ -1,11 +1,12 @@
---- xen-4.5.1/tools/Makefile.orig	2015-10-03 17:22:11.716804023 +0200
-+++ xen-4.5.1/tools/Makefile	2015-10-03 19:37:54.219795649 +0200
-@@ -207,7 +207,7 @@
- 	$$source/configure --enable-xen --target-list=i386-softmmu \
+diff -urNp -x '*.orig' xen-4.13.1.org/tools/Makefile xen-4.13.1/tools/Makefile
+--- xen-4.13.1.org/tools/Makefile	2020-05-14 14:19:32.000000000 +0200
++++ xen-4.13.1/tools/Makefile	2021-03-25 22:42:23.177642067 +0100
+@@ -243,7 +243,7 @@ subdir-all-qemu-xen-dir: qemu-xen-dir-fi
  		$(QEMU_XEN_ENABLE_DEBUG) \
+ 		$$enable_trace_backend \
  		--prefix=$(LIBEXEC) \
 -		--libdir=$(LIBEXEC_LIB) \
 +		--libdir=$(LIBEXEC_LIB) --libexecdir=$(LIBEXEC_LIB) \
  		--includedir=$(LIBEXEC_INC) \
- 		--source-path=$$source \
- 		--extra-cflags="-I$(XEN_ROOT)/tools/include \
+ 		--extra-cflags="-DXC_WANT_COMPAT_EVTCHN_API=1 \
+ 		-DXC_WANT_COMPAT_GNTTAB_API=1 \

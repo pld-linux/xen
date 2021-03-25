@@ -1,11 +1,12 @@
---- xen-4.9.0/tools/libxc/Makefile.orig	2017-06-27 20:13:19.000000000 +0200
-+++ xen-4.9.0/tools/libxc/Makefile	2017-07-31 17:56:20.268706026 +0200
-@@ -262,7 +262,7 @@
+diff -urNp -x '*.orig' xen-4.13.1.org/tools/libxc/Makefile xen-4.13.1/tools/libxc/Makefile
+--- xen-4.13.1.org/tools/libxc/Makefile	2020-05-14 14:19:32.000000000 +0200
++++ xen-4.13.1/tools/libxc/Makefile	2021-03-25 22:42:13.577696791 +0100
+@@ -274,7 +274,7 @@ xc_dom_bzimageloader.opic: CFLAGS += $(f
  
  libxenguest.so.$(MAJOR).$(MINOR): COMPRESSION_LIBS = $(filter -l%,$(zlib-options))
  libxenguest.so.$(MAJOR).$(MINOR): $(GUEST_PIC_OBJS) libxenctrl.so
 -	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG) -Wl,libxenguest.so.$(MAJOR) $(SHLIB_LDFLAGS) -o $@ $(GUEST_PIC_OBJS) $(COMPRESSION_LIBS) -lz $(LDLIBS_libxenevtchn) $(LDLIBS_libxenctrl) $(PTHREAD_LIBS) $(APPEND_LDFLAGS)
 +	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG) -Wl,libxenguest.so.$(MAJOR) $(SHLIB_LDFLAGS) -o $@ $(GUEST_PIC_OBJS) $(COMPRESSION_LIBS) -lz $(LDLIBS_libxenevtchn) $(LDLIBS_libxenctrl) $(LDLIBS_libxencall) $(LDLIBS_libxenforeignmemory) $(LDLIBS_libxentoollog) $(PTHREAD_LIBS) $(APPEND_LDFLAGS)
  
- -include $(DEPS)
+ -include $(DEPS_INCLUDE)
  

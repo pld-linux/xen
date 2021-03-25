@@ -1,11 +1,11 @@
-diff -urN xen-4.6.5/tools/libxl/libxl_internal.h xen-4.6.5.build/tools/libxl/libxl_internal.h
---- xen-4.6.5/tools/libxl/libxl_internal.h	2017-03-07 17:19:05.000000000 +0100
-+++ xen-4.6.5.build/tools/libxl/libxl_internal.h	2017-04-14 15:05:55.088806418 +0200
-@@ -37,6 +37,7 @@
+diff -urNp -x '*.orig' xen-4.13.1.org/tools/libxl/libxl_internal.h xen-4.13.1/tools/libxl/libxl_internal.h
+--- xen-4.13.1.org/tools/libxl/libxl_internal.h	2020-05-14 14:19:32.000000000 +0200
++++ xen-4.13.1/tools/libxl/libxl_internal.h	2021-03-25 22:42:35.034240136 +0100
+@@ -39,6 +39,7 @@
  #include <unistd.h>
  #include <ctype.h>
  
 +#include <sys/sysmacros.h>
  #include <sys/mman.h>
- #include <sys/poll.h>
+ #include <poll.h>
  #include <sys/select.h>

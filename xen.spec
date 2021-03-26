@@ -41,7 +41,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.13.1
-Release:	1
+Release:	2
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://www.xenproject.org/developers/teams/hypervisor.html
@@ -99,6 +99,7 @@ Patch12:	%{name}-systemd.patch
 Patch13:	sysmacros.patch
 Patch14:	gcc9.patch
 Patch15:	gcc10.patch
+Patch16:	ocaml-4.12.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -393,6 +394,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 # -Wno-error=enum-conversion requires gcc 10
 %patch15 -p1
 %endif
+%patch16 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

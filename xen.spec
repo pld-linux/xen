@@ -41,7 +41,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.13.1
-Release:	2
+Release:	3
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://www.xenproject.org/developers/teams/hypervisor.html
@@ -833,49 +833,49 @@ fi
 %doc tools/ocaml/LICENSE
 %attr(755,root,root) %{_sbindir}/oxenstored
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/oxenstored.conf
-%dir %{_libdir}/ocaml/site-lib/xenbus
-%attr(755,root,root) %{_libdir}/ocaml/site-lib/xenbus/dllxenbus_stubs.so
-%dir %{_libdir}/ocaml/site-lib/xenctrl
-%attr(755,root,root) %{_libdir}/ocaml/site-lib/xenctrl/dllxenctrl_stubs.so
-%dir %{_libdir}/ocaml/site-lib/xeneventchn
-%attr(755,root,root) %{_libdir}/ocaml/site-lib/xeneventchn/dllxeneventchn_stubs.so
-%dir %{_libdir}/ocaml/site-lib/xenlight
-%attr(755,root,root) %{_libdir}/ocaml/site-lib/xenlight/dllxenlight_stubs.so
-%dir %{_libdir}/ocaml/site-lib/xenmmap
-%attr(755,root,root) %{_libdir}/ocaml/site-lib/xenmmap/dllxenmmap_stubs.so
-%dir %{_libdir}/ocaml/site-lib/xentoollog
-%attr(755,root,root) %{_libdir}/ocaml/site-lib/xentoollog/dllxentoollog_stubs.so
+%dir %{_libdir}/ocaml/xenbus
+%attr(755,root,root) %{_libdir}/ocaml/xenbus/dllxenbus_stubs.so
+%dir %{_libdir}/ocaml/xenctrl
+%attr(755,root,root) %{_libdir}/ocaml/xenctrl/dllxenctrl_stubs.so
+%dir %{_libdir}/ocaml/xeneventchn
+%attr(755,root,root) %{_libdir}/ocaml/xeneventchn/dllxeneventchn_stubs.so
+%dir %{_libdir}/ocaml/xenlight
+%attr(755,root,root) %{_libdir}/ocaml/xenlight/dllxenlight_stubs.so
+%dir %{_libdir}/ocaml/xenmmap
+%attr(755,root,root) %{_libdir}/ocaml/xenmmap/dllxenmmap_stubs.so
+%dir %{_libdir}/ocaml/xentoollog
+%attr(755,root,root) %{_libdir}/ocaml/xentoollog/dllxentoollog_stubs.so
 
 %files -n ocaml-xen-devel
 %defattr(644,root,root,755)
-%{_libdir}/ocaml/site-lib/xenbus/META
-%{_libdir}/ocaml/site-lib/xenbus/libxenbus_stubs.a
-%{_libdir}/ocaml/site-lib/xenbus/xenbus.a
-%{_libdir}/ocaml/site-lib/xenbus/*.cm[aixo]*
-%{_libdir}/ocaml/site-lib/xenctrl/META
-%{_libdir}/ocaml/site-lib/xenctrl/libxenctrl_stubs.a
-%{_libdir}/ocaml/site-lib/xenctrl/xenctrl.a
-%{_libdir}/ocaml/site-lib/xenctrl/xenctrl.cm[aix]*
-%{_libdir}/ocaml/site-lib/xeneventchn/META
-%{_libdir}/ocaml/site-lib/xeneventchn/libxeneventchn_stubs.a
-%{_libdir}/ocaml/site-lib/xeneventchn/xeneventchn.a
-%{_libdir}/ocaml/site-lib/xeneventchn/xeneventchn.cm[aix]*
-%{_libdir}/ocaml/site-lib/xenmmap/META
-%{_libdir}/ocaml/site-lib/xenmmap/libxenmmap_stubs.a
-%{_libdir}/ocaml/site-lib/xenmmap/xenmmap.a
-%{_libdir}/ocaml/site-lib/xenmmap/xenmmap.cm[aix]*
-%{_libdir}/ocaml/site-lib/xenlight/META
-%{_libdir}/ocaml/site-lib/xenlight/libxenlight_stubs.a
-%{_libdir}/ocaml/site-lib/xenlight/xenlight.a
-%{_libdir}/ocaml/site-lib/xenlight/xenlight.cm[aix]*
-%dir %{_libdir}/ocaml/site-lib/xenstore
-%{_libdir}/ocaml/site-lib/xenstore/META
-%{_libdir}/ocaml/site-lib/xenstore/xenstore.a
-%{_libdir}/ocaml/site-lib/xenstore/*.cm[aixo]*
-%{_libdir}/ocaml/site-lib/xentoollog/META
-%{_libdir}/ocaml/site-lib/xentoollog/libxentoollog_stubs.a
-%{_libdir}/ocaml/site-lib/xentoollog/xentoollog.a
-%{_libdir}/ocaml/site-lib/xentoollog/*.cm[aixo]*
+%{_libdir}/ocaml/xenbus/META
+%{_libdir}/ocaml/xenbus/libxenbus_stubs.a
+%{_libdir}/ocaml/xenbus/xenbus.a
+%{_libdir}/ocaml/xenbus/*.cm[aixo]*
+%{_libdir}/ocaml/xenctrl/META
+%{_libdir}/ocaml/xenctrl/libxenctrl_stubs.a
+%{_libdir}/ocaml/xenctrl/xenctrl.a
+%{_libdir}/ocaml/xenctrl/xenctrl.cm[aix]*
+%{_libdir}/ocaml/xeneventchn/META
+%{_libdir}/ocaml/xeneventchn/libxeneventchn_stubs.a
+%{_libdir}/ocaml/xeneventchn/xeneventchn.a
+%{_libdir}/ocaml/xeneventchn/xeneventchn.cm[aix]*
+%{_libdir}/ocaml/xenmmap/META
+%{_libdir}/ocaml/xenmmap/libxenmmap_stubs.a
+%{_libdir}/ocaml/xenmmap/xenmmap.a
+%{_libdir}/ocaml/xenmmap/xenmmap.cm[aix]*
+%{_libdir}/ocaml/xenlight/META
+%{_libdir}/ocaml/xenlight/libxenlight_stubs.a
+%{_libdir}/ocaml/xenlight/xenlight.a
+%{_libdir}/ocaml/xenlight/xenlight.cm[aix]*
+%dir %{_libdir}/ocaml/xenstore
+%{_libdir}/ocaml/xenstore/META
+%{_libdir}/ocaml/xenstore/xenstore.a
+%{_libdir}/ocaml/xenstore/*.cm[aixo]*
+%{_libdir}/ocaml/xentoollog/META
+%{_libdir}/ocaml/xentoollog/libxentoollog_stubs.a
+%{_libdir}/ocaml/xentoollog/xentoollog.a
+%{_libdir}/ocaml/xentoollog/*.cm[aixo]*
 %endif
 
 %files -n python-xen

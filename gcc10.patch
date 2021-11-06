@@ -1,13 +1,3 @@
---- xen-4.13.0/tools/xenpmd/Makefile.orig	2019-12-17 14:23:09.000000000 +0000
-+++ xen-4.13.0/tools/xenpmd/Makefile	2020-01-22 22:13:16.564873608 +0000
-@@ -3,6 +3,7 @@
- 
- CFLAGS += -Werror
- CFLAGS += $(CFLAGS_libxenstore)
-+CFLAGS += -Wno-error=format-truncation
- 
- LDLIBS += $(LDLIBS_libxenstore)
- 
 --- xen-4.13.1/tools/firmware/etherboot/Config~	2020-05-14 14:19:32.000000000 +0200
 +++ xen-4.13.1/tools/firmware/etherboot/Config	2020-06-07 17:14:49.704183136 +0200
 @@ -7,3 +7,5 @@
@@ -15,7 +5,7 @@
  CFLAGS += -UCONSOLE_SERIAL
  CFLAGS += -DCONSOLE_SERIAL=1
 +
-+CFLAGS += -Wno-error=array-bounds -Wno-error=enum-conversion
++CFLAGS += -Wno-error=enum-conversion -Wno-error=maybe-uninitialized
 --- xen-4.13.1/stubdom/Makefile~	2020-06-07 17:54:17.000000000 +0200
 +++ xen-4.13.1/stubdom/Makefile	2020-06-07 17:57:37.373200925 +0200
 @@ -232,6 +232,7 @@

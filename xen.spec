@@ -64,7 +64,7 @@ Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
 # Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
 Source18:	%{xen_extfiles_url}/tpm_emulator-%{tpm_emulator_version}.tar.gz
 # Source18-md5:	e26becb8a6a2b6695f6b3e8097593db8
-Source19:	ftp://ftp.gmplib.org/pub/gmp-%{gmp_version}/gmp-%{gmp_version}.tar.bz2
+Source19:	https://ftp.gnu.org/gnu/gmp/gmp-%{gmp_version}.tar.bz2
 # Source19-md5:	dd60683d7057917e34630b4a787932e8
 Source35:	xenconsoled.sysconfig
 Source37:	xenstored.sysconfig

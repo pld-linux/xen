@@ -193,9 +193,9 @@ Requires:	%{name}-guest = %{version}-%{release}
 # for HVM
 Suggests:	qemu-system-x86
 %endif
-Obsoletes:	xen-doc
-Obsoletes:	xen-udev
-Obsoletes:	xen-xend
+Obsoletes:	xen-doc < 3
+Obsoletes:	xen-udev < 4.1.2-2
+Obsoletes:	xen-xend < 4.5
 ExclusiveArch:	%{ix86} %{x8664} %{arm} aarch64
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 

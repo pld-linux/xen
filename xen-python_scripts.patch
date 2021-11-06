@@ -7,11 +7,10 @@ diff -ur xen-4.13.1/tools/misc/xencons xen-4.13.1.py/tools/misc/xencons
  
  ##############################################
  # Console client for Xen guest OSes
-diff -ur xen-4.13.1/tools/misc/xencov_split xen-4.13.1.py/tools/misc/xencov_split
---- xen-4.13.1/tools/misc/xencov_split	2020-05-14 14:19:32.000000000 +0200
-+++ xen-4.13.1.py/tools/misc/xencov_split	2020-06-07 19:58:48.203256360 +0200
+--- xen-4.14.3/tools/misc/xencov_split.orig	2021-11-06 16:33:29.985897878 +0100
++++ xen-4.14.3/tools/misc/xencov_split	2021-11-06 16:46:44.168262090 +0100
 @@ -1,4 +1,4 @@
--#!/usr/bin/python
+-#!/usr/bin/env python
 +#!/usr/bin/python2
  
  import sys, os, os.path as path, struct, errno

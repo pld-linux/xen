@@ -9,13 +9,12 @@
  call_hooks vif post
  
  log debug "Successful vif-bridge $command for $dev, bridge $bridge."
-diff -dur -x '*.orig' -x '*.rej' -x '*~' xen-4.2.0.orig/tools/hotplug/Linux/xen-network-common.sh xen-4.2.0/tools/hotplug/Linux/xen-network-common.sh
---- xen-4.2.0.orig/tools/hotplug/Linux/xen-network-common.sh	2012-09-17 12:21:18.000000000 +0200
-+++ xen-4.2.0/tools/hotplug/Linux/xen-network-common.sh	2012-10-22 13:05:02.000000000 +0200
-@@ -115,6 +115,13 @@
- 	brctl addbr ${bridge}
- 	brctl stp ${bridge} off
- 	brctl setfd ${bridge} 0
+--- xen-4.14.3/tools/hotplug/Linux/xen-network-common.sh.orig	2021-11-06 16:48:34.064333399 +0100
++++ xen-4.14.3/tools/hotplug/Linux/xen-network-common.sh	2021-11-06 16:52:40.099667177 +0100
+@@ -118,6 +118,13 @@ create_bridge () {
+         else
+             ip link add name ${bridge} type bridge stp_state 0 forward_delay 0
+         fi
 +	# Setting these to zero stops guest<->LAN traffic
 +	# traversing the bridge from hitting the *tables
 +	# rulesets. guest<->host traffic still gets processed

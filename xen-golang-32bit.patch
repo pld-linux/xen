@@ -1,0 +1,94 @@
+Adjust types and sizes for 32-bit pointers
+--- xen-4.14.3/tools/golang/xenlight/gengotypes.py.orig	2021-09-10 14:30:40.000000000 +0200
++++ xen-4.14.3/tools/golang/xenlight/gengotypes.py	2021-11-07 17:39:55.516237472 +0100
+@@ -426,7 +426,7 @@
+     s += 'x.{0} = nil\n'.format(goname)
+     s += 'if n := int(xc.{0}); n > 0 {{\n'.format(clenvar)
+     s += '{0} := '.format(cslice)
+-    s +='(*[1<<28]C.{0})(unsafe.Pointer(xc.{1}))[:n:n]\n'.format(ctypename, cname)
++    s +='(*[(1<<22)]C.{0})(unsafe.Pointer(xc.{1}))[:n:n]\n'.format(ctypename, cname)
+     s += 'x.{0} = make([]{1}, n)\n'.format(goname, gotypename)
+     s += 'for i, v := range {0} {{\n'.format(cslice)
+ 
+@@ -603,7 +603,7 @@
+         s += 'xc.{0} = (*C.{1})(C.malloc(C.size_t({2}*{3})))\n'.format(cname,ctypename,
+                                                                    golenvar,golenvar)
+         s += 'xc.{0} = C.int({1})\n'.format(clenvar,golenvar)
+-        s += 'c{0} := (*[1<<28]C.{1})(unsafe.Pointer(xc.{2}))[:{3}:{4}]\n'.format(goname,
++        s += 'c{0} := (*[(1<<22)]C.{1})(unsafe.Pointer(xc.{2}))[:{3}:{4}]\n'.format(goname,
+                                                                       ctypename,cname,
+                                                                       golenvar,golenvar)
+         s += 'for i,v := range x.{0} {{\n'.format(goname)
+@@ -613,10 +613,10 @@
+         return s
+ 
+     s += 'if {0} := len(x.{1}); {2} > 0 {{\n'.format(golenvar,goname,golenvar)
+-    s += 'xc.{0} = (*C.{1})(C.malloc(C.ulong({2})*C.sizeof_{3}))\n'.format(cname,ctypename,
++    s += 'xc.{0} = (*C.{1})(C.malloc(C.size_t({2})*C.sizeof_{3}))\n'.format(cname,ctypename,
+                                                                    golenvar,ctypename)
+     s += 'xc.{0} = C.int({1})\n'.format(clenvar,golenvar)
+-    s += 'c{0} := (*[1<<28]C.{1})(unsafe.Pointer(xc.{2}))[:{3}:{4}]\n'.format(goname,
++    s += 'c{0} := (*[(1<<22)]C.{1})(unsafe.Pointer(xc.{2}))[:{3}:{4}]\n'.format(goname,
+                                                                          ctypename,cname,
+                                                                          golenvar,golenvar)
+     s += 'for i,v := range x.{0} {{\n'.format(goname)
+--- xen-4.14.3/tools/golang/xenlight/xenlight.go.orig	2021-09-10 14:30:40.000000000 +0200
++++ xen-4.14.3/tools/golang/xenlight/xenlight.go	2021-11-07 17:46:36.600731277 +0100
+@@ -478,7 +478,7 @@ type StringList []string
+ 
+ func (sl *StringList) fromC(csl *C.libxl_string_list) error {
+ 	size := int(C.libxl_string_list_length(csl))
+-	list := (*[1 << 30]*C.char)(unsafe.Pointer(csl))[:size:size]
++	list := (*[1 << 28]*C.char)(unsafe.Pointer(csl))[:size:size]
+ 
+ 	*sl = make([]string, size)
+ 
+@@ -492,8 +492,8 @@ func (sl *StringList) fromC(csl *C.libxl
+ func (sl StringList) toC(csl *C.libxl_string_list) error {
+ 	var char *C.char
+ 	size := len(sl)
+-	*csl = (C.libxl_string_list)(C.malloc(C.ulong(size) * C.ulong(unsafe.Sizeof(char))))
+-	clist := (*[1 << 30]*C.char)(unsafe.Pointer(csl))[:size:size]
++	*csl = (C.libxl_string_list)(C.malloc(C.size_t(size) * C.size_t(unsafe.Sizeof(char))))
++	clist := (*[1 << 28]*C.char)(unsafe.Pointer(csl))[:size:size]
+ 
+ 	for i, v := range sl {
+ 		clist[i] = C.CString(v)
+@@ -537,8 +537,8 @@ func (bm *Bitmap) toC(cbm *C.libxl_bitma
+ 	size := len(bm.bitmap)
+ 	cbm.size = C.uint32_t(size)
+ 	if cbm.size > 0 {
+-		cbm._map = (*C.uint8_t)(C.malloc(C.ulong(cbm.size) * C.sizeof_uint8_t))
+-		cs := (*[1 << 31]C.uint8_t)(unsafe.Pointer(cbm._map))[:size:size]
++		cbm._map = (*C.uint8_t)(C.malloc(C.size_t(cbm.size) * C.sizeof_uint8_t))
++		cs := (*[1 << 30]C.uint8_t)(unsafe.Pointer(cbm._map))[:size:size]
+ 
+ 		copy(cs, bm.bitmap)
+ 	}
+@@ -605,7 +605,7 @@ func (Ctx *Context) ListCpupool() (list
+ 	}
+ 
+ 	// Magic
+-	cpupoolListSlice := (*[1 << 30]C.libxl_cpupoolinfo)(unsafe.Pointer(c_cpupool_list))[:nbPool:nbPool]
++	cpupoolListSlice := (*[1 << 26]C.libxl_cpupoolinfo)(unsafe.Pointer(c_cpupool_list))[:nbPool:nbPool]
+ 	for i := range cpupoolListSlice {
+ 		var info Cpupoolinfo
+ 		_ = info.fromC(&cpupoolListSlice[i])
+@@ -1081,7 +1081,7 @@ func (Ctx *Context) ListDomain() (glist
+ 		return
+ 	}
+ 
+-	gslice := (*[1 << 30]C.libxl_dominfo)(unsafe.Pointer(clist))[:nbDomain:nbDomain]
++	gslice := (*[1 << 24]C.libxl_dominfo)(unsafe.Pointer(clist))[:nbDomain:nbDomain]
+ 	for i := range gslice {
+ 		var info Dominfo
+ 		_ = info.fromC(&gslice[i])
+@@ -1105,7 +1105,7 @@ func (Ctx *Context) ListVcpu(id Domid) (
+ 		return
+ 	}
+ 
+-	gslice := (*[1 << 30]C.libxl_vcpuinfo)(unsafe.Pointer(clist))[:nbVcpu:nbVcpu]
++	gslice := (*[1 << 25]C.libxl_vcpuinfo)(unsafe.Pointer(clist))[:nbVcpu:nbVcpu]
+ 	for i := range gslice {
+ 		var info Vcpuinfo
+ 		_ = info.fromC(&gslice[i])

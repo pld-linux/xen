@@ -17,6 +17,7 @@
 %bcond_without	brlapi			# brlapi support in Xen qemu
 %bcond_with	golang			# Go library
 %bcond_without	ocaml			# Ocaml libraries for Xen tools
+%bcond_with	python2			# CPython 2.x module instead of 3.x
 %bcond_without	efi			# EFI hypervisor
 %bcond_without	hypervisor		# Xen hypervisor build
 %bcond_without	stubdom			# stubdom build
@@ -83,6 +84,7 @@ Source58:	xen.efi-boot-update
 Source59:	vif-openvswitch
 Source60:	xen-init-list
 Source61:	xen-toolstack
+# shebang patch for python2-only scripts
 Patch0:		%{name}-python_scripts.patch
 Patch1:		%{name}-symbols.patch
 Patch2:		%{name}-link.patch
@@ -140,8 +142,13 @@ BuildRequires:	pandoc
 BuildRequires:	perl-base
 BuildRequires:	perl-tools-pod
 BuildRequires:	pkgconfig
+%if %{with python2}
 BuildRequires:	python-devel >= 1:2.7
 BuildRequires:	python-markdown
+%else
+BuildRequires:	python3-devel >= 1:3.2
+BuildRequires:	python3-markdown
+%endif
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	seabios
@@ -185,7 +192,11 @@ Requires:	gawk
 Requires:	iptables
 Requires:	losetup
 Requires:	net-tools
+%if %{with python2}
 Requires:	python-%{name} = %{version}-%{release}
+%else
+Requires:	python3-%{name} = %{version}-%{release}
+%endif
 Requires:	rc-scripts
 Requires:	sed
 Requires:	systemd-units >= 38
@@ -349,6 +360,32 @@ Xen Python modules for both dom0 and domU virtual machines.
 %description -n python-xen-guest -l pl.UTF-8
 Moduły Pythona dla maszyn wirtualnych dom0 i domU.
 
+%package -n python3-xen
+Summary:	Xen Python 3 modules
+Summary(pl.UTF-8):	Moduły Pythona 3 dla Xena
+Group:		Libraries
+Requires:	%{name}-libs = %{version}-%{release}
+Obsoletes:	python-xen < %{version}-%{release}
+
+%description -n python3-xen
+Xen Python 3 modules.
+
+%description -n python3-xen -l pl.UTF-8
+Moduły Pythona 3 dla Xena.
+
+%package -n python3-xen-guest
+Summary:	Xen Python 3 modules for virtual machines
+Summary(pl.UTF-8):	Moduły Pythona 3 dla maszyn wirtualnych Xena
+Group:		Libraries
+Requires:	%{name}-libs-guest = %{version}-%{release}
+Obsoletes:	python-xen-guest < %{version}-%{release}
+
+%description -n python3-xen-guest
+Xen Python 3 modules for both dom0 and domU virtual machines.
+
+%description -n python3-xen-guest -l pl.UTF-8
+Moduły Pythona 3 dla maszyn wirtualnych dom0 i domU.
+
 %package -n bash-completion-%{name}
 Summary:	bash-completion for Xen (xl)
 Summary(pl.UTF-8):	Bashowe dopełnianie poleceń dla Xena (xl)
@@ -407,6 +444,16 @@ ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
 ln -s %{SOURCE17} %{SOURCE18} %{SOURCE19} stubdom
 ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 
+
+%if %{with python2}
+%{__sed} -i -e '1s,/usr/bin/env python$,%{__python},' \
+%else
+%{__sed} -i -e '1s,/usr/bin/env python$,%{__python3},' \
+%endif
+	tools/pygrub/src/pygrub \
+	tools/python/scripts/{convert-legacy-stream,verify-stream-v2} \
+	tools/xenmon/xenmon.py
+
 # do not allow fetching anything via git
 echo GIT=/bin/false >> Config.mk
 
@@ -433,7 +480,7 @@ export PATH=$(pwd)/our-ld:$PATH
 
 %configure \
 	CPPFLAGS="%{rpmcppflags} -I/usr/include/ncurses" \
-	PYTHON=%{__python} \
+	%{?with_python2:PYTHON=%{__python}} \
 	ac_cv_lib_gcrypt_gcry_md_hash_buffer=no \
 	ac_cv_lib_iconv_libiconv_open=no \
 	--disable-debug \
@@ -536,10 +583,15 @@ install %{SOURCE59} $RPM_BUILD_ROOT%{_sysconfdir}/xen/scripts/vif-openvswitch
 install -d _doc
 cp -p tools/pygrub/README _doc/README.pygrub
 
+%if %{with python2}
 %py_comp $RPM_BUILD_ROOT%{py_sitedir}
 %py_ocomp $RPM_BUILD_ROOT%{py_sitedir}
 
 %py_postclean
+%else
+%py3_comp $RPM_BUILD_ROOT%{py3_sitedir}
+%py3_ocomp $RPM_BUILD_ROOT%{py3_sitedir}
+%endif
 
 # remove unneeded files
 %if %{with hypervisor}
@@ -898,6 +950,7 @@ fi
 %{_libdir}/ocaml/xentoollog/*.cm[aixo]*
 %endif
 
+%if %{with python2}
 %files -n python-xen
 %defattr(644,root,root,755)
 %attr(755,root,root) %{py_sitedir}/xenfsimage.so
@@ -913,10 +966,38 @@ fi
 %files -n python-xen-guest
 %defattr(644,root,root,755)
 %dir %{py_sitedir}/xen
-%{py_sitedir}/xen/__init__.py*
+%{py_sitedir}/xen/__init__.py[co]
 %dir %{py_sitedir}/xen/lowlevel
-%{py_sitedir}/xen/lowlevel/__init__.py*
+%{py_sitedir}/xen/lowlevel/__init__.py[co]
 %attr(755,root,root) %{py_sitedir}/xen/lowlevel/xs.so
+
+%else
+
+%files -n python3-xen
+%defattr(644,root,root,755)
+%attr(755,root,root) %{py3_sitedir}/xenfsimage.cpython-*.so
+%dir %{py3_sitedir}/xen
+%dir %{py3_sitedir}/xen/__pycache__
+%{py3_sitedir}/xen/util.py
+%{py3_sitedir}/xen/__pycache__/util.cpython-*.py[co]
+%dir %{py3_sitedir}/xen/lowlevel
+%attr(755,root,root) %{py3_sitedir}/xen/lowlevel/xc.cpython-*.so
+%{py3_sitedir}/xen/migration
+%{py3_sitedir}/grub
+%{py3_sitedir}/pygrub-*-py*.egg-info
+%{py3_sitedir}/xen-*-py*.egg-info
+
+%files -n python3-xen-guest
+%defattr(644,root,root,755)
+%dir %{py3_sitedir}/xen
+%dir %{py3_sitedir}/xen/__pycache__
+%{py3_sitedir}/xen/__init__.py*
+%{py3_sitedir}/xen/__pycache__/__init__.cpython-*.py[co]
+%dir %{py3_sitedir}/xen/lowlevel
+%{py3_sitedir}/xen/lowlevel/__init__.py
+%{py3_sitedir}/xen/lowlevel/__pycache__
+%attr(755,root,root) %{py3_sitedir}/xen/lowlevel/xs.cpython-*.so
+%endif
 
 %files -n bash-completion-%{name}
 %defattr(644,root,root,755)

@@ -24,42 +24,6 @@ diff -ur xen-4.13.1/tools/misc/xenpvnetboot xen-4.13.1.py/tools/misc/xenpvnetboo
  #
  # Copyright (C) 2010 Oracle. All rights reserved.
  #
-diff -ur xen-4.13.1/tools/pygrub/src/pygrub xen-4.13.1.py/tools/pygrub/src/pygrub
---- xen-4.13.1/tools/pygrub/src/pygrub	2020-06-07 19:59:07.463276639 +0200
-+++ xen-4.13.1.py/tools/pygrub/src/pygrub	2020-06-07 19:58:48.203256360 +0200
-@@ -1,4 +1,4 @@
--#! /usr/bin/env python
-+#!/usr/bin/python2
- #
- # pygrub - simple python-based bootloader for Xen
- #
-diff -ur xen-4.13.1/tools/python/scripts/convert-legacy-stream xen-4.13.1.py/tools/python/scripts/convert-legacy-stream
---- xen-4.13.1/tools/python/scripts/convert-legacy-stream	2020-05-14 14:19:32.000000000 +0200
-+++ xen-4.13.1.py/tools/python/scripts/convert-legacy-stream	2020-06-07 19:58:48.203256360 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python2
- # -*- coding: utf-8 -*-
- 
- """
-diff -ur xen-4.13.1/tools/python/scripts/verify-stream-v2 xen-4.13.1.py/tools/python/scripts/verify-stream-v2
---- xen-4.13.1/tools/python/scripts/verify-stream-v2	2020-05-14 14:19:32.000000000 +0200
-+++ xen-4.13.1.py/tools/python/scripts/verify-stream-v2	2020-06-07 19:58:48.203256360 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python2
- # -*- coding: utf-8 -*-
- 
- """ Verify a v2 format migration stream """
-diff -ur xen-4.13.1/tools/xenmon/xenmon.py xen-4.13.1.py/tools/xenmon/xenmon.py
---- xen-4.13.1/tools/xenmon/xenmon.py	2020-05-14 14:19:32.000000000 +0200
-+++ xen-4.13.1.py/tools/xenmon/xenmon.py	2020-06-07 19:58:48.203256360 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python2
- 
- #####################################################################
- # xenmon is a front-end for xenbaked.
 diff -ur xen-4.13.1/tools/xentrace/xentrace_format xen-4.13.1.py/tools/xentrace/xentrace_format
 --- xen-4.13.1/tools/xentrace/xentrace_format	2020-05-14 14:19:32.000000000 +0200
 +++ xen-4.13.1.py/tools/xentrace/xentrace_format	2020-06-07 19:58:48.203256360 +0200

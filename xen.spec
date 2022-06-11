@@ -42,13 +42,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.14.5
+Version:	4.15.2
 Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://www.xenproject.org/developers/teams/hypervisor.html
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	6e1fa9a902bc760bb00a5bdeef9389ae
+# Source0-md5:	d85ce5d677c7713b6b91017d3aa8b68c
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -97,9 +97,7 @@ Patch7:		%{name}-paths.patch
 Patch8:		%{name}-no_fetcher.patch
 Patch9:		%{name}-no_Werror.patch
 Patch10:	%{name}-stubdom-build.patch
-Patch11:	link.patch
 Patch12:	%{name}-systemd.patch
-Patch13:	sysmacros.patch
 Patch14:	gcc9.patch
 Patch15:	gcc10.patch
 Patch16:	ocaml-4.12.patch
@@ -426,9 +424,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
 %patch12 -p1
-%patch13 -p1
 %patch14 -p1
 %if %(echo %{cc_version} | cut -d. -f1) >= 10
 # -Wno-error=enum-conversion requires gcc 10
@@ -734,6 +730,7 @@ fi
 %{_libexecdir}/%{name}/boot/vtpm-stubdom.gz
 %{_libexecdir}/%{name}/boot/vtpmmgr-stubdom.gz
 %{_libexecdir}/%{name}/boot/xenstore-stubdom.gz
+%{_libexecdir}/%{name}/boot/xenstorepvh-stubdom.gz
 %endif
 %{_libexecdir}/%{name}/boot/ipxe.bin
 %ifarch %{x8664}
@@ -748,6 +745,7 @@ fi
 %{_mandir}/man5/xl.conf.5*
 %{_mandir}/man5/xl-disk-configuration.5*
 %{_mandir}/man5/xl-network-configuration.5*
+%{_mandir}/man5/xl-pci-configuration.5*
 %{_mandir}/man5/xlcpupool.cfg.5*
 %{_mandir}/man7/xen-pci-device-reservations.7*
 %{_mandir}/man7/xen-pv-channel.7*
@@ -790,11 +788,11 @@ fi
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libxenfsimage.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.14
+%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.15
 %attr(755,root,root) %{_libdir}/libxencall.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxencall.so.1
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.14
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.15
 %attr(755,root,root) %{_libdir}/libxendevicemodel.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxendevicemodel.so.1
 %attr(755,root,root) %{_libdir}/libxenevtchn.so.*.*
@@ -804,21 +802,21 @@ fi
 %attr(755,root,root) %{_libdir}/libxengnttab.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxengnttab.so.1
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.14
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.15
 %attr(755,root,root) %{_libdir}/libxenhypfs.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenhypfs.so.1
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.14
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.15
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.14
+%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.15
 %attr(755,root,root) %{_libdir}/libxentoolcore.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoolcore.so.1
 %attr(755,root,root) %{_libdir}/libxentoollog.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoollog.so.1
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.14
+%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.15
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.14
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.15
 %dir %{_libdir}/xenfsimage
 %dir %{_libdir}/xenfsimage/ext2fs-lib
 %dir %{_libdir}/xenfsimage/fat
@@ -1001,7 +999,7 @@ fi
 
 %files -n bash-completion-%{name}
 %defattr(644,root,root,755)
-/etc/bash_completion.d/xl.sh
+/etc/bash_completion.d/xl
 
 %if %{with efi}
 %files efi

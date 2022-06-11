@@ -1,12 +1,11 @@
-diff -urNp -x '*.orig' xen-4.13.1.org/tools/libxc/Makefile xen-4.13.1/tools/libxc/Makefile
---- xen-4.13.1.org/tools/libxc/Makefile	2020-05-14 14:19:32.000000000 +0200
-+++ xen-4.13.1/tools/libxc/Makefile	2021-03-25 22:42:13.577696791 +0100
-@@ -274,7 +274,7 @@ xc_dom_bzimageloader.opic: CFLAGS += $(f
- 
- libxenguest.so.$(MAJOR).$(MINOR): COMPRESSION_LIBS = $(filter -l%,$(zlib-options))
- libxenguest.so.$(MAJOR).$(MINOR): $(GUEST_PIC_OBJS) libxenctrl.so
--	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG) -Wl,libxenguest.so.$(MAJOR) $(SHLIB_LDFLAGS) -o $@ $(GUEST_PIC_OBJS) $(COMPRESSION_LIBS) -lz $(LDLIBS_libxenevtchn) $(LDLIBS_libxenctrl) $(PTHREAD_LIBS) $(APPEND_LDFLAGS)
-+	$(CC) $(LDFLAGS) -Wl,$(SONAME_LDFLAG) -Wl,libxenguest.so.$(MAJOR) $(SHLIB_LDFLAGS) -o $@ $(GUEST_PIC_OBJS) $(COMPRESSION_LIBS) -lz $(LDLIBS_libxenevtchn) $(LDLIBS_libxenctrl) $(LDLIBS_libxencall) $(LDLIBS_libxenforeignmemory) $(LDLIBS_libxentoollog) $(PTHREAD_LIBS) $(APPEND_LDFLAGS)
- 
- -include $(DEPS_INCLUDE)
- 
+--- xen-4.15.2/tools/libs/uselibs.mk.orig	2022-01-31 10:42:09.000000000 +0100
++++ xen-4.15.2/tools/libs/uselibs.mk	2022-06-11 17:42:08.053614271 +0200
+@@ -19,7 +19,7 @@ USELIBS_hypfs := toollog toolcore call
+ LIBS_LIBS += ctrl
+ USELIBS_ctrl := toollog call evtchn gnttab foreignmemory devicemodel
+ LIBS_LIBS += guest
+-USELIBS_guest := evtchn ctrl
++USELIBS_guest := evtchn ctrl toollog call foreignmemory
+ LIBS_LIBS += store
+ USELIBS_store := toolcore
+ LIBS_LIBS += vchan

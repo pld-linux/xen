@@ -123,7 +123,7 @@ BuildRequires:	gcc >= 6:4.8
 BuildRequires:	gcc-multilib-32 >= 6:4.1
 %endif
 BuildRequires:	gettext-tools
-%{?with_golang:BuildRequires:	golang >= 1.11}
+%{?with_golang:BuildRequires:	golang >= 1.11.1}
 BuildRequires:	libaio-devel
 %ifarch %{arm} aarch64
 BuildRequires:	libfdt-devel >= 1.4.0
@@ -150,6 +150,7 @@ BuildRequires:	python3-markdown
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	seabios
+BuildRequires:	systemd-devel >= 1:209
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	texlive-xetex
@@ -157,6 +158,7 @@ BuildRequires:	which
 BuildRequires:	xz-devel
 BuildRequires:	yajl-devel
 BuildRequires:	zlib-devel
+BuildRequires:	zstd-devel
 %if %{with qemu_traditional}
 %{?with_opengl:BuildRequires:	OpenGL-devel}
 %{?with_sdl:BuildRequires:	SDL-devel >= 1.2.1}

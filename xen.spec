@@ -594,7 +594,7 @@ cp -p tools/pygrub/README _doc/README.pygrub
 # remove unneeded files
 %if %{with hypervisor}
 %{__mv} xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.14.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.15.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen

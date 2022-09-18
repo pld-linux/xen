@@ -32,8 +32,8 @@ Adjust types and sizes for 32-bit pointers
                                                                           ctypename,cname,
                                                                           golenvar,golenvar)
      s += 'for i,v := range x.{0} {{\n'.format(goname)
---- xen-4.14.3/tools/golang/xenlight/xenlight.go.orig	2021-09-10 14:30:40.000000000 +0200
-+++ xen-4.14.3/tools/golang/xenlight/xenlight.go	2021-11-07 17:46:36.600731277 +0100
+--- xen-4.16.1/tools/golang/xenlight/xenlight.go.orig	2022-04-12 14:21:23.000000000 +0200
++++ xen-4.16.1/tools/golang/xenlight/xenlight.go	2022-09-18 15:39:56.819306319 +0200
 @@ -478,7 +478,7 @@ type StringList []string
  
  func (sl *StringList) fromC(csl *C.libxl_string_list) error {
@@ -46,15 +46,15 @@ Adjust types and sizes for 32-bit pointers
 @@ -492,8 +492,8 @@ func (sl *StringList) fromC(csl *C.libxl
  func (sl StringList) toC(csl *C.libxl_string_list) error {
  	var char *C.char
- 	size := len(sl)
+ 	size := len(sl) + 1
 -	*csl = (C.libxl_string_list)(C.malloc(C.ulong(size) * C.ulong(unsafe.Sizeof(char))))
--	clist := (*[1 << 30]*C.char)(unsafe.Pointer(csl))[:size:size]
+-	clist := (*[1 << 30]*C.char)(unsafe.Pointer(*csl))[:size:size]
 +	*csl = (C.libxl_string_list)(C.malloc(C.size_t(size) * C.size_t(unsafe.Sizeof(char))))
-+	clist := (*[1 << 28]*C.char)(unsafe.Pointer(csl))[:size:size]
++	clist := (*[1 << 28]*C.char)(unsafe.Pointer(*csl))[:size:size]
  
  	for i, v := range sl {
  		clist[i] = C.CString(v)
-@@ -537,8 +537,8 @@ func (bm *Bitmap) toC(cbm *C.libxl_bitma
+@@ -538,8 +538,8 @@ func (bm *Bitmap) toC(cbm *C.libxl_bitma
  	size := len(bm.bitmap)
  	cbm.size = C.uint32_t(size)
  	if cbm.size > 0 {
@@ -65,7 +65,7 @@ Adjust types and sizes for 32-bit pointers
  
  		copy(cs, bm.bitmap)
  	}
-@@ -605,7 +605,7 @@ func (Ctx *Context) ListCpupool() (list
+@@ -606,7 +606,7 @@ func (ctx *Context) ListCpupool() (list
  	}
  
  	// Magic
@@ -74,7 +74,7 @@ Adjust types and sizes for 32-bit pointers
  	for i := range cpupoolListSlice {
  		var info Cpupoolinfo
  		_ = info.fromC(&cpupoolListSlice[i])
-@@ -1081,7 +1081,7 @@ func (Ctx *Context) ListDomain() (glist
+@@ -1082,7 +1082,7 @@ func (ctx *Context) ListDomain() (glist
  		return
  	}
  
@@ -83,7 +83,7 @@ Adjust types and sizes for 32-bit pointers
  	for i := range gslice {
  		var info Dominfo
  		_ = info.fromC(&gslice[i])
-@@ -1105,7 +1105,7 @@ func (Ctx *Context) ListVcpu(id Domid) (
+@@ -1106,7 +1106,7 @@ func (ctx *Context) ListVcpu(id Domid) (
  		return
  	}
  

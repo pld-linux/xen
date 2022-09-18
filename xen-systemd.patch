@@ -1,13 +1,13 @@
---- xen-4.9.0/tools/hotplug/Linux/systemd/xenconsoled.service.in.orig	2017-07-30 21:05:26.089563010 +0200
-+++ xen-4.9.0/tools/hotplug/Linux/systemd/xenconsoled.service.in	2017-07-30 21:12:17.189558321 +0200
-@@ -7,12 +7,12 @@
+--- xen-4.16.1/tools/hotplug/Linux/systemd/xenconsoled.service.in.orig	2022-09-18 15:05:07.257293114 +0200
++++ xen-4.16.1/tools/hotplug/Linux/systemd/xenconsoled.service.in	2022-09-18 15:07:08.493302989 +0200
+@@ -7,12 +7,12 @@ ConditionPathExists=/proc/xen/capabiliti
  [Service]
  Type=simple
  Environment=XENCONSOLED_ARGS=
 -Environment=XENCONSOLED_TRACE=none
 +Environment=XENCONSOLED_LOG=none
  Environment=XENCONSOLED_LOG_DIR=@XEN_LOG_DIR@/console
--EnvironmentFile=@CONFIG_DIR@/@CONFIG_LEAF_DIR@/xencommons
+-EnvironmentFile=-@CONFIG_DIR@/@CONFIG_LEAF_DIR@/xencommons
 +EnvironmentFile=-@CONFIG_DIR@/@CONFIG_LEAF_DIR@/xenconsoled
  ExecStartPre=/bin/grep -q control_d /proc/xen/capabilities
  ExecStartPre=/bin/mkdir -p ${XENCONSOLED_LOG_DIR}

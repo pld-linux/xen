@@ -17,6 +17,7 @@
 %bcond_without	brlapi			# brlapi support in Xen qemu
 %bcond_with	golang			# Go library
 %bcond_without	ocaml			# Ocaml libraries for Xen tools
+%bcond_without	pv_grub			# pv-grub (deprecated)
 %bcond_with	python2			# CPython 2.x module instead of 3.x
 %bcond_without	efi			# EFI hypervisor
 %bcond_without	hypervisor		# Xen hypervisor build
@@ -42,13 +43,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.15.3
+Version:	4.16.1
 Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
-# for available versions see https://www.xenproject.org/developers/teams/hypervisor.html
+# for available versions see https://xenproject.org/xen-project-archives/
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	ad68aa30e6dd0ca34cadd0a3d23f9244
+# Source0-md5:	1c2cd4f7f966c1d455aab630953e5fad
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -60,8 +61,8 @@ Source13:	%{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
 # Source13-md5:	cec05e7785497c5e19da2f114b934ffd
 Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
-Source15:	%{xen_extfiles_url}/ipxe-git-988d2c13cdf0f0b4140685af35ced70ac5b3283c.tar.gz
-# Source15-md5:	1c3f5c0d6d824697361481aa7004fc5b
+Source15:	%{xen_extfiles_url}/ipxe-git-3c040ad387099483102708bb1839110bc788cefb.tar.gz
+# Source15-md5:	23ba00d5e2c5b4343d12665af73e1cb5
 Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
 # Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
 Source18:	%{xen_extfiles_url}/tpm_emulator-%{tpm_emulator_version}.tar.gz
@@ -444,7 +445,6 @@ ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
 ln -s %{SOURCE17} %{SOURCE18} %{SOURCE19} stubdom
 ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 
-
 %if %{with python2}
 %{__sed} -i -e '1s,/usr/bin/env python$,%{__python},' \
 %else
@@ -485,6 +485,7 @@ export PATH=$(pwd)/our-ld:$PATH
 	ac_cv_lib_iconv_libiconv_open=no \
 	--disable-debug \
 	%{!?with_golang:--disable-golang} \
+	%{?with_pv_grub:--enable-pv-grub} \
 	%{__enable_disable qemu_traditional qemu-traditional} \
 	--with-system-seabios=/usr/share/seabios/bios.bin \
 %ifarch %{x8664}
@@ -596,7 +597,7 @@ cp -p tools/pygrub/README _doc/README.pygrub
 # remove unneeded files
 %if %{with hypervisor}
 %{__mv} xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.15.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.16.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
@@ -725,11 +726,13 @@ fi
 %if %{with qemu_traditional}
 %{_libexecdir}/%{name}/boot/ioemu-stubdom.gz
 %endif
+%if %{with pv_grub}
 %ifarch %{ix86} %{x8664}
 %{_libexecdir}/%{name}/boot/pv-grub-x86_32.gz
 %endif
 %ifarch %{x8664}
 %{_libexecdir}/%{name}/boot/pv-grub-x86_64.gz
+%endif
 %endif
 %{_libexecdir}/%{name}/boot/vtpm-stubdom.gz
 %{_libexecdir}/%{name}/boot/vtpmmgr-stubdom.gz
@@ -792,11 +795,11 @@ fi
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libxenfsimage.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.15
+%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.16
 %attr(755,root,root) %{_libdir}/libxencall.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxencall.so.1
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.15
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.16
 %attr(755,root,root) %{_libdir}/libxendevicemodel.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxendevicemodel.so.1
 %attr(755,root,root) %{_libdir}/libxenevtchn.so.*.*
@@ -806,21 +809,21 @@ fi
 %attr(755,root,root) %{_libdir}/libxengnttab.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxengnttab.so.1
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.15
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.16
 %attr(755,root,root) %{_libdir}/libxenhypfs.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenhypfs.so.1
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.15
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.16
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.15
+%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.16
 %attr(755,root,root) %{_libdir}/libxentoolcore.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoolcore.so.1
 %attr(755,root,root) %{_libdir}/libxentoollog.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoollog.so.1
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.15
+%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.16
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.15
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.16
 %dir %{_libdir}/xenfsimage
 %dir %{_libdir}/xenfsimage/ext2fs-lib
 %dir %{_libdir}/xenfsimage/fat
@@ -833,8 +836,8 @@ fi
 
 %files libs-guest
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libxenstore.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenstore.so.3.0
+%attr(755,root,root) %{_libdir}/libxenstore.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxenstore.so.4
 
 %files devel
 %defattr(644,root,root,755)

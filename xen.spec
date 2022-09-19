@@ -60,8 +60,8 @@ Source13:	%{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
 # Source13-md5:	cec05e7785497c5e19da2f114b934ffd
 Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
-Source15:	%{xen_extfiles_url}/ipxe-git-1dd56dbd11082fb622c2ed21cfaced4f47d798a6.tar.gz
-# Source15-md5:	b3ab0488a989a089207302111d12e1a0
+Source15:	%{xen_extfiles_url}/ipxe-git-988d2c13cdf0f0b4140685af35ced70ac5b3283c.tar.gz
+# Source15-md5:	1c3f5c0d6d824697361481aa7004fc5b
 Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
 # Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
 Source18:	%{xen_extfiles_url}/tpm_emulator-%{tpm_emulator_version}.tar.gz
@@ -102,6 +102,7 @@ Patch14:	gcc9.patch
 Patch15:	gcc10.patch
 Patch16:	ocaml-4.12.patch
 Patch17:	%{name}-golang-32bit.patch
+Patch18:	%{name}-gcc12.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -436,6 +437,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %ifarch %{ix86} %{arm}
 %patch17 -p1
 %endif
+%patch18 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

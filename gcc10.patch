@@ -5,4 +5,4 @@
  CFLAGS += -UCONSOLE_SERIAL
  CFLAGS += -DCONSOLE_SERIAL=1
 +
-+CFLAGS += -Wno-error=enum-conversion -Wno-error=maybe-uninitialized
++CFLAGS += -Wno-error=enum-conversion -Wno-error=maybe-uninitialized -Wno-error=array-bounds -Wno-error=dangling-pointer

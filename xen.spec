@@ -43,13 +43,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.16.1
+Version:	4.16.2
 Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://xenproject.org/xen-project-archives/
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	1c2cd4f7f966c1d455aab630953e5fad
+# Source0-md5:	6bd720f53e3c34a35cb8a8897a561e18
 # used by stubdoms
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -135,7 +135,7 @@ BuildRequires:	libuuid-devel
 BuildRequires:	lzo-devel >= 2
 BuildRequires:	ncurses-devel
 %if %{with ocaml}
-BuildRequires:	ocaml >= 4.02.0
+BuildRequires:	ocaml >= 1:4.02.0
 BuildRequires:	ocaml-findlib
 %endif
 BuildRequires:	pandoc

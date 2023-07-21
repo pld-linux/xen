@@ -23,6 +23,7 @@
 %bcond_without	hypervisor		# Xen hypervisor build
 %bcond_without	stubdom			# stubdom build
 %bcond_without	xsm			# XSM security module (by default, Flask)
+%bcond_without	systemd			# systemd
 
 %ifnarch %{x8664} %{arm}
 %undefine	with_hypervisor
@@ -104,6 +105,7 @@ Patch15:	gcc10.patch
 Patch16:	ocaml-4.12.patch
 Patch17:	%{name}-golang-32bit.patch
 Patch18:	%{name}-gcc12.patch
+Patch19:	gcc13.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -152,7 +154,7 @@ BuildRequires:	python3-markdown
 BuildRequires:	rpm-pythonprov
 BuildRequires:	rpmbuild(macros) >= 1.647
 BuildRequires:	seabios
-BuildRequires:	systemd-devel >= 1:209
+%{?with_systemd:BuildRequires:	systemd-devel >= 1:209}
 BuildRequires:	texlive-dvips
 BuildRequires:	texlive-latex-psnfss
 BuildRequires:	texlive-xetex
@@ -439,6 +441,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch17 -p1
 %endif
 %patch18 -p1
+%patch19 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -493,8 +496,11 @@ export PATH=$(pwd)/our-ld:$PATH
 %else
 	--with-system-qemu=/usr/bin/qemu-system-i386 \
 %endif
+%if %{with systemd}
 	--with-systemd=%{systemdunitdir}
-
+%else
+	--disable-systemd
+%endif
 export EXTRA_CFLAGS_XEN_TOOLS="%{rpmcflags} -I/usr/include/ncurses"
 export EXTRA_CFLAGS_QEMU_TRADITIONAL="%{rpmcflags} -I/usr/include/ncurses"
 export EXTRA_CFLAGS_QEMU_XEN="%{rpmcflags} -I/usr/include/ncurses"
@@ -667,6 +673,7 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/xenstored
 %attr(754,root,root) /etc/rc.d/init.d/xendomains
 %attr(754,root,root) /etc/rc.d/init.d/xen-qemu-dom0-disk-backend
+%if %{with systemd}
 %{_prefix}/lib/modules-load.d/xen.conf
 %{systemdunitdir}/proc-xen.mount
 %{systemdunitdir}/var-lib-xenstored.mount
@@ -677,6 +684,7 @@ fi
 %{systemdunitdir}/xendriverdomain.service
 %{systemdunitdir}/xendomains.service
 %{systemdunitdir}/xen-qemu-dom0-disk-backend.service
+%endif
 %dir %{_sysconfdir}/xen
 %dir %{_sysconfdir}/xen/auto
 %dir %{_sysconfdir}/xen/examples

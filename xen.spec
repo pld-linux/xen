@@ -44,14 +44,14 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.16.5
+Version:	4.17.0
 Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://xenproject.org/xen-project-archives/
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	d2b76430ebac3cfc15dd25a352f7a5ac
-# used by stubdoms
+# Source0-md5:	b215062ff053378eed41e4a3e05081df
+# used by stubdoms; Source10-19 versions set in stubdom/configure.ac
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
 Source11:	%{xen_extfiles_url}/newlib-1.16.0.tar.gz
@@ -62,14 +62,15 @@ Source13:	%{xen_extfiles_url}/pciutils-2.2.9.tar.bz2
 # Source13-md5:	cec05e7785497c5e19da2f114b934ffd
 Source14:	%{xen_extfiles_url}/grub-0.97.tar.gz
 # Source14-md5:	cd3f3eb54446be6003156158d51f4884
-Source15:	%{xen_extfiles_url}/ipxe-git-3c040ad387099483102708bb1839110bc788cefb.tar.gz
-# Source15-md5:	23ba00d5e2c5b4343d12665af73e1cb5
 Source17:	%{xen_extfiles_url}/polarssl-%{polarssl_version}-gpl.tgz
 # Source17-md5:	7b72caf22b01464ee7d6165f2fd85f44
 Source18:	%{xen_extfiles_url}/tpm_emulator-%{tpm_emulator_version}.tar.gz
 # Source18-md5:	e26becb8a6a2b6695f6b3e8097593db8
 Source19:	https://ftp.gnu.org/gnu/gmp/gmp-%{gmp_version}.tar.bz2
 # Source19-md5:	dd60683d7057917e34630b4a787932e8
+# ipxe tag set in tools/firmware/etherboot/Makefile
+Source20:	%{xen_extfiles_url}/ipxe-git-3c040ad387099483102708bb1839110bc788cefb.tar.gz
+# Source20-md5:	23ba00d5e2c5b4343d12665af73e1cb5
 Source35:	xenconsoled.sysconfig
 Source37:	xenstored.sysconfig
 Source38:	xenstored.tmpfiles
@@ -102,7 +103,6 @@ Patch10:	%{name}-stubdom-build.patch
 Patch12:	%{name}-systemd.patch
 Patch14:	gcc9.patch
 Patch15:	gcc10.patch
-Patch16:	ocaml-4.12.patch
 Patch17:	%{name}-golang-32bit.patch
 Patch18:	%{name}-gcc12.patch
 Patch19:	gcc13.patch
@@ -440,7 +440,6 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %{__sed} -i -e 's/ -Wno-error=dangling-pointer//' tools/firmware/etherboot/Config
 %endif
 %endif
-%patch16 -p1
 %ifarch %{ix86} %{arm}
 %patch17 -p1
 %endif
@@ -451,7 +450,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
 ln -s %{SOURCE17} %{SOURCE18} %{SOURCE19} stubdom
-ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
+ln -s %{SOURCE20} tools/firmware/etherboot/ipxe.tar.gz
 
 %if %{with python2}
 %{__sed} -i -e '1s,/usr/bin/env python$,%{__python},' \
@@ -611,7 +610,7 @@ cp -p tools/pygrub/README _doc/README.pygrub
 # remove unneeded files
 %if %{with hypervisor}
 %{__mv} xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.16.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.17.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
@@ -684,7 +683,6 @@ fi
 %if %{with systemd}
 %{_prefix}/lib/modules-load.d/xen.conf
 %{systemdunitdir}/proc-xen.mount
-%{systemdunitdir}/var-lib-xenstored.mount
 %{systemdunitdir}/xen-init-dom0.service
 %{systemdunitdir}/xen-watchdog.service
 %{systemdunitdir}/xenconsoled.service
@@ -778,7 +776,6 @@ fi
 %{_mandir}/man7/xl-numa-placement.7*
 %{_mandir}/man8/xentrace.8*
 %{_sharedstatedir}/xen
-%{_sharedstatedir}/xenstored
 %dir /var/run/xenstored
 %{systemdtmpfilesdir}/xen.conf
 %{systemdtmpfilesdir}/xenstored.conf
@@ -810,11 +807,11 @@ fi
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libxenfsimage.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.16
+%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.17
 %attr(755,root,root) %{_libdir}/libxencall.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxencall.so.1
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.16
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.17
 %attr(755,root,root) %{_libdir}/libxendevicemodel.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxendevicemodel.so.1
 %attr(755,root,root) %{_libdir}/libxenevtchn.so.*.*
@@ -824,21 +821,21 @@ fi
 %attr(755,root,root) %{_libdir}/libxengnttab.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxengnttab.so.1
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.16
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.17
 %attr(755,root,root) %{_libdir}/libxenhypfs.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenhypfs.so.1
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.16
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.17
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.16
+%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.17
 %attr(755,root,root) %{_libdir}/libxentoolcore.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoolcore.so.1
 %attr(755,root,root) %{_libdir}/libxentoollog.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoollog.so.1
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.16
+%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.17
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.16
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.17
 %dir %{_libdir}/xenfsimage
 %dir %{_libdir}/xenfsimage/ext2fs-lib
 %dir %{_libdir}/xenfsimage/fat
@@ -872,7 +869,6 @@ fi
 %attr(755,root,root) %{_libdir}/libxentoollog.so
 %attr(755,root,root) %{_libdir}/libxenvchan.so
 %attr(755,root,root) %{_libdir}/libxlutil.so
-%{_includedir}/_libxl_list.h
 %{_includedir}/_libxl_types.h
 %{_includedir}/_libxl_types_json.h
 %{_includedir}/libxenvchan.h

@@ -45,7 +45,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.16.2
-Release:	1
+Release:	2
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://xenproject.org/xen-project-archives/
@@ -106,6 +106,7 @@ Patch16:	ocaml-4.12.patch
 Patch17:	%{name}-golang-32bit.patch
 Patch18:	%{name}-gcc12.patch
 Patch19:	gcc13.patch
+Patch20:	python-fixes.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -442,6 +443,7 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %endif
 %patch18 -p1
 %patch19 -p1
+%patch20 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -451,11 +453,14 @@ ln -s %{SOURCE15} tools/firmware/etherboot/ipxe.tar.gz
 %if %{with python2}
 %{__sed} -i -e '1s,/usr/bin/env python$,%{__python},' \
 %else
-%{__sed} -i -e '1s,/usr/bin/env python$,%{__python3},' \
+%{__sed} -i -e '1s,/usr/bin/env python$,%{__python3},; 1s,/usr/bin/python2$,%{__python3},' \
 %endif
+	tools/misc/xencov_split \
+	tools/misc/xenpvnetboot \
 	tools/pygrub/src/pygrub \
 	tools/python/scripts/{convert-legacy-stream,verify-stream-v2} \
-	tools/xenmon/xenmon.py
+	tools/xenmon/xenmon.py \
+	tools/xentrace/xentrace_format
 
 # do not allow fetching anything via git
 echo GIT=/bin/false >> Config.mk
@@ -702,7 +707,6 @@ fi
 %attr(755,root,root) %{_bindir}/vchan-socket-proxy
 %attr(755,root,root) %{_bindir}/xen-cpuid
 %attr(755,root,root) %{_bindir}/xenalyze
-%attr(755,root,root) %{_bindir}/xencons
 %attr(755,root,root) %{_bindir}/xencov_split
 %attr(755,root,root) %{_bindir}/xentrace_format
 %if %{with xsm}

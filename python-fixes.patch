@@ -1,0 +1,1826 @@
+diff -urN xen-4.16.2.orig/tools/misc/Makefile xen-4.16.2/tools/misc/Makefile
+--- xen-4.16.2.orig/tools/misc/Makefile	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/misc/Makefile	2023-07-23 20:27:26.104773461 +0200
+@@ -13,7 +13,6 @@
+ # Everything to be installed in regular bin/
+ INSTALL_BIN-$(CONFIG_X86)      += xen-cpuid
+ INSTALL_BIN-$(CONFIG_X86)      += xen-detect
+-INSTALL_BIN                    += xencons
+ INSTALL_BIN                    += xencov_split
+ INSTALL_BIN += $(INSTALL_BIN-y)
+ 
+@@ -45,7 +44,6 @@
+ TARGETS_ALL := $(INSTALL_BIN) $(INSTALL_SBIN) $(INSTALL_PRIVBIN)
+ 
+ # Everything which only needs copying to install
+-TARGETS_COPY += xencons
+ TARGETS_COPY += xencov_split
+ TARGETS_COPY += xenpvnetboot
+ 
+diff -urN xen-4.16.2.orig/tools/misc/xencons xen-4.16.2/tools/misc/xencons
+--- xen-4.16.2.orig/tools/misc/xencons	2023-07-23 20:27:00.747415202 +0200
++++ xen-4.16.2/tools/misc/xencons	1970-01-01 01:00:00.000000000 +0100
+@@ -1,92 +0,0 @@
+-#!/usr/bin/python2
+-
+-##############################################
+-# Console client for Xen guest OSes
+-# Copyright (c) 2004, K A Fraser
+-##############################################
+-
+-import errno, os, signal, socket, struct, sys
+-
+-from termios import *
+-# Indexes into termios.tcgetattr() list.
+-IFLAG  = 0
+-OFLAG  = 1
+-CFLAG  = 2
+-LFLAG  = 3
+-ISPEED = 4
+-OSPEED = 5
+-CC     = 6
+-
+-def __child_death(signum, frame):
+-    global stop
+-    stop = True
+-
+-def __recv_from_sock(sock):
+-    global stop
+-    stop = False
+-    while not stop:
+-        try:
+-            data = sock.recv(1024)
+-        except socket.error, error:
+-            if error[0] != errno.EINTR:
+-                raise
+-        else:
+-            try:
+-                os.write(1, data)
+-            except os.error, error:
+-                if error[0] != errno.EINTR:
+-                    raise
+-    os.wait()
+-
+-def __send_to_sock(sock):
+-    while 1:
+-        try:
+-            data = os.read(0,1024)
+-        except os.error, error:
+-            if error[0] != errno.EINTR:
+-                raise
+-        else:
+-            if ord(data[0]) == ord(']')-64:
+-                break
+-            try:
+-                sock.send(data)
+-            except socket.error, error:
+-                if error[0] == errno.EPIPE:
+-                    sys.exit(0)
+-                if error[0] != errno.EINTR:
+-                    raise
+-    sys.exit(0)
+-
+-def connect(host,port):
+-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+-    sock.connect((host,port))
+-
+-    oattrs = tcgetattr(0)
+-    nattrs = tcgetattr(0)
+-    nattrs[IFLAG] = nattrs[IFLAG] & ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON)
+-    nattrs[OFLAG] = nattrs[OFLAG] & ~(OPOST)
+-    nattrs[CFLAG] = nattrs[CFLAG] & ~(CSIZE | PARENB)
+-    nattrs[CFLAG] = nattrs[CFLAG] | CS8
+-    nattrs[LFLAG] = nattrs[LFLAG] & ~(ECHO | ICANON | IEXTEN | ISIG)
+-    nattrs[CC][VMIN] = 1
+-    nattrs[CC][VTIME] = 0
+-
+-    if os.fork():
+-        signal.signal(signal.SIGCHLD, __child_death)
+-        print "************ REMOTE CONSOLE: CTRL-] TO QUIT ********"
+-        tcsetattr(0, TCSAFLUSH, nattrs)
+-        try:
+-            __recv_from_sock(sock)
+-        finally:
+-            tcsetattr(0, TCSAFLUSH, oattrs)
+-            print
+-            print "************ REMOTE CONSOLE EXITED *****************"
+-    else:
+-        signal.signal(signal.SIGPIPE, signal.SIG_IGN)
+-        __send_to_sock(sock)
+-
+-if __name__ == '__main__':
+-    if len(sys.argv) != 3:
+-        print sys.argv[0] + " <host> <port>"
+-        sys.exit(1)
+-    connect(str(sys.argv[1]),int(sys.argv[2]))
+diff -urN xen-4.16.2.orig/tools/misc/xencov_split xen-4.16.2/tools/misc/xencov_split
+--- xen-4.16.2.orig/tools/misc/xencov_split	2023-07-23 20:27:00.747415202 +0200
++++ xen-4.16.2/tools/misc/xencov_split	2023-07-23 20:27:33.481877687 +0200
+@@ -94,4 +94,3 @@
+         sys.exit(1)
+     except KeyboardInterrupt:
+         sys.exit(1)
+-
+diff -urN xen-4.16.2.orig/tools/pygrub/Makefile xen-4.16.2/tools/pygrub/Makefile
+--- xen-4.16.2.orig/tools/pygrub/Makefile	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/pygrub/Makefile	2023-07-23 20:27:33.481877687 +0200
+@@ -6,19 +6,22 @@
+ PY_LDFLAGS = $(SHLIB_LDFLAGS) $(APPEND_LDFLAGS)
+ INSTALL_LOG = build/installed_files.txt
+ 
++setup.py = CC="$(CC)" CFLAGS="$(PY_CFLAGS)" LDSHARED="$(CC)" LDFLAGS="$(PY_LDFLAGS)" \
++           $(PYTHON) setup.py
++
+ .PHONY: all
+ all: build
+ .PHONY: build
+ build:
+-	CC="$(CC)" CFLAGS="$(PY_CFLAGS)" LDSHARED="$(CC)" LDFLAGS="$(PY_LDFLAGS)" $(PYTHON) setup.py build
++	$(setup.py) build
+ 
+ .PHONY: install
+ install: all
+ 	$(INSTALL_DIR) $(DESTDIR)/$(bindir)
+-	CC="$(CC)" CFLAGS="$(PY_CFLAGS)" LDSHARED="$(CC)" \
+-		LDFLAGS="$(PY_LDFLAGS)" $(PYTHON) setup.py install \
+-		--record $(INSTALL_LOG) $(PYTHON_PREFIX_ARG) \
+-		 --root="$(DESTDIR)" --install-scripts=$(LIBEXEC_BIN) --force
++	$(INSTALL_DIR) $(DESTDIR)/$(LIBEXEC_BIN)
++	$(setup.py) install --record $(INSTALL_LOG) $(PYTHON_PREFIX_ARG) \
++		--root="$(DESTDIR)" --force
++	$(INSTALL_PYTHON_PROG) src/pygrub $(DESTDIR)/$(LIBEXEC_BIN)/pygrub
+ 	set -e; if [ $(bindir) != $(LIBEXEC_BIN) -a \
+ 	             "`readlink -f $(DESTDIR)/$(bindir)`" != \
+ 	             "`readlink -f $(LIBEXEC_BIN)`" ]; then \
+diff -urN xen-4.16.2.orig/tools/pygrub/setup.py xen-4.16.2/tools/pygrub/setup.py
+--- xen-4.16.2.orig/tools/pygrub/setup.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/pygrub/setup.py	2023-07-23 20:27:33.481877687 +0200
+@@ -23,7 +23,6 @@
+       author_email='katzj@redhat.com',
+       license='GPL',
+       package_dir={'grub': 'src', 'fsimage': 'src'},
+-      scripts = ["src/pygrub"],
+       packages=pkgs,
+       ext_modules = [ xenfsimage ]
+       )
+diff -urN xen-4.16.2.orig/tools/pygrub/src/ExtLinuxConf.py xen-4.16.2/tools/pygrub/src/ExtLinuxConf.py
+--- xen-4.16.2.orig/tools/pygrub/src/ExtLinuxConf.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/pygrub/src/ExtLinuxConf.py	2023-07-23 20:27:33.482877701 +0200
+@@ -207,7 +207,7 @@
+                  "f1": None,
+                  "f2": None,
+                  }
+-        
++
+ if __name__ == "__main__":
+     if len(sys.argv) < 2:
+         raise RuntimeError("Need a configuration file to read")
+diff -urN xen-4.16.2.orig/tools/pygrub/src/fsimage/fsimage.c xen-4.16.2/tools/pygrub/src/fsimage/fsimage.c
+--- xen-4.16.2.orig/tools/pygrub/src/fsimage/fsimage.c	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/pygrub/src/fsimage/fsimage.c	2023-07-23 20:27:33.482877701 +0200
+@@ -31,7 +31,7 @@
+ 	fsi_t *fs;
+ } fsimage_fs_t;
+ 
+-typedef struct fsimage_file { 
++typedef struct fsimage_file {
+ 	PyObject_HEAD
+ 	fsimage_fs_t *fs;
+ 	fsi_file_t *file;
+@@ -47,7 +47,7 @@
+ 	ssize_t bytesread = 0;
+ 	PyObject * buffer;
+ 
+-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|iL", kwlist, 
++	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|iL", kwlist,
+ 	    &size, &offset))
+ 		return (NULL);
+ 
+@@ -62,7 +62,7 @@
+ 
+ 	if (buffer == NULL)
+ 		return (NULL);
+- 
++
+ 	while (1) {
+ 		int err;
+ 		void *buf =
+@@ -255,7 +255,7 @@
+ 	uint64_t offset = 0;
+ 	fsimage_fs_t *fs;
+ 
+-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|Ls", kwlist, 
++	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|Ls", kwlist,
+ 	    &name, &offset, &options))
+ 		return (NULL);
+ 
+diff -urN xen-4.16.2.orig/tools/pygrub/src/GrubConf.py xen-4.16.2/tools/pygrub/src/GrubConf.py
+--- xen-4.16.2.orig/tools/pygrub/src/GrubConf.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/pygrub/src/GrubConf.py	2023-07-23 20:27:33.482877701 +0200
+@@ -95,7 +95,7 @@
+         self.title = title.strip()
+ 
+     def __repr__(self):
+-        return ("title: %s\n" 
++        return ("title: %s\n"
+                 "  root: %s\n"
+                 "  kernel: %s\n"
+                 "  args: %s\n"
+@@ -140,7 +140,7 @@
+ class GrubImage(_GrubImage):
+     def __init__(self, title, lines):
+         _GrubImage.__init__(self, title, lines)
+-    
++
+     def set_from_line(self, line, replace = None):
+         (com, arg) = grub_exact_split(line, 2)
+ 
+@@ -265,7 +265,7 @@
+ class GrubConfigFile(_GrubConfigFile):
+     def __init__(self, fn = None):
+         _GrubConfigFile.__init__(self,fn)
+-        
++
+     def new_image(self, title, lines):
+         return GrubImage(title, lines)
+ 
+@@ -297,7 +297,7 @@
+                 img = []
+                 title = l[6:]
+                 continue
+-                
++
+             if img is not None:
+                 img.append(l)
+                 continue
+@@ -310,7 +310,7 @@
+                     logging.info("Ignored directive %s" %(com,))
+             else:
+                 logging.warning("Unknown directive %s" %(com,))
+-                
++
+         if img:
+             self.add_image(GrubImage(title, img))
+ 
+@@ -322,7 +322,7 @@
+     com="set:" + com
+     m = re.match("([\"\'])(.*)\\1", arg)
+     if m is not None:
+-        arg=m.group(2) 
++        arg=m.group(2)
+     return (com,arg)
+ 
+ class Grub2Image(_GrubImage):
+@@ -334,7 +334,7 @@
+ 
+         if com == "set":
+             (com,arg) = grub2_handle_set(arg)
+-            
++
+         if com in self.commands:
+             if self.commands[com] is not None:
+                 setattr(self, self.commands[com], arg.strip())
+@@ -351,7 +351,7 @@
+         else:
+             self.lines.pop(replace)
+             self.lines.insert(replace, line)
+-                
++
+     commands = {'set:root': 'root',
+                 'linux': 'kernel',
+                 'linux16': 'kernel',
+@@ -360,14 +360,14 @@
+                 'echo': None,
+                 'insmod': None,
+                 'search': None}
+-    
++
+ class Grub2ConfigFile(_GrubConfigFile):
+     def __init__(self, fn = None):
+         _GrubConfigFile.__init__(self, fn)
+-       
++
+     def new_image(self, title, lines):
+         return Grub2Image(title, lines)
+- 
++
+     def parse(self, buf = None):
+         if buf is None:
+             if self.filename is None:
+@@ -431,10 +431,10 @@
+                 continue
+ 
+             (com, arg) = grub_exact_split(l, 2)
+-        
++
+             if com == "set":
+                 (com,arg) = grub2_handle_set(arg)
+-                
++
+             if com in self.commands:
+                 if self.commands[com] is not None:
+                     arg_strip = arg.strip()
+@@ -448,7 +448,7 @@
+                 pass
+             else:
+                 logging.warning("Unknown directive %s" %(com,))
+-            
++
+         if img is not None:
+             raise RuntimeError("syntax error: end of file with open menuentry(%d %s)" % (len(img),img))
+ 
+@@ -466,7 +466,7 @@
+                 'if': None,
+                 'fi': None,
+                 }
+-        
++
+ if __name__ == "__main__":
+     if len(sys.argv) < 3:
+         raise RuntimeError('Need a grub version ("grub" or "grub2") and a grub.conf or grub.cfg to read')
+diff -urN xen-4.16.2.orig/tools/pygrub/src/pygrub xen-4.16.2/tools/pygrub/src/pygrub
+--- xen-4.16.2.orig/tools/pygrub/src/pygrub	2023-07-23 20:27:00.751415259 +0200
++++ xen-4.16.2/tools/pygrub/src/pygrub	2023-07-23 20:27:33.483877715 +0200
+@@ -46,7 +46,7 @@
+         val = 2
+     else:
+         val = 0
+-        
++
+     try:
+         curses.curs_set(val)
+     except _curses.error:
+@@ -114,7 +114,7 @@
+ def get_partition_offsets(file):
+     image_type = identify_disk_image(file)
+     if image_type == DISK_TYPE_RAW:
+-        # No MBR: assume whole disk filesystem, which is like a 
++        # No MBR: assume whole disk filesystem, which is like a
+         # single partition starting at 0
+         return [0]
+     elif image_type == DISK_TYPE_HYBRIDISO:
+@@ -136,7 +136,7 @@
+         partbuf = buf[poff:poff+16]
+         offset  = struct.unpack("<L", partbuf[8:12])[0] * SECTOR_SIZE
+         type    = struct.unpack("<B", partbuf[4:5])[0]
+-        
++
+         # offset == 0 implies this partition is not enabled
+         if offset == 0:
+             offzerocount += 1
+@@ -176,7 +176,7 @@
+         screen.noutrefresh()
+         win = curses.newwin(1, 74, startx, starty + 2)
+         curses.textpad.Textbox.__init__(self, win)
+-        
++
+         self.line = list(line)
+         self.pos = len(line)
+         self.cancelled = False
+@@ -242,7 +242,7 @@
+         if self.cancelled:
+             return None
+         return string.join(self.line, "")
+-        
++
+ 
+ class Grub:
+     ENTRY_WIN_LINES = 8
+@@ -266,7 +266,7 @@
+             self.entry_win = curses.newwin(Grub.ENTRY_WIN_LINES + 2, 74, 2, 1)
+             self.text_win = curses.newwin(10, 70, 12, 5)
+             curses.def_prog_mode()
+-        
++
+         curses.reset_prog_mode()
+         self.screen.erase()
+ 
+@@ -284,7 +284,7 @@
+             self.start_image = self.selected_image
+         if self.selected_image < self.start_image:
+             self.start_image = self.selected_image
+-        
++
+         for y in range(self.start_image, len(self.cf.images)):
+             i = self.cf.images[y]
+             if y > self.start_image + maxy:
+@@ -334,7 +334,7 @@
+                 l = img.lines[idx].expandtabs().ljust(70)
+                 if len(l) > 70:
+                     l = l[:69] + ">"
+-                    
++
+                 self.entry_win.addstr(idp, 2, l)
+                 if idx == curline:
+                     self.entry_win.attroff(curses.A_REVERSE)
+@@ -372,7 +372,7 @@
+                 self.command_line_mode()
+                 if self.isdone:
+                     return
+-                
++
+             # bound at the top and bottom
+             if curline < 0:
+                 curline = 0
+@@ -405,7 +405,7 @@
+         lines = []
+         while 1:
+             t = GrubLineEditor(self.screen, y, 2)
+-            enable_cursor(True)            
++            enable_cursor(True)
+             ret = t.edit()
+             if ret:
+                 if ret in ("quit", "return"):
+@@ -415,7 +415,7 @@
+                     lines.append(ret)
+                     continue
+ 
+-                # if we got boot, then we want to boot the entered image 
++                # if we got boot, then we want to boot the entered image
+                 img = self.cf.new_image("entered", lines)
+                 self.cf.add_image(img)
+                 self.selected_image = len(self.cf.images) - 1
+@@ -428,7 +428,7 @@
+     def read_config(self, fn, fs = None):
+         """Read the given file to parse the config.  If fs = None, then
+         we're being given a raw config file rather than a disk image."""
+-        
++
+         if not os.access(fn, os.R_OK):
+             raise RuntimeError("Unable to access %s" %(fn,))
+ 
+@@ -504,7 +504,7 @@
+         while not self.isdone:
+             self.run_main(timeout)
+             timeout = -1
+-            
++
+         return self.selected_image
+ 
+     def run_main(self, timeout = -1):
+@@ -534,7 +534,7 @@
+         self.start_image = 0
+         while (timeout == -1 or mytime < int(timeout)):
+             draw()
+-            if timeout != -1 and mytime != -1: 
++            if timeout != -1 and mytime != -1:
+                 self.screen.addstr(20, 5, "Will boot selected entry in %2d seconds"
+                                    %(int(timeout) - mytime))
+             else:
+@@ -605,7 +605,7 @@
+                 self.selected_image = 0
+             elif self.selected_image >= len(self.cf.images):
+                 self.selected_image = len(self.cf.images) - 1
+-        
++
+ def get_entry_idx(cf, entry):
+     # first, see if the given entry is numeric
+     try:
+@@ -702,10 +702,10 @@
+     # Unpleasant. Typically we'll have 'root=foo -k' or 'root=foo /kernel -k',
+     # and we need to maintain Xen properties (root= and ip=) and the kernel
+     # before any user args.
+-    
++
+     xenargs = ""
+     userargs = ""
+-    
++
+     if not cfg["args"]:
+         cfg["args"] = cfg["kernel"]
+     else:
+@@ -717,7 +717,7 @@
+         cfg["args"] = xenargs + " " + cfg["kernel"] + " " + userargs
+ 
+     return cfg
+- 
++
+ def sniff_netware(fs, cfg):
+     if not fs.file_exists("/nwserver/xnloader.sys"):
+         return cfg
+@@ -734,7 +734,7 @@
+     if args:
+         s += "(args %s)" % repr(args)
+     return s
+-                
++
+ def format_simple(kernel, ramdisk, args, sep):
+     for check in (kernel, ramdisk, args):
+         if check is not None and sep in check:
+@@ -749,7 +749,7 @@
+ 
+ if __name__ == "__main__":
+     sel = None
+-    
++
+     def usage():
+         print("Usage: %s [-q|--quiet] [-i|--interactive] [-l|--list-entries] [-n|--not-really] [--output=] [--kernel=] [--ramdisk=] [--args=] [--entry=] [--output-directory=] [--output-format=sxp|simple|simple0] [--offset=] <image>" %(sys.argv[0],), file=sys.stderr)
+ 
+@@ -788,7 +788,7 @@
+         opts, args = getopt.gnu_getopt(sys.argv[1:], 'qilnh::',
+                                    ["quiet", "interactive", "list-entries", "not-really", "help",
+                                     "output=", "output-format=", "output-directory=", "offset=",
+-                                    "entry=", "kernel=", 
++                                    "entry=", "kernel=",
+                                     "ramdisk=", "args=", "isconfig", "debug"])
+     except getopt.GetoptError:
+         usage()
+@@ -972,4 +972,4 @@
+         os.write(fd, ostring)
+     else:
+         os.write(fd, ostring.encode())
+-    
++
+diff -urN xen-4.16.2.orig/tools/python/Makefile xen-4.16.2/tools/python/Makefile
+--- xen-4.16.2.orig/tools/python/Makefile	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/Makefile	2023-07-23 20:27:33.483877715 +0200
+@@ -36,7 +36,7 @@
+ 
+ .PHONY: test
+ test:
+-	LD_LIBRARY_PATH=$$(readlink -f ../libs/ctrl):$$(readlink -f ../xenstore) $(PYTHON) -m unittest discover
++	LD_LIBRARY_PATH=$$(readlink -f ../libs/ctrl):$$(readlink -f ../xenstore) $(PYTHON) -m unittest discover -v
+ 
+ .PHONY: clean
+ clean:
+diff -urN xen-4.16.2.orig/tools/python/pylintrc xen-4.16.2/tools/python/pylintrc
+--- xen-4.16.2.orig/tools/python/pylintrc	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/pylintrc	1970-01-01 01:00:00.000000000 +0100
+@@ -1,307 +0,0 @@
+-# lint Python modules using external checkers.                            
+-#                                                                                
+-#     This is the main checker controling the other ones and the reports         
+-#     generation. It is itself both a raw checker and an astng checker in order  
+-#     to:                                                                        
+-#     * handle message activation / deactivation at the module level             
+-#     * handle some basic but necessary stats'data (number of classes, methods...)
+-#                                                                                 
+-# This checker also defines the following reports:                                    
+-#   * R0001: Total errors / warnings                                              
+-#   * R0002: % errors / warnings by module                                        
+-#   * R0003: Messages                                                             
+-#   * R0004: Global evaluation                                                    
+-# 
+-[MASTER]
+-# Add <file or directory> to the black list. It should be a base name, not a
+-# path. You may set this option multiple times.
+-ignore=CVS
+-
+-# Pickle collected data for later comparisons.
+-persistent=yes
+-
+-# Set the cache size for astng objects.
+-cache-size=500
+-
+-
+-
+-[REPORTS]
+-# Tells wether to display a full report or only the messages
+-reports=yes
+-
+-# Use HTML as output format instead of text
+-html=no
+-
+-# Use a parseable text output format, so your favorite text editor will be able
+-# to jump to the line corresponding to a message.
+-parseable=no
+-
+-# Colorizes text output using ansi escape codes
+-color=no
+-
+-# Put messages in a separate file for each module / package specified on the
+-# command line instead of printing them on stdout. Reports (if any) will be
+-# written in a file name "pylint_global.[txt|html]".
+-files-output=no
+-
+-# Python expression which should return a note less than 10 (10 is the highest
+-# note).You have access to the variables errors warning, statement which
+-# respectivly contain the number of errors / warnings messages and the total
+-# number of statements analyzed. This is used by the global evaluation report
+-# (R0004).
+-evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+-
+-# Add a comment according to your evaluation note. This is used by the global
+-# evaluation report (R0004).
+-comment=no
+-
+-# Include message's id in output
+-include-ids=yes
+-
+-
+-
+-# checks for                                                              
+-#     * unused variables / imports                                               
+-#     * undefined variables                                                      
+-#     * redefinition of variable from builtins or from an outer scope            
+-#     * use of variable before assigment                                         
+-#     
+-[VARIABLES]
+-# Enable / disable this checker
+-enable-variables=yes
+-
+-# Tells wether we should check for unused import in __init__ files.
+-init-import=no
+-
+-# List of variable names used for dummy variables (i.e. not used).
+-dummy-variables=_,_1,_2,_3,_4,_5,dummy
+-
+-
+-
+-# checks for :                                                            
+-#     * doc strings                                                              
+-#     * modules / classes / functions / methods / arguments / variables name     
+-#     * number of arguments, local variables, branchs, returns and statements in
+-# functions, methods                                                       
+-#     * required module attributes                                             
+-#     * dangerous default values as arguments                                    
+-#     * redefinition of function / method / class                                
+-#     * uses of the global statement                                             
+-#                                                                                 
+-# This checker also defines the following reports:                                    
+-#   * R0101: Statistics by type                                                   
+-# 
+-[BASIC]
+-# Enable / disable this checker
+-enable-basic=yes
+-
+-# Required attributes for module, separated by a comma
+-required-attributes=
+-
+-# Regular expression which should only match functions or classes name which do
+-# not require a docstring
+-no-docstring-rgx=.*
+-
+-# Minimal length for module / class / function / method / argument / variable
+-# names
+-min-name-length=1
+-
+-# Regular expression which should only match correct module names
+-module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
+-
+-# Regular expression which should only match correct class names
+-class-rgx=[A-Z_][a-zA-Z0-9]+$
+-
+-# Regular expression which should only match correct function names
+-function-rgx=[a-z_][A-Za-z0-9_]*$
+-
+-# Regular expression which should only match correct method names
+-method-rgx=[a-z_][A-Za-z0-9_]*$
+-
+-# Regular expression which should only match correct argument names
+-argument-rgx=[a-z_][A-Za-z0-9_]*$
+-
+-# Regular expression which should only match correct variable names
+-variable-rgx=[a-z_][A-Za-z0-9_]*$
+-
+-# Good variable names which should always be accepted, separated by a comma
+-good-names=i,j,k,ex,Run,_
+-
+-# Bad variable names which should always be refused, separated by a comma
+-bad-names=foo,bar,baz,toto,tutu,tata
+-
+-# List of builtins function names that should not be used, separated by a comma
+-bad-functions=apply,input
+-
+-
+-
+-# checks for sign of poor/misdesign:                                      
+-#     * number of methods, attributes, local variables...                        
+-#     * size, complexity of functions, methods                                   
+-#     
+-[DESIGN]
+-# Enable / disable this checker
+-enable-design=yes
+-
+-# Maximum number of arguments for function / method
+-max-args=15
+-
+-# Maximum number of locals for function / method body
+-max-locals=15
+-
+-# Maximum number of return / yield for function / method body
+-max-returns=6
+-
+-# Maximum number of branch for function / method body
+-max-branchs=12
+-
+-# Maximum number of statements in function / method body
+-max-statements=50
+-
+-# Maximum number of parents for a class (see R0901).
+-max-parents=7
+-
+-# Maximum number of attributes for a class (see R0902).
+-max-attributes=7
+-
+-# Minimum number of public methods for a class (see R0903).
+-min-public-methods=2
+-
+-# Maximum number of public methods for a class (see R0904).
+-max-public-methods=20
+-
+-
+-
+-# checks for :                                                            
+-#     * methods without self as first argument                                   
+-#     * overriden methods signature                                              
+-#     * access only to existant members via self                                 
+-#     * attributes not defined in the __init__ method                            
+-#     * supported interfaces implementation                                      
+-#     * unreachable code                                                         
+-#     
+-[CLASSES]
+-# Enable / disable this checker
+-enable-classes=yes
+-
+-# List of interface methods to ignore, separated by a comma. This is used for
+-# instance to not check methods defines in Zope's Interface base class.
+-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
+-
+-# Tells wether missing members accessed in mixin class should be ignored. A
+-# mixin class is detected if its name ends with "mixin" (case insensitive).
+-ignore-mixin-members=yes
+-
+-
+-
+-# checks for                                                              
+-#     * external modules dependencies                                            
+-#     * relative / wildcard imports                                                         
+-#     * cyclic imports                                                           
+-#     * uses of deprecated modules
+-#                                                                                 
+-# This checker also defines the following reports:                                    
+-#   * R0401: External dependencies                                                
+-#   * R0402: Modules dependencies graph                                           
+-# 
+-[IMPORTS]
+-# Enable / disable this checker
+-enable-imports=no
+-
+-# Deprecated modules which should not be used, separated by a comma
+-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+-
+-# Create a graph of every (i.e. internal and external) dependencies in the given
+-# file (report R0402 must not be disabled)
+-import-graph=
+-
+-# Create a graph of external dependencies in the given file (report R0402 must
+-# not be disabled)
+-ext-import-graph=
+-
+-# Create a graph of internal dependencies in the given file (report R0402 must
+-# not be disabled)
+-int-import-graph=
+-
+-
+-
+-# checks for                                                              
+-#     * excepts without exception filter                                         
+-#     * string exceptions                                                        
+-#     
+-[EXCEPTIONS]
+-# Enable / disable this checker
+-enable-exceptions=yes
+-
+-
+-
+-# checks for :                                                            
+-#     * unauthorized constructions                                               
+-#     * strict indentation                                                       
+-#     * line length                                                              
+-#     * use of <> instead of !=
+-#     
+-[FORMAT]
+-# Enable / disable this checker
+-enable-format=no
+-
+-# Maximum number of characters on a single line.
+-max-line-length=80
+-
+-# Maximum number of lines in a module
+-max-module-lines=1000
+-
+-# String used as indentation unit. This is usually " " (4 spaces) or "\t" (1 tab).
+-indent-string='    '
+-
+-
+-
+-# does not check anything but gives some raw metrics :                    
+-#     * total number of lines                                                    
+-#     * total number of code lines                                               
+-#     * total number of docstring lines                                          
+-#     * total number of comments lines                                           
+-#     * total number of empty lines                                              
+-#                                                                                 
+-# This checker also defines the following reports:                                    
+-#   * R0701: Raw metrics                                                          
+-# 
+-[METRICS]
+-# Enable / disable this checker
+-enable-metrics=yes
+-
+-
+-
+-# checks for:                                                             
+-#     * warning notes in the code like FIXME, XXX                                
+-#     * PEP 263: source code with non ascii character but no encoding declaration
+-#     
+-[MISCELLANEOUS]
+-# Enable / disable this checker
+-enable-miscellaneous=yes
+-
+-# List of note tags to take in consideration, separated by a comma. Default to
+-# FIXME, XXX, TODO
+-notes=FIXME,XXX,TODO
+-
+-
+-
+-# checks for similarities and duplicated code. This computation may be
+-#     memory / CPU intensive, so you should disable it if you experiments some
+-#     problems.
+-#                                                                                 
+-# This checker also defines the following reports:                                    
+-#   * R0801: Duplication                                                          
+-# 
+-[SIMILARITIES]
+-# Enable / disable this checker
+-enable-similarities=yes
+-
+-# Minimum lines number of a similarity.
+-min-similarity-lines=4
+-
+-# Ignore comments when computing similarities.
+-ignore-comments=yes
+-
+-
+-
+diff -urN xen-4.16.2.orig/tools/python/xen/lowlevel/xc/xc.c xen-4.16.2/tools/python/xen/lowlevel/xc/xc.c
+--- xen-4.16.2.orig/tools/python/xen/lowlevel/xc/xc.c	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/lowlevel/xc/xc.c	2023-07-23 20:27:33.484877729 +0200
+@@ -1,6 +1,6 @@
+ /******************************************************************************
+  * Xc.c
+- * 
++ *
+  * Copyright (c) 2003-2004, K A Fraser (University of Cambridge)
+  */
+ 
+@@ -107,7 +107,7 @@
+ 
+     if ( xc_domain_dumpcore(self->xc_handle, dom, corefile) != 0 )
+         return pyxc_error_to_exception(self->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ }
+@@ -142,7 +142,7 @@
+         return NULL;
+     if ( pyhandle != NULL )
+     {
+-        if ( !PyList_Check(pyhandle) || 
++        if ( !PyList_Check(pyhandle) ||
+              (PyList_Size(pyhandle) != sizeof(xen_domain_handle_t)) )
+             goto out_exception;
+ 
+@@ -190,7 +190,7 @@
+ 
+     if (xc_domain_max_vcpus(self->xc_handle, dom, max) != 0)
+         return pyxc_error_to_exception(self->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ }
+@@ -225,7 +225,7 @@
+ 
+     if ( xc_domain_shutdown(self->xc_handle, dom, reason) != 0 )
+         return pyxc_error_to_exception(self->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ }
+@@ -257,7 +257,7 @@
+ 
+     static char *kwd_list[] = { "domid", "vcpu", "cpumap", NULL };
+ 
+-    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "i|iO", kwd_list, 
++    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "i|iO", kwd_list,
+                                       &dom, &vcpu, &cpulist) )
+         return NULL;
+ 
+@@ -271,7 +271,7 @@
+ 
+     if ( (cpulist != NULL) && PyList_Check(cpulist) )
+     {
+-        for ( i = 0; i < PyList_Size(cpulist); i++ ) 
++        for ( i = 0; i < PyList_Size(cpulist); i++ )
+         {
+             long cpu = PyLongOrInt_AsLong(PyList_GetItem(cpulist, i));
+             if ( cpu < 0 || cpu >= nr_cpus )
+@@ -284,7 +284,7 @@
+             cpumap[cpu / 8] |= 1 << (cpu % 8);
+         }
+     }
+-  
++
+     if ( xc_vcpu_setaffinity(self->xc_handle, dom, vcpu, cpumap,
+                              NULL, XEN_VCPUAFFINITY_HARD) != 0 )
+     {
+@@ -292,7 +292,7 @@
+         return pyxc_error_to_exception(self->xc_handle);
+     }
+     Py_INCREF(zero);
+-    free(cpumap); 
++    free(cpumap);
+     return zero;
+ }
+ 
+@@ -306,7 +306,7 @@
+     if (!PyArg_ParseTuple(args, "iO", &dom, &pyhandle))
+         return NULL;
+ 
+-    if ( !PyList_Check(pyhandle) || 
++    if ( !PyList_Check(pyhandle) ||
+          (PyList_Size(pyhandle) != sizeof(xen_domain_handle_t)) )
+     {
+         goto out_exception;
+@@ -322,7 +322,7 @@
+ 
+     if (xc_domain_sethandle(self->xc_handle, dom, handle) < 0)
+         return pyxc_error_to_exception(self->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ 
+@@ -344,7 +344,7 @@
+     xc_dominfo_t *info;
+ 
+     static char *kwd_list[] = { "first_dom", "max_doms", NULL };
+-    
++
+     if ( !PyArg_ParseTupleAndKeywords(args, kwds, "|ii", kwd_list,
+                                       &first_dom, &max_doms) )
+         return NULL;
+@@ -417,7 +417,7 @@
+     int nr_cpus;
+ 
+     static char *kwd_list[] = { "domid", "vcpu", NULL };
+-    
++
+     if ( !PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwd_list,
+                                       &dom, &vcpu) )
+         return NULL;
+@@ -472,7 +472,7 @@
+     int param;
+     uint64_t value;
+ 
+-    static char *kwd_list[] = { "domid", "param", NULL }; 
++    static char *kwd_list[] = { "domid", "param", NULL };
+     if ( !PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwd_list,
+                                       &dom, &param) )
+         return NULL;
+@@ -492,7 +492,7 @@
+     int param;
+     uint64_t value;
+ 
+-    static char *kwd_list[] = { "domid", "param", "value", NULL }; 
++    static char *kwd_list[] = { "domid", "param", "value", NULL };
+     if ( !PyArg_ParseTupleAndKeywords(args, kwds, "iiL", kwd_list,
+                                       &dom, &param, &value) )
+         return NULL;
+@@ -662,7 +662,7 @@
+ 
+     if ( rc < 0 )
+     {
+-        free(sdev_array); 
++        free(sdev_array);
+         return pyxc_error_to_exception(self->xc_handle);
+     }
+ 
+@@ -785,7 +785,7 @@
+ 
+     static char *kwd_list[] = { "domid", "bus", "dev", "func", "enable", NULL };
+ 
+-    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "iiiii", kwd_list, 
++    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "iiiii", kwd_list,
+                                       &dom, &bus, &dev, &func, &enable) )
+         return NULL;
+ 
+@@ -900,7 +900,7 @@
+                             "nr_nodes",         pinfo.nr_nodes,
+                             "threads_per_core", pinfo.threads_per_core,
+                             "cores_per_socket", pinfo.cores_per_socket,
+-                            "nr_cpus",          pinfo.nr_cpus, 
++                            "nr_cpus",          pinfo.nr_cpus,
+                             "total_memory",     pages_to_kib(pinfo.total_pages),
+                             "free_memory",      pages_to_kib(pinfo.free_pages),
+                             "scrub_memory",     pages_to_kib(pinfo.scrub_pages),
+@@ -1190,13 +1190,13 @@
+ 
+     static char *kwd_list[] = { "dom", "op", NULL };
+ 
+-    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwd_list, 
++    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwd_list,
+                                       &dom, &op) )
+         return NULL;
+-    
++
+     if ( xc_shadow_control(xc->xc_handle, dom, op, NULL, 0) < 0 )
+         return pyxc_error_to_exception(xc->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ }
+@@ -1213,26 +1213,26 @@
+ 
+     static char *kwd_list[] = { "dom", "mb", NULL };
+ 
+-    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwd_list, 
++    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "i|i", kwd_list,
+                                       &dom, &mbarg) )
+         return NULL;
+-    
+-    if ( mbarg < 0 ) 
++
++    if ( mbarg < 0 )
+         op = XEN_DOMCTL_SHADOW_OP_GET_ALLOCATION;
+-    else 
++    else
+     {
+         mb = mbarg;
+         op = XEN_DOMCTL_SHADOW_OP_SET_ALLOCATION;
+     }
+     if ( xc_shadow_control(xc->xc_handle, dom, op, &mb, 0) < 0 )
+         return pyxc_error_to_exception(xc->xc_handle);
+-    
++
+     mbarg = mb;
+     return Py_BuildValue("i", mbarg);
+ }
+ 
+ static PyObject *pyxc_sched_id_get(XcObject *self) {
+-    
++
+     int sched_id;
+     if (xc_sched_id(self->xc_handle, &sched_id) != 0)
+         return PyErr_SetFromErrno(xc_error_obj);
+@@ -1250,10 +1250,10 @@
+     static char *kwd_list[] = { "domid", "weight", "cap", NULL };
+     static char kwd_type[] = "I|HH";
+     struct xen_domctl_sched_credit sdom;
+-    
++
+     weight = 0;
+     cap = (uint16_t)~0U;
+-    if( !PyArg_ParseTupleAndKeywords(args, kwds, kwd_type, kwd_list, 
++    if( !PyArg_ParseTupleAndKeywords(args, kwds, kwd_type, kwd_list,
+                                      &domid, &weight, &cap) )
+         return NULL;
+ 
+@@ -1271,10 +1271,10 @@
+ {
+     uint32_t domid;
+     struct xen_domctl_sched_credit sdom;
+-    
++
+     if( !PyArg_ParseTuple(args, "I", &domid) )
+         return NULL;
+-    
++
+     if ( xc_sched_credit_domain_get(self->xc_handle, domid, &sdom) != 0 )
+         return pyxc_error_to_exception(self->xc_handle);
+ 
+@@ -1335,7 +1335,7 @@
+ 
+     if (xc_domain_setmaxmem(self->xc_handle, dom, maxmem_kb) != 0)
+         return pyxc_error_to_exception(self->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ }
+@@ -1348,12 +1348,12 @@
+     if (!PyArg_ParseTuple(args, "ii", &dom, &mem_kb))
+         return NULL;
+ 
+-    mem_pages = mem_kb / 4; 
++    mem_pages = mem_kb / 4;
+ 
+     if (xc_domain_set_pod_target(self->xc_handle, dom, mem_pages,
+ 				 NULL, NULL, NULL) != 0)
+         return pyxc_error_to_exception(self->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ }
+@@ -1368,7 +1368,7 @@
+ 
+     if ( xc_domain_set_memmap_limit(self->xc_handle, dom, maplimit_kb) != 0 )
+         return pyxc_error_to_exception(self->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ }
+@@ -1382,7 +1382,7 @@
+ 
+     static char *kwd_list[] = { "domid", "first_port", "nr_ports", "allow_access", NULL };
+ 
+-    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "iiii", kwd_list, 
++    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "iiii", kwd_list,
+                                       &dom, &first_port, &nr_ports, &allow_access) )
+         return NULL;
+ 
+@@ -1405,7 +1405,7 @@
+ 
+     static char *kwd_list[] = { "domid", "pirq", "allow_access", NULL };
+ 
+-    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "iii", kwd_list, 
++    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "iii", kwd_list,
+                                       &dom, &pirq, &allow_access) )
+         return NULL;
+ 
+@@ -1428,7 +1428,7 @@
+ 
+     static char *kwd_list[] = { "domid", "first_pfn", "nr_pfns", "allow_access", NULL };
+ 
+-    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "illi", kwd_list, 
++    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "illi", kwd_list,
+                                       &dom, &first_pfn, &nr_pfns, &allow_access) )
+         return NULL;
+ 
+@@ -1479,7 +1479,7 @@
+ 
+     static char *kwd_list[] = { "domid", "trigger", "vcpu", NULL };
+ 
+-    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "ii|i", kwd_list, 
++    if ( !PyArg_ParseTupleAndKeywords(args, kwds, "ii|i", kwd_list,
+                                       &dom, &trigger, &vcpu) )
+         return NULL;
+ 
+@@ -1533,7 +1533,7 @@
+ 
+     if (xc_memshr_control(self->xc_handle, dom, enable) != 0)
+         return pyxc_error_to_exception(self->xc_handle);
+-    
++
+     Py_INCREF(zero);
+     return zero;
+ }
+@@ -1757,11 +1757,11 @@
+     if (!xc_handle) {
+         return PyErr_SetFromErrno(xc_error_obj);
+     }
+-    
++
+     ret = xc_flask_sid_to_context(xc_handle, sid, ctx, ctx_len);
+-    
++
+     xc_interface_close(xc_handle);
+-    
++
+     if ( ret != 0 ) {
+         errno = -ret;
+         return PyErr_SetFromErrno(xc_error_obj);
+@@ -1778,7 +1778,7 @@
+     int ret;
+ 
+     static char *kwd_list[] = { "policy", NULL };
+-  
++
+     if( !PyArg_ParseTupleAndKeywords(args, kwds, "s#", kwd_list, &policy, &len) )
+         return NULL;
+ 
+@@ -1808,11 +1808,11 @@
+     if (!xc_handle) {
+         return PyErr_SetFromErrno(xc_error_obj);
+     }
+-    
++
+     ret = xc_flask_getenforce(xc_handle);
+-    
++
+     xc_interface_close(xc_handle);
+-    
++
+     if ( ret < 0 ) {
+         errno = -ret;
+         return PyErr_SetFromErrno(xc_error_obj);
+@@ -1838,11 +1838,11 @@
+     if (!xc_handle) {
+         return PyErr_SetFromErrno(xc_error_obj);
+     }
+-    
++
+     ret = xc_flask_setenforce(xc_handle, mode);
+-    
++
+     xc_interface_close(xc_handle);
+-    
++
+     if ( ret != 0 ) {
+         errno = -ret;
+         return PyErr_SetFromErrno(xc_error_obj);
+@@ -1860,7 +1860,7 @@
+     uint32_t req, allowed, decided, auditallow, auditdeny, seqno;
+     int ret;
+ 
+-    static char *kwd_list[] = { "src_context", "tar_context", 
++    static char *kwd_list[] = { "src_context", "tar_context",
+                                 "tar_class", "req_permissions",
+                                 "decided", "auditallow","auditdeny",
+                                 "seqno", NULL };
+@@ -1874,10 +1874,10 @@
+     if (!xc_handle) {
+         return PyErr_SetFromErrno(xc_error_obj);
+     }
+-    
++
+     ret = xc_flask_access(xc_handle, scon, tcon, tclass, req, &allowed, &decided,
+                         &auditallow, &auditdeny, &seqno);
+-        
++
+     xc_interface_close(xc_handle);
+ 
+     if ( ret != 0 ) {
+@@ -1889,14 +1889,14 @@
+ }
+ 
+ static PyMethodDef pyxc_methods[] = {
+-    { "domain_create", 
+-      (PyCFunction)pyxc_domain_create, 
++    { "domain_create",
++      (PyCFunction)pyxc_domain_create,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Create a new domain.\n"
+       " dom    [int, 0]:        Domain identifier to use (allocated if zero).\n"
+       "Returns: [int] new domain identifier; -1 on error.\n" },
+ 
+-    { "domain_max_vcpus", 
++    { "domain_max_vcpus",
+       (PyCFunction)pyxc_domain_max_vcpus,
+       METH_VARARGS, "\n"
+       "Set the maximum number of VCPUs a domain may create.\n"
+@@ -1904,43 +1904,43 @@
+       " max     [int, 0]:      New maximum number of VCPUs in domain.\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_dumpcore", 
+-      (PyCFunction)pyxc_domain_dumpcore, 
++    { "domain_dumpcore",
++      (PyCFunction)pyxc_domain_dumpcore,
+       METH_VARARGS, "\n"
+       "Dump core of a domain.\n"
+       " dom [int]: Identifier of domain to dump core of.\n"
+       " corefile [string]: Name of corefile to be created.\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_pause", 
+-      (PyCFunction)pyxc_domain_pause, 
++    { "domain_pause",
++      (PyCFunction)pyxc_domain_pause,
+       METH_VARARGS, "\n"
+       "Temporarily pause execution of a domain.\n"
+       " dom [int]: Identifier of domain to be paused.\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_unpause", 
+-      (PyCFunction)pyxc_domain_unpause, 
++    { "domain_unpause",
++      (PyCFunction)pyxc_domain_unpause,
+       METH_VARARGS, "\n"
+       "(Re)start execution of a domain.\n"
+       " dom [int]: Identifier of domain to be unpaused.\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_destroy", 
+-      (PyCFunction)pyxc_domain_destroy, 
++    { "domain_destroy",
++      (PyCFunction)pyxc_domain_destroy,
+       METH_VARARGS, "\n"
+       "Destroy a domain.\n"
+       " dom [int]:    Identifier of domain to be destroyed.\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_destroy_hook", 
+-      (PyCFunction)pyxc_domain_destroy_hook, 
++    { "domain_destroy_hook",
++      (PyCFunction)pyxc_domain_destroy_hook,
+       METH_VARARGS, "\n"
+       "Add a hook for arch stuff before destroy a domain.\n"
+       " dom [int]:    Identifier of domain to be destroyed.\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_resume", 
++    { "domain_resume",
+       (PyCFunction)pyxc_domain_resume,
+       METH_VARARGS, "\n"
+       "Resume execution of a suspended domain.\n"
+@@ -1948,7 +1948,7 @@
+       " fast [int]: Use cooperative resume.\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_shutdown", 
++    { "domain_shutdown",
+       (PyCFunction)pyxc_domain_shutdown,
+       METH_VARARGS, "\n"
+       "Shutdown a domain.\n"
+@@ -1956,8 +1956,8 @@
+       " reason     [int, 0]:      Reason for shutdown.\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "vcpu_setaffinity", 
+-      (PyCFunction)pyxc_vcpu_setaffinity, 
++    { "vcpu_setaffinity",
++      (PyCFunction)pyxc_vcpu_setaffinity,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Pin a VCPU to a specified set CPUs.\n"
+       " dom [int]:     Identifier of domain to which VCPU belongs.\n"
+@@ -1965,7 +1965,7 @@
+       " cpumap [list, []]: list of usable CPUs.\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_sethandle", 
++    { "domain_sethandle",
+       (PyCFunction)pyxc_domain_sethandle,
+       METH_VARARGS, "\n"
+       "Set domain's opaque handle.\n"
+@@ -1973,8 +1973,8 @@
+       " handle [list of 16 ints]: New opaque handle.\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_getinfo", 
+-      (PyCFunction)pyxc_domain_getinfo, 
++    { "domain_getinfo",
++      (PyCFunction)pyxc_domain_getinfo,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Get information regarding a set of domains, in increasing id order.\n"
+       " first_dom [int, 0]:    First domain to retrieve info about.\n"
+@@ -1999,8 +1999,8 @@
+       "reason why it shut itself down.\n"
+       " cpupool  [int]   Id of cpupool domain is bound to.\n" },
+ 
+-    { "vcpu_getinfo", 
+-      (PyCFunction)pyxc_vcpu_getinfo, 
++    { "vcpu_getinfo",
++      (PyCFunction)pyxc_vcpu_getinfo,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Get information regarding a VCPU.\n"
+       " dom  [int]:    Domain to retrieve info about.\n"
+@@ -2024,7 +2024,7 @@
+       " xenstore_domid [int]: \n"
+       "Returns: None on success. Raises exception on error.\n" },
+ 
+-    { "hvm_get_param", 
++    { "hvm_get_param",
+       (PyCFunction)pyxc_hvm_param_get,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "get a parameter of HVM guest OS.\n"
+@@ -2032,7 +2032,7 @@
+       " param   [int]:      No. of HVM param.\n"
+       "Returns: [long] value of the param.\n" },
+ 
+-    { "hvm_set_param", 
++    { "hvm_set_param",
+       (PyCFunction)pyxc_hvm_param_set,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "set a parameter of HVM guest OS.\n"
+@@ -2075,12 +2075,12 @@
+        " dom     [int]:      Domain to deassign device from.\n"
+        " pci_str [str]:      PCI devices.\n"
+        "Returns: [int] 0 on success, or device bdf that can't be deassigned.\n" },
+-  
++
+     { "sched_id_get",
+       (PyCFunction)pyxc_sched_id_get,
+       METH_NOARGS, "\n"
+       "Get the current scheduler type in use.\n"
+-      "Returns: [int] sched_id.\n" },    
++      "Returns: [int] sched_id.\n" },
+ 
+     { "sched_credit_domain_set",
+       (PyCFunction)pyxc_sched_credit_domain_set,
+@@ -2118,7 +2118,7 @@
+       "Returns:   [dict]\n"
+       " weight    [short]: domain's scheduling weight\n"},
+ 
+-    { "evtchn_alloc_unbound", 
++    { "evtchn_alloc_unbound",
+       (PyCFunction)pyxc_evtchn_alloc_unbound,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Allocate an unbound port that will await a remote connection.\n"
+@@ -2126,7 +2126,7 @@
+       " remote_dom [int]: Remote domain to accept connections from.\n\n"
+       "Returns: [int] Unbound event-channel port.\n" },
+ 
+-    { "evtchn_reset", 
++    { "evtchn_reset",
+       (PyCFunction)pyxc_evtchn_reset,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Reset all connections.\n"
+@@ -2151,9 +2151,9 @@
+       " func   [int]: PCI function\n"
+       " enable [int]: Non-zero means enable access; else disable access\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+- 
+-    { "readconsolering", 
+-      (PyCFunction)pyxc_readconsolering, 
++
++    { "readconsolering",
++      (PyCFunction)pyxc_readconsolering,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Read Xen's console ring.\n"
+       " clear [int, 0]: Bool - clear the ring after reading from it?\n\n"
+@@ -2201,40 +2201,40 @@
+       "Returns [str]: Xen buildid"
+       "        [None]: on failure.\n" },
+ 
+-    { "shadow_control", 
+-      (PyCFunction)pyxc_shadow_control, 
++    { "shadow_control",
++      (PyCFunction)pyxc_shadow_control,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Set parameter for shadow pagetable interface\n"
+       " dom [int]:   Identifier of domain.\n"
+       " op [int, 0]: operation\n\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "shadow_mem_control", 
+-      (PyCFunction)pyxc_shadow_mem_control, 
++    { "shadow_mem_control",
++      (PyCFunction)pyxc_shadow_mem_control,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Set or read shadow pagetable memory use\n"
+       " dom [int]:   Identifier of domain.\n"
+       " mb [int, -1]: MB of shadow memory this domain should have.\n\n"
+       "Returns: [int] MB of shadow memory in use by this domain.\n" },
+ 
+-    { "domain_setmaxmem", 
+-      (PyCFunction)pyxc_domain_setmaxmem, 
++    { "domain_setmaxmem",
++      (PyCFunction)pyxc_domain_setmaxmem,
+       METH_VARARGS, "\n"
+       "Set a domain's memory limit\n"
+       " dom [int]: Identifier of domain.\n"
+       " maxmem_kb [int]: .\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_set_target_mem", 
+-      (PyCFunction)pyxc_domain_set_target_mem, 
++    { "domain_set_target_mem",
++      (PyCFunction)pyxc_domain_set_target_mem,
+       METH_VARARGS, "\n"
+       "Set a domain's memory target\n"
+       " dom [int]: Identifier of domain.\n"
+       " mem_kb [int]: .\n"
+       "Returns: [int] 0 on success; -1 on error.\n" },
+ 
+-    { "domain_set_memmap_limit", 
+-      (PyCFunction)pyxc_domain_set_memmap_limit, 
++    { "domain_set_memmap_limit",
++      (PyCFunction)pyxc_domain_set_memmap_limit,
+       METH_VARARGS, "\n"
+       "Set a domain's physical memory mapping limit\n"
+       " dom [int]: Identifier of domain.\n"
+@@ -2308,7 +2308,7 @@
+       "Inject debug keys into Xen.\n"
+       " keys    [str]: String of keys to inject.\n" },
+ 
+-    { "dom_set_memshr", 
++    { "dom_set_memshr",
+       (PyCFunction)pyxc_dom_set_memshr,
+       METH_VARARGS, "\n"
+       "Enable/disable memory sharing for the domain.\n"
+@@ -2390,20 +2390,20 @@
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Loads a policy into the hypervisor.\n"
+       " policy [str]: policy to be load\n"
+-      "Returns: [int]: 0 on success; -1 on failure.\n" }, 
+-      
++      "Returns: [int]: 0 on success; -1 on failure.\n" },
++
+     { "flask_getenforce",
+       (PyCFunction)pyflask_getenforce,
+       METH_NOARGS, "\n"
+       "Returns the current mode of the Flask XSM module.\n"
+-      "Returns: [int]: 0 for permissive; 1 for enforcing; -1 on failure.\n" }, 
++      "Returns: [int]: 0 for permissive; 1 for enforcing; -1 on failure.\n" },
+ 
+     { "flask_setenforce",
+       (PyCFunction)pyflask_setenforce,
+       METH_VARARGS | METH_KEYWORDS, "\n"
+       "Modifies the current mode for the Flask XSM module.\n"
+       " mode [int]: mode to change to\n"
+-      "Returns: [int]: 0 on success; -1 on failure.\n" }, 
++      "Returns: [int]: 0 on success; -1 on failure.\n" },
+ 
+     { "flask_access",
+       (PyCFunction)pyflask_access,
+@@ -2422,7 +2422,7 @@
+       " auditdeny [int] permissions set to audit on deny\n"
+       " seqno [int] not used\n"
+       "Returns: [int]: 0 on all permission granted; -1 if any permissions are \
+-       denied\n" }, 
++       denied\n" },
+ 
+     { NULL, NULL, 0, NULL }
+ };
+diff -urN xen-4.16.2.orig/tools/python/xen/lowlevel/xs/xs.c xen-4.16.2/tools/python/xen/lowlevel/xs/xs.c
+--- xen-4.16.2.orig/tools/python/xen/lowlevel/xs/xs.c	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/lowlevel/xs/xs.c	2023-07-23 20:27:33.484877729 +0200
+@@ -1,4 +1,4 @@
+-/* 
++/*
+  * Python interface to the Xen Store Daemon.
+  *
+  * This library is free software; you can redistribute it and/or
+@@ -858,7 +858,7 @@
+  * Parse transaction and path arguments from the given args and kwds,
+  * convert the given self value to an xs_handle, and return all three by
+  * reference.
+- * 
++ *
+  * @return 1 on success, in which case *xh, *th, and *path are valid, or 0 on
+  * failure.
+  */
+diff -urN xen-4.16.2.orig/tools/python/xen/migration/legacy.py xen-4.16.2/tools/python/xen/migration/legacy.py
+--- xen-4.16.2.orig/tools/python/xen/migration/legacy.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/migration/legacy.py	2023-07-23 20:27:33.484877729 +0200
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ # -*- coding: utf-8 -*-
+ 
+ """
+diff -urN xen-4.16.2.orig/tools/python/xen/migration/libxc.py xen-4.16.2/tools/python/xen/migration/libxc.py
+--- xen-4.16.2.orig/tools/python/xen/migration/libxc.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/migration/libxc.py	2023-07-23 20:27:33.485877743 +0200
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ # -*- coding: utf-8 -*-
+ 
+ """
+diff -urN xen-4.16.2.orig/tools/python/xen/migration/libxl.py xen-4.16.2/tools/python/xen/migration/libxl.py
+--- xen-4.16.2.orig/tools/python/xen/migration/libxl.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/migration/libxl.py	2023-07-23 20:27:33.485877743 +0200
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ # -*- coding: utf-8 -*-
+ 
+ """
+diff -urN xen-4.16.2.orig/tools/python/xen/migration/public.py xen-4.16.2/tools/python/xen/migration/public.py
+--- xen-4.16.2.orig/tools/python/xen/migration/public.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/migration/public.py	2023-07-23 20:27:33.485877743 +0200
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ # -*- coding: utf-8 -*-
+ 
+ """
+diff -urN xen-4.16.2.orig/tools/python/xen/migration/tests.py xen-4.16.2/tools/python/xen/migration/tests.py
+--- xen-4.16.2.orig/tools/python/xen/migration/tests.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/migration/tests.py	2023-07-23 20:27:33.485877743 +0200
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ # -*- coding: utf-8 -*-
+ 
+ """
+@@ -26,6 +25,8 @@
+                          (libxc.X86_TSC_INFO_FORMAT, 24),
+                          (libxc.HVM_PARAMS_ENTRY_FORMAT, 16),
+                          (libxc.HVM_PARAMS_FORMAT, 8),
++                         (libxc.X86_CPUID_POLICY_FORMAT, 24),
++                         (libxc.X86_MSR_POLICY_FORMAT, 16),
+                          ):
+             self.assertEqual(calcsize(fmt), sz)
+ 
+@@ -40,15 +41,3 @@
+                          (libxl.EMULATOR_HEADER_FORMAT, 8),
+                          ):
+             self.assertEqual(calcsize(fmt), sz)
+-
+-
+-def test_suite():
+-    suite = unittest.TestSuite()
+-
+-    suite.addTest(unittest.makeSuite(TestLibxc))
+-    suite.addTest(unittest.makeSuite(TestLibxl))
+-
+-    return suite
+-
+-if __name__ == "__main__":
+-    unittest.main()
+diff -urN xen-4.16.2.orig/tools/python/xen/migration/verify.py xen-4.16.2/tools/python/xen/migration/verify.py
+--- xen-4.16.2.orig/tools/python/xen/migration/verify.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/migration/verify.py	2023-07-23 20:27:33.485877743 +0200
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ # -*- coding: utf-8 -*-
+ 
+ """
+diff -urN xen-4.16.2.orig/tools/python/xen/migration/xl.py xen-4.16.2/tools/python/xen/migration/xl.py
+--- xen-4.16.2.orig/tools/python/xen/migration/xl.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/migration/xl.py	2023-07-23 20:27:33.485877743 +0200
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ # -*- coding: utf-8 -*-
+ 
+ """
+diff -urN xen-4.16.2.orig/tools/python/xen/util.py xen-4.16.2/tools/python/xen/util.py
+--- xen-4.16.2.orig/tools/python/xen/util.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/python/xen/util.py	2023-07-23 20:27:33.486877758 +0200
+@@ -1,4 +1,3 @@
+-#!/usr/bin/env python
+ # -*- coding: utf-8 -*-
+ 
+ import os
+diff -urN xen-4.16.2.orig/tools/Rules.mk xen-4.16.2/tools/Rules.mk
+--- xen-4.16.2.orig/tools/Rules.mk	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/Rules.mk	2023-07-23 20:27:33.514878153 +0200
+@@ -141,7 +141,7 @@
+ CFLAGS += $(EXTRA_CFLAGS_XEN_TOOLS)
+ 
+ INSTALL_PYTHON_PROG = \
+-	$(XEN_ROOT)/tools/python/install-wrap "$(PYTHON_PATH)" $(INSTALL_PROG)
++	$(XEN_ROOT)/tools/python/install-wrap "$(PYTHON_PATH) -s" $(INSTALL_PROG)
+ 
+ %.opic: %.c
+ 	$(CC) $(CPPFLAGS) -DPIC $(CFLAGS) $(CFLAGS_$*.opic) -fPIC -c -o $@ $< $(APPEND_CFLAGS)
+diff -urN xen-4.16.2.orig/tools/xenmon/xenmon.py xen-4.16.2/tools/xenmon/xenmon.py
+--- xen-4.16.2.orig/tools/xenmon/xenmon.py	2022-08-18 13:47:46.000000000 +0200
++++ xen-4.16.2/tools/xenmon/xenmon.py	2023-07-23 20:27:33.514878153 +0200
+@@ -13,12 +13,12 @@
+ #   This program is free software; you can redistribute it and/or modify
+ #   it under the terms of the GNU General Public License as published by
+ #   the Free Software Foundation; under version 2 of the License.
+-# 
++#
+ #   This program is distributed in the hope that it will be useful,
+ #   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ #   GNU General Public License for more details.
+-# 
++#
+ #   You should have received a copy of the GNU General Public License
+ #   along with this program; If not, see <http://www.gnu.org/licenses/>.
+ #####################################################################
+@@ -79,7 +79,7 @@
+     parser.add_option("-p", "--prefix", dest="prefix",
+                       default = "log", help="prefix to use for output files")
+     parser.add_option("-t", "--time", dest="duration",
+-            action="store", type="int", default=10, 
++            action="store", type="int", default=10,
+             help="stop logging to file after this much time has elapsed (in seconds). set to 0 to keep logging indefinitely")
+     parser.add_option("-i", "--interval", dest="interval",
+             action="store", type="int", default=1000,
+@@ -179,7 +179,7 @@
+         return [total/(float(passed)/10**9), avg]
+ 
+     def stats(self, passed):
+-        return [self.gotten_stats(passed), self.allocated_stats(passed), self.blocked_stats(passed), 
++        return [self.gotten_stats(passed), self.allocated_stats(passed), self.blocked_stats(passed),
+                 self.waited_stats(passed), self.ec_stats(passed), self.io_stats(passed)]
+ 
+ # report values over desired interval
+@@ -187,13 +187,13 @@
+     dominfos = {}
+     for i in range(0, NDOMAINS):
+         dominfos[i] = DomainInfo()
+-        
++
+     passed = 1              # to prevent zero division
+     curid = startat
+     numbuckets = 0
+     lost_samples = []
+     ffp_samples = []
+-    
++
+     while passed < duration:
+         for i in range(0, NDOMAINS):
+             if dom_in_use[i]:
+@@ -203,7 +203,7 @@
+                 dominfos[i].blocked_sum += samples[curid][3*NDOMAINS + i]
+                 dominfos[i].exec_count += samples[curid][4*NDOMAINS + i]
+                 dominfos[i].iocount_sum += samples[curid][5*NDOMAINS + i]
+-    
++
+         passed += samples[curid][6*NDOMAINS]
+         lost_samples.append(samples[curid][6*NDOMAINS + 2])
+         ffp_samples.append(samples[curid][6*NDOMAINS + 3])
+@@ -271,7 +271,7 @@
+     cpu_10sec_usage = 0.0
+     heartbeat = 1
+     global dom_in_use, options
+-    
++
+     # mmap the (the first chunk of the) file
+     shmf = open(SHM_FILE, "r+")
+     shm = mmap.mmap(shmf.fileno(), QOS_DATA_SIZE)
+@@ -284,7 +284,7 @@
+     stdscr.keypad(1)
+     stdscr.timeout(1000)
+     [maxy, maxx] = stdscr.getmaxyx()
+-    
++
+     # display in a loop
+     while True:
+ 
+@@ -342,7 +342,7 @@
+             cpuidx = cpuidx + 1
+ 
+         # calculate starting and ending datapoints; never look at "next" since
+-        # it represents live data that may be in transition. 
++        # it represents live data that may be in transition.
+         startat = next - 1
+         if next + 10 < NSAMPLES:
+             endat = next + 10
+@@ -374,7 +374,7 @@
+ 
+             if h1[dom][0][1] > 0 or domain_id[dom] == IDLE_DOMAIN:
+                 # display gotten
+-                row += 1 
++                row += 1
+                 col = 2
+                 display_domain_id(stdscr, row, col, domain_id[dom])
+                 col += 4
+@@ -396,7 +396,7 @@
+ 
+                 if dom != IDLE_DOMAIN:
+                     cpu_1sec_usage = cpu_1sec_usage + h1[dom][0][1]
+-    
++
+                 # display allocated
+                 if options.allocated:
+                     row += 1
+@@ -454,7 +454,7 @@
+                     row += 1
+                     col = 2
+                     display_domain_id(stdscr, row, col, domain_id[dom])
+-                    
++
+                     col += 28
+                     display(stdscr, row, col, "%d/s" % h2[dom][4])
+                     col += 42
+@@ -490,14 +490,14 @@
+         display(stdscr, row, 1, star)
+         display(stdscr, row, 2, TOTALS % (total_h2_cpu, total_h1_cpu))
+         row += 1
+-#        display(stdscr, row, 2, 
+-#                "\tFFP: %d (Min: %d, Max: %d)\t\t\tFFP: %d (Min: %d, Max %d)" % 
++#        display(stdscr, row, 2,
++#                "\tFFP: %d (Min: %d, Max: %d)\t\t\tFFP: %d (Min: %d, Max %d)" %
+ #                (math.ceil(f2[1]), f2[0], f2[2], math.ceil(f1[1]), f1[0], f1[2]), _c.A_BOLD)
+ 
+         if l1[1] > 1 :
+             row += 1
+-            display(stdscr, row, 2, 
+-                    "\tRecords lost: %d (Min: %d, Max: %d)\t\t\tRecords lost: %d (Min: %d, Max %d)" % 
++            display(stdscr, row, 2,
++                    "\tRecords lost: %d (Min: %d, Max: %d)\t\t\tRecords lost: %d (Min: %d, Max %d)" %
+                     (math.ceil(l2[1]), l2[0], l2[2], math.ceil(l1[1]), l1[0], l1[2]), _c.A_BOLD)
+ 
+         # grab a char from tty input; exit if interrupt hit
+@@ -505,11 +505,11 @@
+             c = stdscr.getch()
+         except:
+             break
+-        
++
+         # q = quit
+         if c == ord('q'):
+             break
+-    
++
+         # c = cycle to a new cpu of interest
+         if c == ord('c'):
+             cpu = (cpu + 1) % ncpu
+@@ -560,7 +560,7 @@
+     def close(self):
+         if  self.opened:
+             self.file.close()
+-            
++
+ 
+ def writelog():
+     global options
+@@ -639,7 +639,7 @@
+                                      h1[dom][1],
+                                      h1[dom][2][0], h1[dom][2][1], h1[dom][2][2],
+                                      h1[dom][3][0], h1[dom][3][1], h1[dom][3][2],
+-                                     h1[dom][4], 
++                                     h1[dom][4],
+                                      h1[dom][5][0], h1[dom][5][1]))
+                     outfiles[dom].flush()
+             curr = time.time()
+@@ -698,7 +698,7 @@
+        options.mspersample > options.duration * 1000:
+         parser.error("option --ms_per_sample: too large (> %d ms)" %
+                      (options.duration * 1000))
+-    
++
+     start_xenbaked()
+     if options.live:
+         show_livestats(options.cpu)

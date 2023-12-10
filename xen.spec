@@ -189,7 +189,6 @@ BuildRequires:	xorg-lib-libXext-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	ZopeInterface
 Requires:	bridge-utils
 Requires:	coreutils
 Requires:	diffutils

@@ -435,6 +435,10 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %if %(echo %{cc_version} | cut -d. -f1) >= 10
 # -Wno-error=enum-conversion requires gcc 10
 %patch15 -p1
+%if %(echo %{cc_version} | cut -d. -f1) < 12
+# -Wno-error=dangling-pointer requires gcc 12
+%{__sed} -i -e 's/ -Wno-error=dangling-pointer//' tools/firmware/etherboot/Config
+%endif
 %endif
 %patch16 -p1
 %ifarch %{ix86} %{arm}

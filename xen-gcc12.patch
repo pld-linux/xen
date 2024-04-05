@@ -1,7 +1,7 @@
---- xen-4.15.3/Config.mk.orig	2022-09-18 21:17:34.143899962 +0200
-+++ xen-4.15.3/Config.mk	2022-09-18 21:34:45.351065045 +0200
-@@ -192,6 +192,8 @@ $(call cc-option-add,HOSTCFLAGS,HOSTCC,-
- $(call cc-option-add,CFLAGS,CC,-Wdeclaration-after-statement)
+--- xen-4.17.3/Config.mk.orig	2024-04-05 06:27:25.389110573 +0200
++++ xen-4.17.3/Config.mk	2024-04-05 06:29:16.485345680 +0200
+@@ -179,6 +179,8 @@ CFLAGS += -Wall -Wstrict-prototypes
+ 
  $(call cc-option-add,CFLAGS,CC,-Wno-unused-but-set-variable)
  $(call cc-option-add,CFLAGS,CC,-Wno-unused-local-typedefs)
 +$(call cc-option-add,CFLAGS,CC,-Wno-error=array-bounds)

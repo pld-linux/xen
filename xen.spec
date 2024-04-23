@@ -44,13 +44,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.17.3
+Version:	4.18.1
 Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://xenproject.org/xen-project-archives/
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	51a47f8f2a2a65274c3934957c1d03b2
+# Source0-md5:	4f9d75c15be09eaed7c71cd5785ff37a
 # used by stubdoms; Source10-19 versions set in stubdom/configure.ac
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -69,8 +69,8 @@ Source18:	%{xen_extfiles_url}/tpm_emulator-%{tpm_emulator_version}.tar.gz
 Source19:	https://ftp.gnu.org/gnu/gmp/gmp-%{gmp_version}.tar.bz2
 # Source19-md5:	dd60683d7057917e34630b4a787932e8
 # ipxe tag set in tools/firmware/etherboot/Makefile
-Source20:	%{xen_extfiles_url}/ipxe-git-3c040ad387099483102708bb1839110bc788cefb.tar.gz
-# Source20-md5:	23ba00d5e2c5b4343d12665af73e1cb5
+Source20:	%{xen_extfiles_url}/ipxe-git-1d1cf74a5e58811822bee4b3da3cff7282fcdfca.tar.gz
+# Source20-md5:	0d0dc7451b47f2c7a2992bbec20bf4d0
 Source35:	xenconsoled.sysconfig
 Source37:	xenstored.sysconfig
 Source38:	xenstored.tmpfiles
@@ -106,7 +106,6 @@ Patch15:	gcc10.patch
 Patch17:	%{name}-golang-32bit.patch
 Patch18:	%{name}-gcc12.patch
 Patch19:	gcc13.patch
-Patch20:	python-fixes.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -445,7 +444,6 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %endif
 %patch18 -p1
 %patch19 -p1
-%patch20 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -458,7 +456,6 @@ ln -s %{SOURCE20} tools/firmware/etherboot/ipxe.tar.gz
 %{__sed} -i -e '1s,/usr/bin/env python$,%{__python3},; 1s,/usr/bin/python2$,%{__python3},' \
 %endif
 	tools/misc/xencov_split \
-	tools/misc/xenpvnetboot \
 	tools/pygrub/src/pygrub \
 	tools/python/scripts/{convert-legacy-stream,verify-stream-v2} \
 	tools/xenmon/xenmon.py \
@@ -610,7 +607,7 @@ cp -p tools/pygrub/README _doc/README.pygrub
 # remove unneeded files
 %if %{with hypervisor}
 %{__mv} xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.17.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.18.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
@@ -807,11 +804,11 @@ fi
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libxenfsimage.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.17
+%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.18
 %attr(755,root,root) %{_libdir}/libxencall.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxencall.so.1
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.17
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.18
 %attr(755,root,root) %{_libdir}/libxendevicemodel.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxendevicemodel.so.1
 %attr(755,root,root) %{_libdir}/libxenevtchn.so.*.*
@@ -821,21 +818,21 @@ fi
 %attr(755,root,root) %{_libdir}/libxengnttab.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxengnttab.so.1
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.17
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.18
 %attr(755,root,root) %{_libdir}/libxenhypfs.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenhypfs.so.1
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.17
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.18
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.17
+%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.18
 %attr(755,root,root) %{_libdir}/libxentoolcore.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoolcore.so.1
 %attr(755,root,root) %{_libdir}/libxentoollog.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoollog.so.1
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.17
+%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.18
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.17
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.18
 %dir %{_libdir}/xenfsimage
 %dir %{_libdir}/xenfsimage/ext2fs-lib
 %dir %{_libdir}/xenfsimage/fat
@@ -927,12 +924,8 @@ fi
 %attr(755,root,root) %{_libdir}/ocaml/xenctrl/dllxenctrl_stubs.so
 %dir %{_libdir}/ocaml/xeneventchn
 %attr(755,root,root) %{_libdir}/ocaml/xeneventchn/dllxeneventchn_stubs.so
-%dir %{_libdir}/ocaml/xenlight
-%attr(755,root,root) %{_libdir}/ocaml/xenlight/dllxenlight_stubs.so
 %dir %{_libdir}/ocaml/xenmmap
 %attr(755,root,root) %{_libdir}/ocaml/xenmmap/dllxenmmap_stubs.so
-%dir %{_libdir}/ocaml/xentoollog
-%attr(755,root,root) %{_libdir}/ocaml/xentoollog/dllxentoollog_stubs.so
 
 %files -n ocaml-xen-devel
 %defattr(644,root,root,755)
@@ -952,18 +945,10 @@ fi
 %{_libdir}/ocaml/xenmmap/libxenmmap_stubs.a
 %{_libdir}/ocaml/xenmmap/xenmmap.a
 %{_libdir}/ocaml/xenmmap/xenmmap.cm[aix]*
-%{_libdir}/ocaml/xenlight/META
-%{_libdir}/ocaml/xenlight/libxenlight_stubs.a
-%{_libdir}/ocaml/xenlight/xenlight.a
-%{_libdir}/ocaml/xenlight/xenlight.cm[aix]*
 %dir %{_libdir}/ocaml/xenstore
 %{_libdir}/ocaml/xenstore/META
 %{_libdir}/ocaml/xenstore/xenstore.a
 %{_libdir}/ocaml/xenstore/*.cm[aixo]*
-%{_libdir}/ocaml/xentoollog/META
-%{_libdir}/ocaml/xentoollog/libxentoollog_stubs.a
-%{_libdir}/ocaml/xentoollog/xentoollog.a
-%{_libdir}/ocaml/xentoollog/*.cm[aixo]*
 %endif
 
 %if %{with python2}

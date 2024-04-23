@@ -1,7 +1,6 @@
-diff -urNp -x '*.orig' xen-4.13.1.org/tools/pygrub/src/pygrub xen-4.13.1/tools/pygrub/src/pygrub
---- xen-4.13.1.org/tools/pygrub/src/pygrub	2021-03-25 22:42:14.797689878 +0100
-+++ xen-4.13.1/tools/pygrub/src/pygrub	2021-03-25 22:42:15.517685792 +0100
-@@ -129,6 +129,7 @@ def get_partition_offsets(file):
+--- xen-4.18.1/tools/pygrub/src/pygrub.orig	2024-03-18 09:27:49.000000000 +0100
++++ xen-4.18.1/tools/pygrub/src/pygrub	2024-04-22 20:02:33.313097814 +0200
+@@ -256,6 +256,7 @@ def get_partition_offsets(file):
      fd = os.open(file, os.O_RDONLY)
      buf = os.read(fd, 512)
      os.close(fd)
@@ -9,15 +8,15 @@ diff -urNp -x '*.orig' xen-4.13.1.org/tools/pygrub/src/pygrub xen-4.13.1/tools/p
      for poff in (446, 462, 478, 494): # partition offsets
  
          # MBR contains a 16 byte descriptor per partition
-@@ -138,6 +139,7 @@ def get_partition_offsets(file):
-         
+@@ -265,6 +266,7 @@ def get_partition_offsets(file):
+ 
          # offset == 0 implies this partition is not enabled
          if offset == 0:
 +            offzerocount += 1
              continue
  
          if type == FDISK_PART_SOLARIS or type == FDISK_PART_SOLARIS_OLD:
-@@ -163,6 +165,9 @@ def get_partition_offsets(file):
+@@ -290,6 +292,9 @@ def get_partition_offsets(file):
      # (e.g. grubs) may contain the same signature.
      if not part_offs: part_offs = [0]
  

@@ -1,35 +1,17 @@
-diff -ur xen-4.13.1/tools/misc/xencons xen-4.13.1.py/tools/misc/xencons
---- xen-4.13.1/tools/misc/xencons	2020-05-14 14:19:32.000000000 +0200
-+++ xen-4.13.1.py/tools/misc/xencons	2020-06-07 19:58:48.203256360 +0200
+--- xen-4.18.1/tools/misc/xencov_split.orig	2024-04-22 14:52:13.323970953 +0200
++++ xen-4.18.1/tools/misc/xencov_split	2024-04-22 19:55:27.842069455 +0200
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  
- ##############################################
- # Console client for Xen guest OSes
---- xen-4.14.3/tools/misc/xencov_split.orig	2021-11-06 16:33:29.985897878 +0100
-+++ xen-4.14.3/tools/misc/xencov_split	2021-11-06 16:46:44.168262090 +0100
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python2
- 
- import sys, os, os.path as path, struct, errno
- from optparse import OptionParser
-diff -ur xen-4.13.1/tools/misc/xenpvnetboot xen-4.13.1.py/tools/misc/xenpvnetboot
---- xen-4.13.1/tools/misc/xenpvnetboot	2020-05-14 14:19:32.000000000 +0200
-+++ xen-4.13.1.py/tools/misc/xenpvnetboot	2020-06-07 19:58:48.203256360 +0200
-@@ -1,4 +1,4 @@
--#!/usr/bin/env python
-+#!/usr/bin/python2
- #
- # Copyright (C) 2010 Oracle. All rights reserved.
- #
+ from __future__ import print_function
+ from builtins import str
 diff -ur xen-4.13.1/tools/xentrace/xentrace_format xen-4.13.1.py/tools/xentrace/xentrace_format
 --- xen-4.13.1/tools/xentrace/xentrace_format	2020-05-14 14:19:32.000000000 +0200
 +++ xen-4.13.1.py/tools/xentrace/xentrace_format	2020-06-07 19:58:48.203256360 +0200
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
-+#!/usr/bin/python2
++#!/usr/bin/python3
  
  # by Mark Williamson, (C) 2004 Intel Research Cambridge
  

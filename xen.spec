@@ -45,7 +45,7 @@ Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
 Version:	4.18.1
-Release:	
+Release:	2
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://xenproject.org/xen-project-archives/
@@ -418,32 +418,32 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch12 -p1
-%patch14 -p1
+%patch -P 0 -p1
+%patch -P 1 -p1
+%patch -P 2 -p1
+%patch -P 3 -p1
+%patch -P 4 -p1
+%patch -P 5 -p1
+%patch -P 6 -p1
+%patch -P 7 -p1
+%patch -P 8 -p1
+%patch -P 9 -p1
+%patch -P 10 -p1
+%patch -P 12 -p1
+%patch -P 14 -p1
 %if %(echo %{cc_version} | cut -d. -f1) >= 10
 # -Wno-error=enum-conversion requires gcc 10
-%patch15 -p1
+%patch -P 15 -p1
 %if %(echo %{cc_version} | cut -d. -f1) < 12
 # -Wno-error=dangling-pointer requires gcc 12
 %{__sed} -i -e 's/ -Wno-error=dangling-pointer//' tools/firmware/etherboot/Config
 %endif
 %endif
 %ifarch %{ix86} %{arm}
-%patch17 -p1
+%patch -P 17 -p1
 %endif
-%patch18 -p1
-%patch19 -p1
+%patch -P 18 -p1
+%patch -P 19 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

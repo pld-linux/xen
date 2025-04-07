@@ -44,13 +44,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.18.1
-Release:	3
+Version:	4.19.2
+Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://xenproject.org/xen-project-archives/
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	4f9d75c15be09eaed7c71cd5785ff37a
+# Source0-md5:	e009b933a7ff72ade1ce77afd1a776e4
 # used by stubdoms; Source10-19 versions set in stubdom/configure.ac
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -105,7 +105,6 @@ Patch14:	gcc9.patch
 Patch15:	gcc10.patch
 Patch17:	%{name}-golang-32bit.patch
 Patch18:	%{name}-gcc12.patch
-Patch19:	gcc13.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -170,7 +169,6 @@ BuildRequires:	zstd-devel
 %{?with_brlapi:BuildRequires:	brlapi-devel}
 BuildRequires:	gnutls-devel
 BuildRequires:	pciutils-devel
-BuildRequires:	pixman-devel >= 0.21.8
 BuildRequires:	vde2-devel
 # for xfsctl (<xfs/xfs.h>)
 BuildRequires:	xfsprogs-devel
@@ -443,7 +441,6 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch -P 17 -p1
 %endif
 %patch -P 18 -p1
-%patch -P 19 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
@@ -458,8 +455,7 @@ ln -s %{SOURCE20} tools/firmware/etherboot/ipxe.tar.gz
 	tools/misc/xencov_split \
 	tools/pygrub/src/pygrub \
 	tools/python/scripts/{convert-legacy-stream,verify-stream-v2} \
-	tools/xenmon/xenmon.py \
-	tools/xentrace/xentrace_format
+	tools/xenmon/xenmon.py
 
 # do not allow fetching anything via git
 echo GIT=/bin/false >> Config.mk
@@ -476,7 +472,7 @@ cd ../docs
 %{__autoconf}
 cd ..
 
-# if gold is used then bioses and grub doesn't build
+# if gold is used then bioses and grub don't build
 install -d our-ld
 ln -f -s /usr/bin/ld.bfd our-ld/ld
 export PATH=$(pwd)/our-ld:$PATH
@@ -494,6 +490,7 @@ export PATH=$(pwd)/our-ld:$PATH
 	%{!?with_golang:--disable-golang} \
 	%{?with_pv_grub:--enable-pv-grub} \
 	%{__enable_disable qemu_traditional qemu-traditional} \
+	--enable-systemd%{!?with_systemd:=no} \
 	--with-system-seabios=/usr/share/seabios/bios.bin \
 %ifarch %{x8664}
 	--with-system-qemu=/usr/bin/qemu-system-x86_64 \
@@ -502,12 +499,25 @@ export PATH=$(pwd)/our-ld:$PATH
 %endif
 %if %{with systemd}
 	--with-systemd=%{systemdunitdir}
-%else
-	--disable-systemd
 %endif
+
 export EXTRA_CFLAGS_XEN_TOOLS="%{rpmcflags} -I/usr/include/ncurses"
 export EXTRA_CFLAGS_QEMU_TRADITIONAL="%{rpmcflags} -I/usr/include/ncurses"
 export EXTRA_CFLAGS_QEMU_XEN="%{rpmcflags} -I/usr/include/ncurses"
+
+# exporting these by configure macro break things later
+# e.g. -Wl,-as-needed in LDFLAGS causes linking to fail
+unset CC
+unset CPP
+unset CXX
+unset CFLAGS
+unset CPPFLAGS
+unset CXXFLAGS
+unset LDFLAGS
+
+# -Werror=implicit-function-declaration breaks host compiler check in gmp, then
+# build fails on cross compiling for host generator tools
+export HOST_CC="%{__cc} -Wno-error=implicit-function-declaration"
 
 %{__make} dist-xen dist-tools dist-docs \
 %ifarch %{ix86}
@@ -607,7 +617,7 @@ cp -p tools/pygrub/README _doc/README.pygrub
 # remove unneeded files
 %if %{with hypervisor}
 %{__mv} xen/xen-syms $RPM_BUILD_ROOT/boot/%{name}-syms-%{version}
-%{__rm} $RPM_BUILD_ROOT/boot/xen-4.18.gz
+%{__rm} $RPM_BUILD_ROOT/boot/xen-4.19.gz
 %{__rm} $RPM_BUILD_ROOT/boot/xen-4.gz
 %endif
 %{__rm} -r $RPM_BUILD_ROOT%{_docdir}/xen
@@ -697,7 +707,6 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/README*
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/cpupool
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xen/xl.conf
-%attr(755,root,root) %{_bindir}/pygrub
 %if %{with qemu_traditional}
 %attr(755,root,root) %{_bindir}/qemu-img-xen
 %attr(755,root,root) %{_bindir}/qemu-nbd-xen
@@ -706,7 +715,6 @@ fi
 %attr(755,root,root) %{_bindir}/xen-cpuid
 %attr(755,root,root) %{_bindir}/xenalyze
 %attr(755,root,root) %{_bindir}/xencov_split
-%attr(755,root,root) %{_bindir}/xentrace_format
 %if %{with xsm}
 %attr(755,root,root) %{_sbindir}/flask-*
 %endif
@@ -756,7 +764,6 @@ fi
 %attr(744,root,root) %{_libexecdir}/%{name}/boot/hvmloader
 %{_mandir}/man1/xenhypfs.1*
 %{_mandir}/man1/xentop.1*
-%{_mandir}/man1/xentrace_format.1*
 %{_mandir}/man1/xl.1*
 %{_mandir}/man5/xl.cfg.5*
 %{_mandir}/man5/xl.conf.5*
@@ -772,6 +779,7 @@ fi
 %{_mandir}/man7/xen-vtpmmgr.7*
 %{_mandir}/man7/xl-numa-placement.7*
 %{_mandir}/man8/xentrace.8*
+%{_mandir}/man8/xenwatchdogd.8*
 %{_sharedstatedir}/xen
 %dir /var/run/xenstored
 %{systemdtmpfilesdir}/xen.conf
@@ -804,11 +812,11 @@ fi
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libxenfsimage.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.18
+%attr(755,root,root) %ghost %{_libdir}/libxenfsimage.so.4.19
 %attr(755,root,root) %{_libdir}/libxencall.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxencall.so.1
 %attr(755,root,root) %{_libdir}/libxenctrl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.18
+%attr(755,root,root) %ghost %{_libdir}/libxenctrl.so.4.19
 %attr(755,root,root) %{_libdir}/libxendevicemodel.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxendevicemodel.so.1
 %attr(755,root,root) %{_libdir}/libxenevtchn.so.*.*
@@ -818,21 +826,21 @@ fi
 %attr(755,root,root) %{_libdir}/libxengnttab.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxengnttab.so.1
 %attr(755,root,root) %{_libdir}/libxenguest.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.18
+%attr(755,root,root) %ghost %{_libdir}/libxenguest.so.4.19
 %attr(755,root,root) %{_libdir}/libxenhypfs.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxenhypfs.so.1
 %attr(755,root,root) %{_libdir}/libxenlight.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.18
+%attr(755,root,root) %ghost %{_libdir}/libxenlight.so.4.19
 %attr(755,root,root) %{_libdir}/libxenstat.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.18
+%attr(755,root,root) %ghost %{_libdir}/libxenstat.so.4.19
 %attr(755,root,root) %{_libdir}/libxentoolcore.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoolcore.so.1
 %attr(755,root,root) %{_libdir}/libxentoollog.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxentoollog.so.1
 %attr(755,root,root) %{_libdir}/libxenvchan.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.18
+%attr(755,root,root) %ghost %{_libdir}/libxenvchan.so.4.19
 %attr(755,root,root) %{_libdir}/libxlutil.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.18
+%attr(755,root,root) %ghost %{_libdir}/libxlutil.so.4.19
 %dir %{_libdir}/xenfsimage
 %dir %{_libdir}/xenfsimage/ext2fs-lib
 %dir %{_libdir}/xenfsimage/fat

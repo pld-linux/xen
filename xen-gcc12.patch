@@ -1,11 +1,14 @@
 --- xen-4.17.3/Config.mk.orig	2024-04-05 06:27:25.389110573 +0200
 +++ xen-4.17.3/Config.mk	2024-04-05 06:29:16.485345680 +0200
-@@ -179,6 +179,8 @@ CFLAGS += -Wall -Wstrict-prototypes
+@@ -179,6 +179,11 @@ CFLAGS += -Wall -Wstrict-prototypes
  
  $(call cc-option-add,CFLAGS,CC,-Wno-unused-but-set-variable)
  $(call cc-option-add,CFLAGS,CC,-Wno-unused-local-typedefs)
 +$(call cc-option-add,CFLAGS,CC,-Wno-error=array-bounds)
 +$(call cc-option-add,CFLAGS,CC,-Wno-error=address)
++$(call cc-option-add,CFLAGS,CC,-Wno-error=incompatible-pointer-types)
++$(call cc-option-add,CFLAGS,CC,-Wno-error=implicit-int)
++$(call cc-option-add,CFLAGS,CC,-Wno-error=implicit-function-declaration)
  
  LDFLAGS += $(foreach i, $(EXTRA_LIB), -L$(i)) 
  CFLAGS += $(foreach i, $(EXTRA_INCLUDES), -I$(i))

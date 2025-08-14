@@ -1,0 +1,19 @@
+--- xen-4.19.3/tools/firmware/etherboot/Config	2025-08-14 14:06:28.256257694 +0200
++++ xen-4.19.3/tools/firmware/etherboot/Config	2025-08-14 14:07:03.784378858 +0200
+@@ -8,4 +8,4 @@
+ CFLAGS += -UCONSOLE_SERIAL
+ CFLAGS += -DCONSOLE_SERIAL=1
+ 
+-CFLAGS += -Wno-error=enum-conversion -Wno-error=maybe-uninitialized -Wno-error=array-bounds -Wno-error=dangling-pointer
++CFLAGS += -Wno-error=enum-conversion -Wno-error=maybe-uninitialized -Wno-error=array-bounds -Wno-error=dangling-pointer -Wno-unterminated-string-initialization -Wno-incompatible-pointer-types
+--- xen-4.19.3/stubdom/Makefile	2025-08-04 17:20:48.000000000 +0200
++++ xen-4.19.3/stubdom/Makefile	2025-08-14 15:46:32.482302850 +0200
+@@ -247,7 +248,7 @@
+ 	patch -d $@ -p1 < vtpm-command-duration.patch
+ 	patch -d $@ -p1 < vtpm-tpm_bn_t-addr.patch
+ 	mkdir $@/build
+-	cd $@/build; CC=${CC} $(CMAKE) .. -DCMAKE_C_FLAGS:STRING="-std=c99 -DTPM_NO_EXTERN $(TARGET_CPPFLAGS) $(TARGET_CFLAGS)"
++	cd $@/build; CC=${CC} $(CMAKE) .. -DCMAKE_C_FLAGS:STRING="-std=c99 -DTPM_NO_EXTERN $(TARGET_CPPFLAGS) $(TARGET_CFLAGS) -Wno-error=header-guard"
+ 	touch $@
+ 
+ TPMEMU_STAMPFILE=$(CROSS_ROOT)/$(GNU_TARGET_ARCH)-xen-elf/lib/libtpm.a

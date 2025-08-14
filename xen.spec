@@ -44,13 +44,13 @@
 Summary:	Xen - a virtual machine monitor
 Summary(pl.UTF-8):	Xen - monitor maszyny wirtualnej
 Name:		xen
-Version:	4.19.2
+Version:	4.19.3
 Release:	1
 License:	GPL v2, interface parts on BSD-like
 Group:		Applications/System
 # for available versions see https://xenproject.org/xen-project-archives/
 Source0:	https://downloads.xenproject.org/release/xen/%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	e009b933a7ff72ade1ce77afd1a776e4
+# Source0-md5:	51bc571e56576803f988b777b377dbd3
 # used by stubdoms; Source10-19 versions set in stubdom/configure.ac
 Source10:	%{xen_extfiles_url}/lwip-1.3.0.tar.gz
 # Source10-md5:	36cc57650cffda9a0269493be2a169bb
@@ -105,6 +105,8 @@ Patch14:	gcc9.patch
 Patch15:	gcc10.patch
 Patch17:	%{name}-golang-32bit.patch
 Patch18:	%{name}-gcc12.patch
+Patch19:	gcc15.patch
+Patch20:	ipxe-gcc15.patch
 URL:		http://www.xen.org/products/xenhyp.html
 BuildRequires:	autoconf >= 2.67
 %ifarch %{ix86} %{x8664}
@@ -441,6 +443,8 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch -P 17 -p1
 %endif
 %patch -P 18 -p1
+%patch -P 19 -p1
+%patch -P 20 -p1
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom

@@ -443,8 +443,10 @@ Nadzorca Xen w postaci, która może być uruchomiona wprost z firmware
 %patch -P 17 -p1
 %endif
 %patch -P 18 -p1
+%if %(echo %{cc_version} | cut -d. -f1) >= 15
 %patch -P 19 -p1
 %patch -P 20 -p1
+%endif
 
 # stubdom sources
 ln -s %{SOURCE10} %{SOURCE11} %{SOURCE12} %{SOURCE13} %{SOURCE14} stubdom
